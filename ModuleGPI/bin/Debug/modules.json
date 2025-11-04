@@ -1,0 +1,92 @@
+﻿[
+  {
+    "ButtonName": "btnMod_Op_Inventario",
+    "Name": "ConteoPhysic",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\MantenimientoConteosFisicos\\ConteoPhysic.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\MantenimientoConteosFisicos",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 2
+  },
+  {
+    "ButtonName": "btnMod_Op_Logistica",
+    "Name": "SAPcrd",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3PITVFE001\\Intuitive MTY\\CustomApps\\SAPcrd\\SAPcrd\\bin\\Debug\\SAPcrd.exe",
+    "WorkingDir": "\\\\USAZR3PITVFE001\\Intuitive MTY\\CustomApps\\SAPcrd\\SAPcrd\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 5
+  },
+  {
+    "ButtonName": "btnMod_Op_Produccion",
+    "Name": "PorteCart",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CDFI40\\MantenimientoCP\\PorteCart.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CDFI40\\MantenimientoCP",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 1
+  },
+  {
+    "ButtonName": "btnMod_Op_MP",
+    "Name": "ETIQUETAMP",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\EtiquetasMP\\bin\\Debug\\EtiquetasMP.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\EtiquetasMP\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 2
+  },
+  {
+    "ButtonName": "btnMod_Op_corrugado",
+    "Name": "ETIQUETACORRUGADO",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\EtiquetasCorrugado\\bin\\Debug\\EtiquetasCorrugadoXCliente.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\EtiquetasCorrugado\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 2
+  },
+  {
+    "ButtonName": "btnMod_Op_CM",
+    "Name": "ETIQUETACM",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\EtiquetasCM\\bin\\Debug\\EtiquetasCM.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\EtiquetasCM\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 2
+  },
+  {
+    "ButtonName": "btnMod_Op_ConversorUM",
+    "Name": "ConversorUM",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\ConversorUM\\bin\\Debug\\ConversorUM.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\ConversorUM\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 2
+  },
+  {
+    "ButtonName": "btnMod_Op_CalculadoraTarimas",
+    "Name": "CalculadoraTarimas",
+    "Category": "Operación",
+    "ExePath": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\Calculadora Tarimas\\bin\\Debug\\Calculadora Tarimas.exe",
+    "WorkingDir": "\\\\USAZR3QITVFE001\\Intuitive MTY\\CustomApps\\Calculadora Tarimas\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 2
+  },
+  {
+    "ButtonName": "btnMod_Cons_Reportes",
+    "Name": "Reportes",
+    "Category": "Consultas",
+    "ExePath": "\\\\srv\\apps\\reportes\\reportes.exe",
+    "WorkingDir": "\\\\srv\\apps\\reportes",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 1
+  },
+  {
+    "ButtonName": "btnMod_Cons_KPIs",
+    "Name": "KPIs",
+    "Category": "Consultas",
+    "ExePath": "\\\\USAZR3PITVFE001\\Intuitive MTY\\Mantenimiento Conteos\\conteophy\\ConteoPhysic\\bin\\Debug\\ConteoPhysic.exe",
+    "WorkingDir": "\\\\USAZR3PITVFE001\\Intuitive MTY\\Mantenimiento Conteos\\conteophy\\ConteoPhysic\\bin\\Debug",
+    "RequiresElevation": false,
+    "RolesMinTypeAut": 1
+  }
+]
