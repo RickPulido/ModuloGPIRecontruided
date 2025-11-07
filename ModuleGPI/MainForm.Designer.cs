@@ -55,6 +55,7 @@ namespace GPI.Launcher
             this.btnMod_Op_corrugado = new System.Windows.Forms.Button();
             this.btnMod_Op_CM = new System.Windows.Forms.Button();
             this.btnMod_Op_ConversorUM = new System.Windows.Forms.Button();
+            this.btnMod_Op_CalculadoraTarimas = new System.Windows.Forms.Button();
             this.pnlOpHeader = new System.Windows.Forms.Panel();
             this.lblOpTitulo = new System.Windows.Forms.Label();
             this.txtOpSearch = new System.Windows.Forms.TextBox();
@@ -76,7 +77,6 @@ namespace GPI.Launcher
             this.grpRoles = new System.Windows.Forms.GroupBox();
             this.rightAdmin = new System.Windows.Forms.Panel();
             this.dgvModulos = new System.Windows.Forms.DataGridView();
-            //this.grpModulos = new System.Windows.Forms.GroupBox();
             this.tabConfig = new System.Windows.Forms.TabPage();
             this.grpGeneral = new System.Windows.Forms.GroupBox();
             this.chkRutasPermitidas = new System.Windows.Forms.CheckedListBox();
@@ -95,7 +95,6 @@ namespace GPI.Launcher
             this.tsslSpring = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslEstado = new System.Windows.Forms.ToolStripStatusLabel();
             this.root = new System.Windows.Forms.TableLayoutPanel();
-            this.btnMod_Op_CalculadoraTarimas = new System.Windows.Forms.Button();
             this.menuMain.SuspendLayout();
             this.toolMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitMain)).BeginInit();
@@ -463,6 +462,15 @@ namespace GPI.Launcher
             this.btnMod_Op_ConversorUM.TabIndex = 6;
             this.btnMod_Op_ConversorUM.Text = "Conversor UM";
             // 
+            // btnMod_Op_CalculadoraTarimas
+            // 
+            this.btnMod_Op_CalculadoraTarimas.Location = new System.Drawing.Point(232, 144);
+            this.btnMod_Op_CalculadoraTarimas.Margin = new System.Windows.Forms.Padding(8);
+            this.btnMod_Op_CalculadoraTarimas.Name = "btnMod_Op_CalculadoraTarimas";
+            this.btnMod_Op_CalculadoraTarimas.Size = new System.Drawing.Size(200, 48);
+            this.btnMod_Op_CalculadoraTarimas.TabIndex = 7;
+            this.btnMod_Op_CalculadoraTarimas.Text = "Calculadora Tarimas";
+            // 
             // pnlOpHeader
             // 
             this.pnlOpHeader.Controls.Add(this.lblOpTitulo);
@@ -660,7 +668,6 @@ namespace GPI.Launcher
             // rightAdmin
             // 
             this.rightAdmin.Controls.Add(this.dgvModulos);
-            //this.rightAdmin.Controls.Add(this.grpModulos);
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
@@ -672,22 +679,11 @@ namespace GPI.Launcher
             this.dgvModulos.AllowUserToAddRows = false;
             this.dgvModulos.AllowUserToDeleteRows = false;
             this.dgvModulos.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvModulos.Location = new System.Drawing.Point(0, 56);
+            this.dgvModulos.Location = new System.Drawing.Point(0, 0);
             this.dgvModulos.Name = "dgvModulos";
             this.dgvModulos.ReadOnly = true;
-            this.dgvModulos.Size = new System.Drawing.Size(170, 442);
+            this.dgvModulos.Size = new System.Drawing.Size(170, 498);
             this.dgvModulos.TabIndex = 0;
-            // 
-            // grpModulos
-            // 
-            //this.grpModulos.Dock = System.Windows.Forms.DockStyle.Right;
-            //this.grpModulos.Location = new System.Drawing.Point(0, 0);
-            //this.grpModulos.Name = "grpModulos";
-            //this.grpModulos.Padding = new System.Windows.Forms.Padding(8);
-            //this.grpModulos.Size = new System.Drawing.Size(170, 56);
-            //this.grpModulos.TabIndex = 1;
-            //this.grpModulos.TabStop = false;
-            //this.grpModulos.Text = "Módulos";
             // 
             // tabConfig
             // 
@@ -846,15 +842,6 @@ namespace GPI.Launcher
             this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.root.Size = new System.Drawing.Size(1008, 601);
             this.root.TabIndex = 1;
-            // 
-            // btnMod_Op_CalculadoraTarimas
-            // 
-            this.btnMod_Op_CalculadoraTarimas.Location = new System.Drawing.Point(232, 144);
-            this.btnMod_Op_CalculadoraTarimas.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_CalculadoraTarimas.Name = "btnMod_Op_CalculadoraTarimas";
-            this.btnMod_Op_CalculadoraTarimas.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_CalculadoraTarimas.TabIndex = 7;
-            this.btnMod_Op_CalculadoraTarimas.Text = "Calculadora Tarimas";
             // 
             // MainForm
             // 

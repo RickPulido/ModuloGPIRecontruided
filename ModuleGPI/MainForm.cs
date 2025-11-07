@@ -1,7 +1,8 @@
-﻿using System;
-using ModuleGPI;
-using System.ComponentModel;
+﻿using ModuleGPI;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
@@ -15,7 +16,6 @@ namespace GPI.Launcher
     public partial class MainForm : Form
     {
         private DataTable _dtModulesAdmin;
-
         private readonly ToolTip toolTips = new ToolTip();
         private DataTable _dtUsers;
         private SqlDataAdapter _daUsers;
@@ -25,15 +25,15 @@ namespace GPI.Launcher
         private DataTable _dtOverridesView; // vista para el grid por módulo seleccionado
         private DataGridView dgvOverrides;  // NUEVO
 
-
-
         private static readonly string[] ALLOWED_ROOTS = new string[]
         {
-    @"\\USAZR3QITVFE001\Intuitive MTY\",
-    @"\\USAZR3PITVFE001\Intuitive MTY\",
-    @"\\srv\apps\",
-    @"C:\Program Files\CorpApps\"
+            @"\\USAZR3QITVFE001\Intuitive MTY\",
+            @"\\USAZR3PITVFE001\Intuitive MTY\",
+            @"\\srv\apps\",
+            @"C:\Program Files\CorpApps\"
         };
+
+        private static readonly string[] ROLE_NAMES = { "", "Viewer", "Operator", "Supervisor", "AdminDept", "SysAdmin" };
 
         public MainForm()
         {
@@ -41,8 +41,14 @@ namespace GPI.Launcher
             WireStaticHandlers();
             this.tabMain.Selected += (s, e) =>
             {
-                if (e.TabPage == this.tabAdmin && ModuleGPI.Session.TypeAut >= 4)
+                if (e.TabPage == this.tabAdmin || e.TabPage == this.tabConfig)
                 {
+                    if (Session.TypeAut < 4)
+                    {
+                        tabMain.SelectedTab = tabDashboard;
+                        MessageBox.Show("Acceso denegado: Requiere rol AdminDept o superior.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
                     LoadAdminData();
                     LoadModulesAdminFromUI();
                 }
@@ -60,8 +66,8 @@ namespace GPI.Launcher
                 this.dgvOverrides.RowHeadersVisible = false;
 
                 // Usar SplitContainer para dgvModulos (arriba) y dgvOverrides (abajo)
-                var host = this.dgvModulos?.Parent ?? this.tabAdmin; // fallback
-                host.Controls.Remove(this.dgvModulos); // Remover dgvModulos del host si existe
+                var host = this.dgvModulos?.Parent ?? this.tabAdmin;
+                host.Controls.Remove(this.dgvModulos);
 
                 var splitContainer = new SplitContainer();
                 splitContainer.Dock = DockStyle.Fill;
@@ -70,10 +76,11 @@ namespace GPI.Launcher
                 this.dgvModulos.Dock = DockStyle.Fill;
                 splitContainer.Panel2.Controls.Add(this.dgvOverrides);
                 this.dgvOverrides.Dock = DockStyle.Fill;
-                splitContainer.SplitterDistance = host.ClientSize.Height / 2; // Mitad aproximada
+                splitContainer.SplitterDistance = host.ClientSize.Height / 2;
 
                 host.Controls.Add(splitContainer);
             }
+
             this.dgvOverrides.CurrentCellDirtyStateChanged += (s, e) =>
             {
                 if (dgvOverrides.IsCurrentCellDirty)
@@ -83,47 +90,20 @@ namespace GPI.Launcher
             this.dgvOverrides.CellValueChanged += (s, e) =>
             {
                 if (e.RowIndex < 0) return;
-                // módulo seleccionado
                 if (dgvModulos.CurrentRow == null) return;
 
                 var drv = dgvModulos.CurrentRow.DataBoundItem as DataRowView;
                 if (drv == null) return;
 
                 string buttonName = Convert.ToString(drv["ButtonName"]);
-                // vuelca sólo la fila editada
                 ApplyOneOverrideFromRow(buttonName, e.RowIndex);
-
-                // persistir y refrescar al vuelo
-                SaveOverridesToFile();
+                SaveOverrides(); // Persistir (solo DB)
                 RefreshModules();
             };
 
-            this.dgvOverrides.DataError += (s, e) =>
-            {
-                // Silencia DataErrors del Combo durante resize/formateo
-                e.ThrowException = false;
-            };
+            this.dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
 
-            // ==== Zona derecha: contenedor padre donde están los módulos ====
-            Control rightHost = this.dgvModulos?.Parent ?? this.tabAdmin;
-
-            // Quita labels duplicados si ya existieran por pruebas previas
-            foreach (var c in rightHost.Controls.Find("lblOverridesHint", true))
-                rightHost.Controls.Remove(c);
-
-            // Crea el label una sola vez
-            var lblOverridesHint = new Label
-            {
-                Name = "lblOverridesHint",
-                Text = "Permisos por usuario (Overrides):  -1=Denegar | 0=Heredado | 1=Permitir",
-                Dock = DockStyle.Bottom,
-                Height = 18
-            };
-            rightHost.Controls.Add(lblOverridesHint);
-            lblOverridesHint.BringToFront();
-
-            // Colorear filas por estado (sin tocar e.Value)
-            this.dgvOverrides.CellFormatting -= DgvOverrides_CellFormatting;
+            // Colorear filas por estado
             this.dgvOverrides.CellFormatting += DgvOverrides_CellFormatting;
 
             // Commit inmediato al cambiar el combo
@@ -132,13 +112,7 @@ namespace GPI.Launcher
                 if (dgvOverrides.IsCurrentCellDirty)
                     dgvOverrides.CommitEdit(DataGridViewDataErrorContexts.Commit);
             };
-
         }
-        private static readonly string[] ROLE_NAMES =
-{
-    "", "Viewer", "Operator", "Supervisor", "AdminDept", "SysAdmin"
-};
-
 
         private void DgvOverrides_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
@@ -162,6 +136,7 @@ namespace GPI.Launcher
 
         private void DgvModulos_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
+            if (Session.TypeAut < 4) return;
             if (e.RowIndex < 0) return;
 
             var col = dgvModulos.Columns[e.ColumnIndex].DataPropertyName;
@@ -194,27 +169,29 @@ namespace GPI.Launcher
             // Visibilidad por rol
             ApplyRoleVisibility(Session.TypeAut);
 
-            if (ModuleGPI.Session.TypeAut >= 4)
+            if (Session.TypeAut >= 4)
             {
                 LoadAdminData();
                 LoadModulesAdminFromUI();
             }
+            else
+            {
+                if (dgvModulos != null) dgvModulos.DataSource = null;
+                if (dgvOverrides != null) dgvOverrides.DataSource = null;
+                if (dgvUsuarios != null) dgvUsuarios.DataSource = null;
+            }
 
-
-            // LoadDashboard();
             // Categorías
             LoadCategories();
 
-
             // Tag de módulos en botones
             AssignModuleTags();
-            LoadOverridesFromFile();
+
+            // Cargar overrides (solo DB)
+            LoadOverrides();
 
             // Conectar botones y context menu
             WireModuleButtons();
-
-            LoadModulesFromFileAndApply();
-
         }
 
         private void MainForm_Shown(object sender, EventArgs e)
@@ -255,12 +232,12 @@ namespace GPI.Launcher
             {
                 if (string.IsNullOrWhiteSpace(exePath)) return false;
                 string path = Environment.ExpandEnvironmentVariables(exePath);
-                string full = GetFullPathSafe(path);
+                string full = Path.GetFullPath(path);
                 if (string.IsNullOrEmpty(full)) return false;
 
                 foreach (var root in ALLOWED_ROOTS)
                 {
-                    string normRoot = EnsureTrailingBackslash(root);
+                    string normRoot = root.EndsWith("\\") ? root : root + "\\";
                     if (full.StartsWith(normRoot, StringComparison.OrdinalIgnoreCase))
                         return true;
                 }
@@ -269,21 +246,10 @@ namespace GPI.Launcher
             catch { return false; }
         }
 
-        private static string GetFullPathSafe(string path)
-        {
-            try { return Path.GetFullPath(path); } catch { return null; }
-        }
-        private static string EnsureTrailingBackslash(string s)
-        {
-            if (string.IsNullOrEmpty(s)) return s;
-            if (!s.EndsWith("\\") && !s.EndsWith("/")) return s + "\\";
-            return s;
-        }
-
         private DataTable BuildModulesDataTableFromUI()
         {
             var dt = new DataTable();
-            dt.Columns.Add("ButtonName", typeof(string));   // <— NUEVO: id único
+            dt.Columns.Add("ButtonName", typeof(string));
             dt.Columns.Add("Name", typeof(string));
             dt.Columns.Add("Category", typeof(string));
             dt.Columns.Add("ExePath", typeof(string));
@@ -304,15 +270,15 @@ namespace GPI.Launcher
                     bool visibleForMe = (ModuleGPI.Session.TypeAut >= m.RolesMinTypeAut);
 
                     dt.Rows.Add(new object[] {
-                btn.Name, // <— botón exacto
-                m.Name,
-                string.IsNullOrEmpty(m.Category) ? DetectCategoryFor(btn, panel) : m.Category,
-                m.ExePath ?? "",
-                m.WorkingDir ?? "",
-                m.RequiresElevation,
-                m.RolesMinTypeAut,
-                visibleForMe
-            });
+                        btn.Name,
+                        m.Name,
+                        string.IsNullOrEmpty(m.Category) ? DetectCategoryFor(btn, panel) : m.Category,
+                        m.ExePath ?? "",
+                        m.WorkingDir ?? "",
+                        m.RequiresElevation,
+                        m.RolesMinTypeAut,
+                        visibleForMe
+                    });
                 }
             };
 
@@ -321,15 +287,12 @@ namespace GPI.Launcher
             return dt;
         }
 
-
         private string DetectCategoryFor(Button btn, FlowLayoutPanel panel)
         {
-            // Por si algún ModuleDef no trae Category, inferimos por el panel host
             if (panel == this.flpOperacion) return "Operación";
             if (panel == this.flpConsultas) return "Consultas";
             return "General";
         }
-
 
         private void LoadModulesAdminFromUI()
         {
@@ -337,31 +300,27 @@ namespace GPI.Launcher
             dgvModulos.DataSource = _dtModulesAdmin;
             ConfigureModulesGrid();
 
-            dgvModulos.CellValidating -= DgvModulos_CellValidating;
             dgvModulos.CellValidating += DgvModulos_CellValidating;
-
-            dgvModulos.SelectionChanged -= DgvModulos_SelectionChanged;
             dgvModulos.SelectionChanged += DgvModulos_SelectionChanged;
 
-            // Auto-resize columns to fit content after binding
             dgvModulos.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
 
             // Carga overrides del primer módulo seleccionado (si hay)
             DgvModulos_SelectionChanged(null, EventArgs.Empty);
         }
 
-
         private void DgvModulos_SelectionChanged(object sender, EventArgs e)
         {
+            if (Session.TypeAut < 4) { dgvOverrides.DataSource = null; return; }
+
             if (dgvModulos.CurrentRow == null) { dgvOverrides.DataSource = null; return; }
 
             var drv = dgvModulos.CurrentRow.DataBoundItem as DataRowView;
             if (drv == null) { dgvOverrides.DataSource = null; return; }
 
-            string buttonName = Convert.ToString(drv["ButtonName"]); // lee del DataTable
+            string buttonName = Convert.ToString(drv["ButtonName"]);
             BuildOverridesViewFor(buttonName);
         }
-
 
         private void ApplyOneOverrideFromRow(string buttonName, int rowIndex)
         {
@@ -387,17 +346,15 @@ namespace GPI.Launcher
 
         private void BuildOverridesViewFor(string buttonName)
         {
-            // Asegura que haya usuarios cargados
             if (_dtUsers == null || _dtUsers.Rows.Count == 0)
             {
-                try { if (Session.TypeAut >= 4) LoadAdminData(); } catch { }
+                if (Session.TypeAut >= 4) LoadAdminData();
                 if (_dtUsers == null || _dtUsers.Rows.Count == 0)
                 {
                     dgvOverrides.DataSource = null;
                     return;
                 }
             }
-
 
             // Construir tabla de vista (EmpId, UserLog, Override)
             _dtOverridesView = new DataTable();
@@ -414,61 +371,59 @@ namespace GPI.Launcher
                     string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
                     string.Equals(x.EmpId, emp, StringComparison.OrdinalIgnoreCase));
 
-                int value = (ov == null) ? 0 : ov.Override; // 0 = Heredado por defecto
+                int value = (ov == null) ? 0 : ov.Override;
                 _dtOverridesView.Rows.Add(emp, log, value);
             }
 
-            // Configurar columnas del grid (una sola vez por carga)
-            dgvOverrides.AutoGenerateColumns = false;
-            dgvOverrides.Columns.Clear();
+            // Configurar columnas del grid (solo una vez)
+            if (dgvOverrides.Columns.Count == 0)
+            {
+                dgvOverrides.AutoGenerateColumns = false;
+                dgvOverrides.Columns.Clear();
 
-            var cEmp = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "EmpId",
-                HeaderText = "EmpID",
-                ReadOnly = true,
-                FillWeight = 20
-            };
-            dgvOverrides.Columns.Add(cEmp);
+                dgvOverrides.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "EmpId",
+                    HeaderText = "EmpID",
+                    ReadOnly = true,
+                    FillWeight = 20
+                });
 
-            var cLog = new DataGridViewTextBoxColumn
-            {
-                DataPropertyName = "UserLog",
-                HeaderText = "UserLog",
-                ReadOnly = true,
-                FillWeight = 40
-            };
-            dgvOverrides.Columns.Add(cLog);
+                dgvOverrides.Columns.Add(new DataGridViewTextBoxColumn
+                {
+                    DataPropertyName = "UserLog",
+                    HeaderText = "UserLog",
+                    ReadOnly = true,
+                    FillWeight = 40
+                });
 
-            var cOv = new DataGridViewComboBoxColumn
-            {
-                DataPropertyName = "Override",
-                HeaderText = "Override",
-                DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
-                FlatStyle = FlatStyle.Flat,
-                FillWeight = 40
-            };
-            cOv.DisplayMember = "Text";
-            cOv.ValueMember = "Value";
-            cOv.DataSource = new[]
-            {
-        new { Value = -1, Text = "Denegar"  },
-        new { Value =  0, Text = "Heredado" },
-        new { Value =  1, Text = "Permitir" }
-    };
-            dgvOverrides.Columns.Add(cOv);
+                var cOv = new DataGridViewComboBoxColumn
+                {
+                    DataPropertyName = "Override",
+                    HeaderText = "Override",
+                    DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
+                    FlatStyle = FlatStyle.Flat,
+                    FillWeight = 40
+                };
+                cOv.DisplayMember = "Text";
+                cOv.ValueMember = "Value";
+                cOv.DataSource = new[]
+                {
+                    new { Value = -1, Text = "Denegar" },
+                    new { Value = 0, Text = "Heredado" },
+                    new { Value = 1, Text = "Permitir" }
+                };
+                dgvOverrides.Columns.Add(cOv);
+            }
 
             // Solo edita si tienes permisos
             dgvOverrides.ReadOnly = !_adminCanEdit;
-            dgvOverrides.AllowUserToAddRows = false;
-            dgvOverrides.AllowUserToDeleteRows = false;
 
             // Asignar datos
             dgvOverrides.DataSource = _dtOverridesView;
             dgvOverrides.Visible = true;
             dgvOverrides.Refresh();
         }
-
 
         private void ApplyOverridesFromView(string currentButtonName)
         {
@@ -480,7 +435,7 @@ namespace GPI.Launcher
             foreach (DataRow r in _dtOverridesView.Rows)
             {
                 int ov = Convert.ToInt32(r["Override"]);
-                if (ov == 0) continue; // Heredado: no guardamos para ahorrar
+                if (ov == 0) continue; // Heredado: no guardamos
 
                 _overrides.Items.Add(new ModuleUserOverride
                 {
@@ -491,63 +446,65 @@ namespace GPI.Launcher
             }
         }
 
-
-
         private void ConfigureModulesGrid()
         {
+            if (Session.TypeAut < 4) return;
+
             dgvModulos.AutoGenerateColumns = false;
             dgvModulos.Columns.Clear();
             dgvModulos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dgvModulos.ScrollBars = ScrollBars.Both;
-            dgvModulos.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells; // Para wrap si activamos
+            dgvModulos.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
 
-            bool canEdit = (ModuleGPI.Session.TypeAut >= 5);
+            bool canEdit = _adminCanEdit;
 
-            // ButtonName (oculta, clave)
-            var cBtn = new DataGridViewTextBoxColumn();
-            cBtn.DataPropertyName = "ButtonName";
-            cBtn.HeaderText = "Button";
-            cBtn.Name = "ButtonName";
-            cBtn.Visible = false;
-            dgvModulos.Columns.Add(cBtn);
+            // ButtonName (oculta)
+            dgvModulos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "ButtonName",
+                HeaderText = "Button",
+                Name = "ButtonName",
+                Visible = false
+            });
 
             // Name (RO)
-            var cName = new DataGridViewTextBoxColumn();
-            cName.DataPropertyName = "Name";
-            cName.HeaderText = "Módulo";
-            cName.ReadOnly = true;
-            cName.FillWeight = 20;
-            cName.MinimumWidth = 120;
-            dgvModulos.Columns.Add(cName);
+            dgvModulos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Name",
+                HeaderText = "Módulo",
+                ReadOnly = true,
+                FillWeight = 20,
+                MinimumWidth = 120
+            });
 
             // Category (RO)
-            var cCat = new DataGridViewTextBoxColumn();
-            cCat.DataPropertyName = "Category";
-            cCat.HeaderText = "Categoría";
-            cCat.ReadOnly = true;
-            cCat.FillWeight = 15;
-            cCat.MinimumWidth = 100;
-            dgvModulos.Columns.Add(cCat);
+            dgvModulos.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Category",
+                HeaderText = "Categoría",
+                ReadOnly = true,
+                FillWeight = 15,
+                MinimumWidth = 100
+            });
 
             // Rol mínimo
-            var cRole = new DataGridViewComboBoxColumn();
-            cRole.DataPropertyName = "RolesMinTypeAut";
-            cRole.HeaderText = "Rol mínimo";
-            cRole.DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton;
-            cRole.FlatStyle = FlatStyle.Flat;
-            cRole.Items.Add(1); cRole.Items.Add(2); cRole.Items.Add(3); cRole.Items.Add(4); cRole.Items.Add(5);
-            cRole.FillWeight = 10;
-            cRole.ReadOnly = !canEdit;
-            cRole.MinimumWidth = 80;
+            var cRole = new DataGridViewComboBoxColumn
+            {
+                DataPropertyName = "RolesMinTypeAut",
+                HeaderText = "Rol mínimo",
+                DisplayStyle = DataGridViewComboBoxDisplayStyle.DropDownButton,
+                FlatStyle = FlatStyle.Flat,
+                FillWeight = 10,
+                ReadOnly = !canEdit,
+                MinimumWidth = 80
+            };
+            cRole.Items.AddRange(1, 2, 3, 4, 5);
             dgvModulos.Columns.Add(cRole);
 
-            dgvModulos.ReadOnly = !canEdit; // de todos modos respeta RO por columna
-
-            dgvModulos.CellFormatting -= DgvModulos_CellFormatting;
+            dgvModulos.ReadOnly = !canEdit;
             dgvModulos.CellFormatting += DgvModulos_CellFormatting;
-
+            dgvModulos.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
         }
-
 
         private string GetConnString()
         {
@@ -556,7 +513,6 @@ namespace GPI.Launcher
                 throw new InvalidOperationException("No se encontró la cadena 'DBConnectionString' en App.config.");
             return cs.ConnectionString;
         }
-
 
         private void LoadAdminData()
         {
@@ -568,7 +524,7 @@ SELECT
     U.USU_UserLog,
     U.USU_TypeAut,
     U.USU_Status,
-    U.USU_UserPLant
+    U.USU_UserPlant
 FROM dbo.ModGPI_User U
 ORDER BY U.USU_EmpID;";
 
@@ -580,36 +536,32 @@ ORDER BY U.USU_EmpID;";
                 {
                     _daUsers.SelectCommand = cmd;
 
-                    // UPDATE (solo estas columnas editables)
+                    // UPDATE (solo columnas editables)
                     _daUsers.UpdateCommand = new SqlCommand(@"
 UPDATE dbo.ModGPI_User
 SET    USU_TypeAut   = @USU_TypeAut,
        USU_Status    = @USU_Status,
-       USU_UserPLant = @USU_UserPLant
+       USU_UserPlant = @USU_UserPlant
 WHERE  USU_EmpID     = @USU_EmpID;", cn);
 
                     _daUsers.UpdateCommand.Parameters.Add("@USU_TypeAut", SqlDbType.Int, 0, "USU_TypeAut");
                     _daUsers.UpdateCommand.Parameters.Add("@USU_Status", SqlDbType.Int, 0, "USU_Status");
-                    _daUsers.UpdateCommand.Parameters.Add("@USU_UserPLant", SqlDbType.Int, 0, "USU_UserPLant");
+                    _daUsers.UpdateCommand.Parameters.Add("@USU_UserPlant", SqlDbType.Int, 0, "USU_UserPlant");
                     var pKey = _daUsers.UpdateCommand.Parameters.Add("@USU_EmpID", SqlDbType.NVarChar, 10, "USU_EmpID");
-                    pKey.SourceVersion = DataRowVersion.Original; // PK
+                    pKey.SourceVersion = DataRowVersion.Original;
 
                     _daUsers.MissingSchemaAction = MissingSchemaAction.AddWithKey;
-
                     _daUsers.Fill(_dtUsers);
                 }
 
                 dgvUsuarios.DataSource = _dtUsers;
-
                 ConfigureUsersGrid();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error cargando Administración: " + ex.Message, "Admin",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error cargando Administración: " + ex.ToString(), "Admin", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
 
         private void ConfigureUsersGrid()
         {
@@ -617,13 +569,8 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             dgvUsuarios.AutoGenerateColumns = false;
             dgvUsuarios.Columns.Clear();
 
-
-
-            var colEmp = new DataGridViewTextBoxColumn { DataPropertyName = "USU_EmpID", HeaderText = "EmpID", ReadOnly = true, Width = 100 };
-            dgvUsuarios.Columns.Add(colEmp);
-
-            var colUserLog = new DataGridViewTextBoxColumn { DataPropertyName = "USU_UserLog", HeaderText = "UserLog", ReadOnly = true, Width = 160 };
-            dgvUsuarios.Columns.Add(colUserLog);
+            dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "USU_EmpID", HeaderText = "EmpID", ReadOnly = true, Width = 100 });
+            dgvUsuarios.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "USU_UserLog", HeaderText = "UserLog", ReadOnly = true, Width = 160 });
 
             var colType = new DataGridViewComboBoxColumn
             {
@@ -633,24 +580,19 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 FlatStyle = FlatStyle.Flat,
                 Width = 140
             };
-            colType.Items.Add(1); colType.Items.Add(2); colType.Items.Add(3); colType.Items.Add(4); colType.Items.Add(5);
+            colType.Items.AddRange(1, 2, 3, 4, 5);
             dgvUsuarios.Columns.Add(colType);
 
             dgvUsuarios.CellFormatting += (s, e) =>
             {
                 if (e.RowIndex >= 0 && dgvUsuarios.Columns[e.ColumnIndex].DataPropertyName == "USU_TypeAut")
                 {
-                    object v = e.Value;
-                    int r;
-                    if (v != null && int.TryParse(v.ToString(), out r) && r >= 1 && r <= 5)
+                    if (int.TryParse(e.Value?.ToString(), out int r) && r >= 1 && r <= 5)
                         dgvUsuarios.Rows[e.RowIndex].Cells[e.ColumnIndex].ToolTipText = ROLE_NAMES[r];
                 }
             };
 
             dgvUsuarios.ReadOnly = !_adminCanEdit;
-            dgvUsuarios.AllowUserToAddRows = false;
-            dgvUsuarios.AllowUserToDeleteRows = false;
-
             if (btnAdminGuardar != null) btnAdminGuardar.Enabled = _adminCanEdit;
         }
 
@@ -669,8 +611,10 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 }
             }
         }
+
         private void DgvModulos_CellValidating(object sender, DataGridViewCellValidatingEventArgs e)
         {
+            if (Session.TypeAut < 5) { e.Cancel = true; return; }
             if (e.RowIndex < 0) return;
 
             var col = dgvModulos.Columns[e.ColumnIndex].DataPropertyName;
@@ -678,8 +622,7 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
 
             if (col == "RolesMinTypeAut")
             {
-                int n;
-                if (!int.TryParse(val, out n) || n < 1 || n > 5)
+                if (!int.TryParse(val, out int n) || n < 1 || n > 5)
                 {
                     e.Cancel = true;
                     MessageBox.Show("Rol mínimo debe estar entre 1 y 5.");
@@ -687,13 +630,11 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             }
         }
 
-
         private void btnAdminGuardar_Click(object sender, EventArgs e)
         {
             if (!_adminCanEdit)
             {
-                MessageBox.Show("No tiene permisos para guardar cambios.", "Admin",
-                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("No tiene permisos para guardar cambios.", "Admin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -711,145 +652,115 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                     {
                         string buttonName = Convert.ToString(drv["ButtonName"]);
                         ApplyOverridesFromView(buttonName);
-                        SaveOverridesToFile();
                     }
                 }
 
-                // 3) guarda overrides.json
-                SaveOverridesToFile();
+                // 3) guarda overrides (solo DB)
+                SaveOverrides();
 
                 // 4) refresca visibilidad (aplica overrides)
                 RefreshModules();
 
-                // 5) reconstruye DataTable y guarda modules.json
+                // 5) reconstruye DataTable (no modules.json)
                 LoadModulesAdminFromUI();
-                SaveModulesToFile();
 
-                MessageBox.Show("Cambios aplicados y guardados.", "Administración",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Cambios aplicados y guardados.", "Administración", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error aplicando/guardando: " + ex.Message);
+                MessageBox.Show("Error aplicando/guardando: " + ex.ToString());
             }
         }
 
+        private void LoadOverrides()
+        {
+            // Force DB only
+            LoadOverridesFromDb();
+        }
 
+        private void SaveOverrides()
+        {
+            // Force DB only
+            SaveOverridesToDb();
+        }
 
-        private void SaveModulesToFile()
+        private void LoadOverridesFromDb()
         {
             try
             {
-                if (_dtModulesAdmin == null) return;
-
-                var list = _dtModulesAdmin.AsEnumerable().Select(r => new ModuleConfig
+                _overrides.Items.Clear();
+                using (var cn = new SqlConnection(GetConnString()))
+                using (var cmd = new SqlCommand("dbo.ModGPI_Override_GetAll", cn))
                 {
-                    ButtonName = Convert.ToString(r["ButtonName"]),
-                    Name = Convert.ToString(r["Name"]),
-                    Category = Convert.ToString(r["Category"]),
-                    ExePath = Convert.ToString(r["ExePath"]),
-                    WorkingDir = Convert.ToString(r["WorkingDir"]),
-                    RequiresElevation = Convert.ToBoolean(r["RequiresElevation"]),
-                    RolesMinTypeAut = Convert.ToInt32(r["RolesMinTypeAut"])
-                }).ToList();
-
-                var json = JsonConvert.SerializeObject(list, Formatting.Indented);
-                File.WriteAllText("modules.json", json, System.Text.Encoding.UTF8);
-
-                // Opcional:
-                this.tsslEstado.Text = "Módulos guardados en modules.json";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error guardando modules.json: " + ex.Message, "Guardar", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-
-
-
-        private void LoadModulesFromFileAndApply()
-        {
-            try
-            {
-                if (!File.Exists("modules.json")) return;
-
-                var json = File.ReadAllText("modules.json");
-                var list = JsonConvert.DeserializeObject<System.Collections.Generic.List<ModuleConfig>>(json);
-                if (list == null || list.Count == 0) return;
-
-                // Aplica a los botones por ButtonName
-                ApplyModuleConfigList(list);
-
-                // Refresca grid y visibilidad con los nuevos valores
-                LoadModulesAdminFromUI();
-                RefreshModules();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error cargando modules.json: " + ex.Message, "Cargar", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-
-
-        private void SaveOverridesToFile()
-        {
-            try
-            {
-                // Only save non-zero overrides to optimize
-                var toSave = new OverridesStore
-                {
-                    Items = _overrides.Items.Where(x => x.Override != 0).ToList()
-                };
-                string json = JsonConvert.SerializeObject(toSave);
-                File.WriteAllText("overrides.json", json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error saving overrides: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void LoadOverridesFromFile()
-        {
-            try
-            {
-                if (File.Exists("overrides.json"))
-                {
-                    string json = File.ReadAllText("overrides.json");
-                    _overrides = JsonConvert.DeserializeObject<OverridesStore>(json) ?? new OverridesStore();
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cn.Open();
+                    using (var rd = cmd.ExecuteReader())
+                    {
+                        while (rd.Read())
+                        {
+                            _overrides.Items.Add(new ModuleUserOverride
+                            {
+                                ButtonName = rd.GetString(0),
+                                EmpId = rd.GetString(1),
+                                Override = rd.GetInt32(2)
+                            });
+                        }
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error loading overrides: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                _overrides = new OverridesStore(); // Reset on error
+                // No fallback - show detailed error and use empty overrides
+                MessageBox.Show("Error cargando overrides de BD (sin fallback a JSON): " + ex.ToString(), "Overrides", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                _overrides = new OverridesStore(); // Empty on failure
+            }
+        }
+
+        private void SaveOverridesToDb()
+        {
+            try
+            {
+                using (var cn = new SqlConnection(GetConnString()))
+                {
+                    cn.Open();
+                    foreach (var it in _overrides.Items.Where(x => x.Override != 0))
+                    {
+                        using (var cmd = new SqlCommand("dbo.ModGPI_Override_Upsert", cn))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.AddWithValue("@ButtonName", it.ButtonName);
+                            cmd.Parameters.AddWithValue("@EmpId", it.EmpId);
+                            cmd.Parameters.AddWithValue("@Override", it.Override);
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error guardando overrides en BD (sin fallback a JSON): " + ex.ToString(), "Overrides", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         private bool CanUserSeeModule(string buttonName, ModuleDef m, int userRole, string empId)
         {
-            if (m == null || string.IsNullOrEmpty(empId)) return false;
+            if (m == null) return false;
 
-            // Base: Role check
             bool baseVisible = userRole >= m.RolesMinTypeAut;
 
-            // Find override for this user/module
-            var ov = _overrides.Items.FirstOrDefault(x => x.ButtonName == buttonName && x.EmpId == empId);
+            var ov = _overrides.Items.FirstOrDefault(x => string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
+                                                          string.Equals(x.EmpId, empId, StringComparison.OrdinalIgnoreCase));
             if (ov != null)
             {
-                if (ov.Override == 1) return true;   // Explicit allow: always visible
-                if (ov.Override == -1) return false; // Explicit deny: always hidden
+                if (ov.Override == 1) return true;
+                if (ov.Override == -1) return false;
             }
 
-            // No override or inherit (0): Use base role check
             return baseVisible;
         }
 
-        private void ApplyModuleConfigList(System.Collections.Generic.List<ModuleConfig> list)
+        private void ApplyModuleConfigList(List<ModuleConfig> list)
         {
-            // función local para aplicar a un panel
             Action<FlowLayoutPanel> apply = (panel) =>
             {
                 foreach (Control c in panel.Controls)
@@ -859,12 +770,8 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                         var cfg = list.FirstOrDefault(x => string.Equals(x.ButtonName, btn.Name, StringComparison.OrdinalIgnoreCase));
                         if (cfg == null) continue;
 
-                        // Validación básica (misma whitelist que LaunchModule)
-                        if (!string.IsNullOrWhiteSpace(cfg.ExePath) && !ALLOWED_ROOTS.Any(r => cfg.ExePath.StartsWith(r, StringComparison.OrdinalIgnoreCase)))
-                        {
-                            // si la ruta viene fuera de política, la omitimos
+                        if (!string.IsNullOrWhiteSpace(cfg.ExePath) && !IsPathAllowed(cfg.ExePath))
                             continue;
-                        }
 
                         m.ExePath = cfg.ExePath;
                         m.WorkingDir = cfg.WorkingDir;
@@ -880,8 +787,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             apply(this.flpConsultas);
         }
 
-
-        // New helper method to reduce duplication
         private void UpdateModulesFromGrid(FlowLayoutPanel[] panels)
         {
             foreach (var panel in panels)
@@ -899,7 +804,7 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                         m.RequiresElevation = Convert.ToBoolean(r["RequiresElevation"]);
                         m.RolesMinTypeAut = Convert.ToInt32(r["RolesMinTypeAut"]);
 
-                        ApplyButtonVisibility(btn);  // Apply immediately
+                        ApplyButtonVisibility(btn);
                     }
                 }
             }
@@ -910,10 +815,8 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             LoadAdminData();
         }
 
-
         private void WireStaticHandlers()
         {
-            // Menu/Tool actions
             this.mnuArchivo_Salir.Click += delegate { this.Close(); };
             this.tsbRefrescar.Click += delegate { RefreshModules(); };
             this.mnuVer_Refrescar.Click += delegate { RefreshModules(); };
@@ -922,32 +825,20 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             this.tsbCerrarSesion.Click += delegate { Logout(); };
             this.mnuAyuda_Acerca.Click += delegate { MessageBox.Show("GPI Lanzador v1.0", "Acerca de"); };
 
-            // Búsquedas
             this.tsbBuscar.Click += delegate { ApplySearch(this.tstBuscar.Text, null); };
-            this.tstBuscar.KeyDown += delegate (object s, KeyEventArgs e) { if (e.KeyCode == Keys.Enter) ApplySearch(this.tstBuscar.Text, null); };
-            this.txtOpSearch.KeyDown += delegate (object s, KeyEventArgs e) { if (e.KeyCode == Keys.Enter) ApplySearch(this.txtOpSearch.Text, this.flpOperacion); };
-            this.txtConsSearch.KeyDown += delegate (object s, KeyEventArgs e) { if (e.KeyCode == Keys.Enter) ApplySearch(this.txtConsSearch.Text, this.flpConsultas); };
+            this.tstBuscar.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) ApplySearch(this.tstBuscar.Text, null); };
+            this.txtOpSearch.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) ApplySearch(this.txtOpSearch.Text, this.flpOperacion); };
+            this.txtConsSearch.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) ApplySearch(this.txtConsSearch.Text, this.flpConsultas); };
 
-            // TV categorías
-            this.tvCategorias.AfterSelect += delegate (object s, TreeViewEventArgs e)
-            {
-                string node = e.Node != null ? e.Node.Text : "";
-                SwitchByCategory(node);
-            };
+            this.tvCategorias.AfterSelect += (s, e) => { SwitchByCategory(e.Node?.Text); };
 
-            // Context menu
             this.cmuAbrir.Click += delegate { OpenContextSelected(false); };
             this.cmuAbrirAdmin.Click += delegate { OpenContextSelected(true); };
             this.cmuCopiarRuta.Click += delegate { CopyModulePathFromContext(); };
             this.cmuVerProp.Click += delegate { ShowModulePropertiesFromContext(); };
 
-            // Botones Admin
-            if (this.btnAdminGuardar != null)
-                this.btnAdminGuardar.Click += new System.EventHandler(this.btnAdminGuardar_Click);
-
-            if (this.btnAdminRefrescar != null)
-                this.btnAdminRefrescar.Click += new System.EventHandler(this.btnAdminRefrescar_Click);
-
+            if (this.btnAdminGuardar != null) this.btnAdminGuardar.Click += btnAdminGuardar_Click;
+            if (this.btnAdminRefrescar != null) this.btnAdminRefrescar.Click += btnAdminRefrescar_Click;
         }
 
         private void LoadCategories()
@@ -963,26 +854,40 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 this.tvCategorias.Nodes.Add("Configuración");
             }
             this.tvCategorias.EndUpdate();
+            this.tvCategorias.Refresh();
         }
 
         private void ApplyRoleVisibility(int typeAut)
         {
             tabDashboard.Visible = true;
+
             tabConsultas.Visible = typeAut >= 1;
             tabOperacion.Visible = typeAut >= 2;
-            tabAdmin.Visible = typeAut >= 4;
-            tabConfig.Visible = typeAut >= 4;
 
-            _adminCanEdit = (typeAut >= 4);    // 4 y 5 editan
+            if (typeAut < 4)
+            {
+                if (tabMain.TabPages.Contains(tabAdmin)) tabMain.TabPages.Remove(tabAdmin);
+                if (tabMain.TabPages.Contains(tabConfig)) tabMain.TabPages.Remove(tabConfig);
+            }
+            else
+            {
+                if (!tabMain.TabPages.Contains(tabAdmin)) tabMain.TabPages.Add(tabAdmin);
+                if (!tabMain.TabPages.Contains(tabConfig)) tabMain.TabPages.Add(tabConfig);
+            }
 
-            if (btnAdminGuardar != null) btnAdminGuardar.Enabled = _adminCanEdit;
-            if (dgvModulos != null) dgvModulos.ReadOnly = !_adminCanEdit;
-            if (dgvOverrides != null) dgvOverrides.ReadOnly = !_adminCanEdit;
+            _adminCanEdit = (typeAut >= 5);
+
+            if (dgvModulos != null)
+            {
+                dgvModulos.ReadOnly = !_adminCanEdit;
+                dgvModulos.Enabled = _adminCanEdit;
+            }
+            if (dgvOverrides != null)
+            {
+                dgvOverrides.ReadOnly = !_adminCanEdit;
+                dgvOverrides.Enabled = _adminCanEdit;
+            }
         }
-
-
-
-
 
         private void AssignModuleTags()
         {
@@ -996,7 +901,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
             // SAPcrd (Operación) – mantenimiento a cuentas contables
             this.btnMod_Op_Logistica.Tag = new ModuleDef
             {
@@ -1007,7 +911,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
             // PorteCart (Operación) – Carta Porte
             this.btnMod_Op_Produccion.Tag = new ModuleDef
             {
@@ -1018,8 +921,7 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
-            // ETIQUETAS MP ETIQUETASMP     EA  MP
+            // ETIQUETAS MP ETIQUETASMP EA MP
             this.btnMod_Op_MP.Tag = new ModuleDef
             {
                 Name = "ETIQUETAMP",
@@ -1029,8 +931,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
-
             // ETIQUETAS CORRUGADO
             this.btnMod_Op_corrugado.Tag = new ModuleDef
             {
@@ -1041,8 +941,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
-
             // ETIQUETAS CM
             this.btnMod_Op_CM.Tag = new ModuleDef
             {
@@ -1053,30 +951,26 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
-
             // Conversor UM (fix name)
             this.btnMod_Op_ConversorUM.Tag = new ModuleDef
             {
-                Name = "ConversorUM",  // Fixed from "ETIQUETACM"
+                Name = "ConversorUM", // Fixed from "ETIQUETACM"
                 ExePath = @"\\USAZR3QITVFE001\Intuitive MTY\CustomApps\ConversorUM\bin\Debug\ConversorUM.exe",
                 WorkingDir = @"\\USAZR3QITVFE001\Intuitive MTY\CustomApps\ConversorUM\bin\Debug",
                 Category = "Operación",
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
             // Calculadora Tarimas (fix name)
             this.btnMod_Op_CalculadoraTarimas.Tag = new ModuleDef
             {
-                Name = "CalculadoraTarimas",  // Fixed from "ETIQUETACM"
+                Name = "CalculadoraTarimas", // Fixed from "ETIQUETACM"
                 ExePath = @"\\USAZR3QITVFE001\Intuitive MTY\CustomApps\Calculadora Tarimas\bin\Debug\Calculadora Tarimas.exe",
                 WorkingDir = @"\\USAZR3QITVFE001\Intuitive MTY\CustomApps\Calculadora Tarimas\bin\Debug",
                 Category = "Operación",
                 RequiresElevation = false,
                 RolesMinTypeAut = 2
             };
-
             // KPIs (Consultas) – deja cualquiera que uses para pruebas
             this.btnMod_Cons_Reportes.Tag = new ModuleDef
             {
@@ -1087,7 +981,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 RequiresElevation = false,
                 RolesMinTypeAut = 1
             };
-
             this.btnMod_Cons_KPIs.Tag = new ModuleDef
             {
                 Name = "KPIs",
@@ -1099,17 +992,15 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             };
         }
 
-
         private void WireModuleButtons()
         {
             // Operación
             foreach (Control c in this.flpOperacion.Controls)
             {
-                Button btn = c as Button;
-                if (btn != null)
+                if (c is Button btn)
                 {
                     btn.ContextMenuStrip = this.cmuModulo;
-                    btn.Click += new EventHandler(this.ModuleButton_Click);
+                    btn.Click += ModuleButton_Click;
                     ApplyButtonVisibility(btn);
                 }
             }
@@ -1117,11 +1008,10 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             // Consultas
             foreach (Control c in this.flpConsultas.Controls)
             {
-                Button btn = c as Button;
-                if (btn != null)
+                if (c is Button btn)
                 {
                     btn.ContextMenuStrip = this.cmuModulo;
-                    btn.Click += new EventHandler(this.ModuleButton_Click);
+                    btn.Click += ModuleButton_Click;
                     ApplyButtonVisibility(btn);
                 }
             }
@@ -1132,72 +1022,46 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             var m = btn.Tag as ModuleDef;
             if (m == null) return;
 
-            bool visible = CanUserSeeModule(
-                btn.Name, m, Session.TypeAut, Session.EmpId ?? Session.LogonName);
+            bool visible = CanUserSeeModule(btn.Name, m, Session.TypeAut, Session.EmpId ?? Session.LogonName);
             btn.Visible = visible;
             btn.Enabled = visible;
             this.toolTips.SetToolTip(btn, m.Name + Environment.NewLine + (m.ExePath ?? ""));
         }
 
-
         private void ModuleButton_Click(object sender, EventArgs e)
         {
-            Button btn = sender as Button;
-            if (btn != null)
-            {
-                ModuleDef m = btn.Tag as ModuleDef;
-                if (m != null) LaunchModule(m, false);
-            }
+            if (sender is Button btn && btn.Tag is ModuleDef m)
+                LaunchModule(m, false);
         }
 
         private void OpenContextSelected(bool asAdmin)
         {
-            Button btn = this.cmuModulo.SourceControl as Button;
-            if (btn != null)
-            {
-                ModuleDef m = btn.Tag as ModuleDef;
-                if (m != null) LaunchModule(m, asAdmin);
-            }
+            if (this.cmuModulo.SourceControl is Button btn && btn.Tag is ModuleDef m)
+                LaunchModule(m, asAdmin);
         }
 
         private void CopyModulePathFromContext()
         {
-            Button btn = this.cmuModulo.SourceControl as Button;
-            if (btn != null)
-            {
-                ModuleDef m = btn.Tag as ModuleDef;
-                if (m != null && !string.IsNullOrEmpty(m.ExePath))
-                {
-                    Clipboard.SetText(m.ExePath);
-                }
-            }
+            if (this.cmuModulo.SourceControl is Button btn && btn.Tag is ModuleDef m && !string.IsNullOrEmpty(m.ExePath))
+                Clipboard.SetText(m.ExePath);
         }
 
         private void ShowModulePropertiesFromContext()
         {
-            Button btn = this.cmuModulo.SourceControl as Button;
-            if (btn != null)
-            {
-                ModuleDef m = btn.Tag as ModuleDef;
-                if (m != null)
-                {
-                    MessageBox.Show(m.Name + Environment.NewLine + (m.ExePath ?? "") + Environment.NewLine + (m.WorkingDir ?? ""),
-                        "Propiedades", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
+            if (this.cmuModulo.SourceControl is Button btn && btn.Tag is ModuleDef m)
+                MessageBox.Show(m.Name + Environment.NewLine + (m.ExePath ?? "") + Environment.NewLine + (m.WorkingDir ?? ""),
+                    "Propiedades", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void RefreshModules()
         {
             foreach (Control c in this.flpOperacion.Controls)
             {
-                Button b = c as Button;
-                if (b != null) ApplyButtonVisibility(b);
+                if (c is Button b) ApplyButtonVisibility(b);
             }
             foreach (Control c in this.flpConsultas.Controls)
             {
-                Button b = c as Button;
-                if (b != null) ApplyButtonVisibility(b);
+                if (c is Button b) ApplyButtonVisibility(b);
             }
             this.tsslEstado.Text = "Módulos actualizados";
         }
@@ -1207,7 +1071,6 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             this.DialogResult = DialogResult.Abort;
             this.Close();
         }
-
 
         private void SwitchByCategory(string node)
         {
@@ -1236,16 +1099,15 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             {
                 if (c is Button btn && btn.Tag is ModuleDef m)
                 {
-                    bool nameMatch = (t.Length == 0)
-                                     || m.Name.IndexOf(t, StringComparison.OrdinalIgnoreCase) >= 0
-                                     || (!string.IsNullOrEmpty(m.ExePath) && m.ExePath.IndexOf(t, StringComparison.OrdinalIgnoreCase) >= 0);
+                    bool nameMatch = (t.Length == 0) ||
+                                     m.Name.IndexOf(t, StringComparison.OrdinalIgnoreCase) >= 0 ||
+                                     (!string.IsNullOrEmpty(m.ExePath) && m.ExePath.IndexOf(t, StringComparison.OrdinalIgnoreCase) >= 0);
 
                     bool canSee = CanUserSeeModule(btn.Name, m, Session.TypeAut, Session.EmpId ?? Session.LogonName);
-                    btn.Visible = nameMatch && canSee;  // <-- respeta overrides
+                    btn.Visible = nameMatch && canSee;
                 }
             }
         }
-
 
         private void LaunchModule(ModuleDef m, bool asAdmin)
         {
@@ -1253,38 +1115,30 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
             {
                 if (Session.TypeAut < m.RolesMinTypeAut)
                 {
-                    MessageBox.Show("No tiene permisos para ejecutar este módulo.", "Acceso denegado",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("No tiene permisos para ejecutar este módulo.", "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 if (string.IsNullOrEmpty(m.ExePath) || !File.Exists(m.ExePath))
                 {
-                    MessageBox.Show("No se encontró el ejecutable.", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("No se encontró el ejecutable.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
-
-
 
                 if (!IsPathAllowed(m.ExePath))
                 {
-                    MessageBox.Show("Ruta no autorizada por la política.", "Bloqueado",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Ruta no autorizada por la política.", "Bloqueado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-
-
-
-                ProcessStartInfo psi = new ProcessStartInfo();
-                psi.FileName = m.ExePath;
-                psi.Arguments = m.Arguments ?? "";
-                psi.WorkingDirectory = !string.IsNullOrEmpty(m.WorkingDir)
-                    ? m.WorkingDir
-                    : Path.GetDirectoryName(m.ExePath);
-                psi.UseShellExecute = true;
-                psi.Verb = (asAdmin || m.RequiresElevation) ? "runas" : "";
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = m.ExePath,
+                    Arguments = m.Arguments ?? "",
+                    WorkingDirectory = !string.IsNullOrEmpty(m.WorkingDir) ? m.WorkingDir : Path.GetDirectoryName(m.ExePath),
+                    UseShellExecute = true,
+                    Verb = (asAdmin || m.RequiresElevation) ? "runas" : ""
+                };
 
                 Process p = Process.Start(psi);
                 if (p != null)
@@ -1296,13 +1150,11 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
                 if (w32.NativeErrorCode == 1223)
                     this.tsslEstado.Text = "Elevación cancelada por el usuario.";
                 else
-                    MessageBox.Show("Error UAC/Win32: " + w32.Message, "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Error UAC/Win32: " + w32.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error al abrir módulo: " + ex.Message, "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error al abrir módulo: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -1316,7 +1168,7 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
         }
     }
 
-    // POCO
+    // POCO classes
     public sealed class ModuleDef
     {
         public string Name = "";
@@ -1328,12 +1180,11 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
         public int RolesMinTypeAut = 1;
     }
 
-    // Sesión mínima (ajústala a la tuya)
     public sealed class ModuleConfig
     {
-        public string ButtonName { get; set; }        // clave única en UI
-        public string Name { get; set; }              // solo informativo
-        public string Category { get; set; }          // solo informativo
+        public string ButtonName { get; set; }
+        public string Name { get; set; }
+        public string Category { get; set; }
         public string ExePath { get; set; }
         public string WorkingDir { get; set; }
         public bool RequiresElevation { get; set; }
@@ -1342,17 +1193,13 @@ WHERE  USU_EmpID     = @USU_EmpID;", cn);
 
     public sealed class ModuleUserOverride
     {
-        public string ButtonName { get; set; } // clave del módulo (Button.Name)
-        public string EmpId { get; set; }      // USU_EmpID
-        public int Override { get; set; }      // -1=Denegar, 0=Heredado, 1=Permitir
+        public string ButtonName { get; set; }
+        public string EmpId { get; set; }
+        public int Override { get; set; }
     }
 
     public sealed class OverridesStore
     {
-        public System.Collections.Generic.List<ModuleUserOverride> Items { get; set; } =
-            new System.Collections.Generic.List<ModuleUserOverride>();
+        public List<ModuleUserOverride> Items { get; set; } = new List<ModuleUserOverride>();
     }
-
-
-
 }
