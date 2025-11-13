@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿// MainForm.Designer.cs (actualizado con grpRoles como contenedor y filtro alineado debajo del título para coherencia visual)
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace GPI.Launcher
@@ -48,14 +49,6 @@ namespace GPI.Launcher
             this.dgvLaunchLog = new System.Windows.Forms.DataGridView();
             this.tabOperacion = new System.Windows.Forms.TabPage();
             this.flpOperacion = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnMod_Op_Inventario = new System.Windows.Forms.Button();
-            this.btnMod_Op_Logistica = new System.Windows.Forms.Button();
-            this.btnMod_Op_Produccion = new System.Windows.Forms.Button();
-            this.btnMod_Op_MP = new System.Windows.Forms.Button();
-            this.btnMod_Op_corrugado = new System.Windows.Forms.Button();
-            this.btnMod_Op_CM = new System.Windows.Forms.Button();
-            this.btnMod_Op_ConversorUM = new System.Windows.Forms.Button();
-            this.btnMod_Op_CalculadoraTarimas = new System.Windows.Forms.Button();
             this.pnlOpHeader = new System.Windows.Forms.Panel();
             this.lblOpTitulo = new System.Windows.Forms.Label();
             this.txtOpSearch = new System.Windows.Forms.TextBox();
@@ -73,13 +66,19 @@ namespace GPI.Launcher
             this.btnAdminRefrescar = new System.Windows.Forms.Button();
             this.splitAdmin = new System.Windows.Forms.SplitContainer();
             this.leftAdmin = new System.Windows.Forms.Panel();
-            this.dgvUsuarios = new System.Windows.Forms.DataGridView();
             this.grpRoles = new System.Windows.Forms.GroupBox();
+            this.barFiltroPlanta = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkPlantFilter = new System.Windows.Forms.CheckBox();
+            this.cboPlantFilter = new System.Windows.Forms.ComboBox();
+            this.dgvUsuarios = new System.Windows.Forms.DataGridView();
             this.rightAdmin = new System.Windows.Forms.Panel();
             this.dgvModulos = new System.Windows.Forms.DataGridView();
             this.tabConfig = new System.Windows.Forms.TabPage();
+            this.btnDeleteModule = new System.Windows.Forms.Button();
+            this.btnSaveModule = new System.Windows.Forms.Button();
+            this.btnNewModule = new System.Windows.Forms.Button();
             this.grpGeneral = new System.Windows.Forms.GroupBox();
-            this.chkRutasPermitidas = new System.Windows.Forms.CheckedListBox();
+            this.dgvModulesConfig = new System.Windows.Forms.DataGridView();
             this.grpAcerca = new System.Windows.Forms.GroupBox();
             this.lblVersion = new System.Windows.Forms.Label();
             this.btnGuardarConfig = new System.Windows.Forms.Button();
@@ -107,7 +106,6 @@ namespace GPI.Launcher
             this.tlpDash.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).BeginInit();
             this.tabOperacion.SuspendLayout();
-            this.flpOperacion.SuspendLayout();
             this.pnlOpHeader.SuspendLayout();
             this.tabConsultas.SuspendLayout();
             this.flpConsultas.SuspendLayout();
@@ -119,11 +117,14 @@ namespace GPI.Launcher
             this.splitAdmin.Panel2.SuspendLayout();
             this.splitAdmin.SuspendLayout();
             this.leftAdmin.SuspendLayout();
+            this.grpRoles.SuspendLayout();
+            this.barFiltroPlanta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).BeginInit();
             this.rightAdmin.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).EndInit();
             this.tabConfig.SuspendLayout();
             this.grpGeneral.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvModulesConfig)).BeginInit();
             this.grpAcerca.SuspendLayout();
             this.cmuModulo.SuspendLayout();
             this.statusMain.SuspendLayout();
@@ -382,94 +383,12 @@ namespace GPI.Launcher
             // flpOperacion
             // 
             this.flpOperacion.AutoScroll = true;
-            this.flpOperacion.Controls.Add(this.btnMod_Op_Inventario);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_Logistica);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_Produccion);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_MP);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_corrugado);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_CM);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_ConversorUM);
-            this.flpOperacion.Controls.Add(this.btnMod_Op_CalculadoraTarimas);
             this.flpOperacion.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpOperacion.Location = new System.Drawing.Point(0, 48);
             this.flpOperacion.Name = "flpOperacion";
             this.flpOperacion.Padding = new System.Windows.Forms.Padding(8);
             this.flpOperacion.Size = new System.Drawing.Size(869, 450);
             this.flpOperacion.TabIndex = 0;
-            // 
-            // btnMod_Op_Inventario
-            // 
-            this.btnMod_Op_Inventario.Location = new System.Drawing.Point(16, 16);
-            this.btnMod_Op_Inventario.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_Inventario.Name = "btnMod_Op_Inventario";
-            this.btnMod_Op_Inventario.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_Inventario.TabIndex = 0;
-            this.btnMod_Op_Inventario.Text = "Conteo Physic";
-            // 
-            // btnMod_Op_Logistica
-            // 
-            this.btnMod_Op_Logistica.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
-            this.btnMod_Op_Logistica.Location = new System.Drawing.Point(232, 16);
-            this.btnMod_Op_Logistica.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_Logistica.Name = "btnMod_Op_Logistica";
-            this.btnMod_Op_Logistica.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_Logistica.TabIndex = 1;
-            this.btnMod_Op_Logistica.Text = "SAP crd";
-            this.btnMod_Op_Logistica.UseVisualStyleBackColor = false;
-            // 
-            // btnMod_Op_Produccion
-            // 
-            this.btnMod_Op_Produccion.Location = new System.Drawing.Point(448, 16);
-            this.btnMod_Op_Produccion.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_Produccion.Name = "btnMod_Op_Produccion";
-            this.btnMod_Op_Produccion.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_Produccion.TabIndex = 2;
-            this.btnMod_Op_Produccion.Text = "Carta Porte";
-            // 
-            // btnMod_Op_MP
-            // 
-            this.btnMod_Op_MP.Location = new System.Drawing.Point(16, 80);
-            this.btnMod_Op_MP.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_MP.Name = "btnMod_Op_MP";
-            this.btnMod_Op_MP.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_MP.TabIndex = 3;
-            this.btnMod_Op_MP.Text = "Etiquetas MP";
-            // 
-            // btnMod_Op_corrugado
-            // 
-            this.btnMod_Op_corrugado.Location = new System.Drawing.Point(232, 80);
-            this.btnMod_Op_corrugado.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_corrugado.Name = "btnMod_Op_corrugado";
-            this.btnMod_Op_corrugado.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_corrugado.TabIndex = 4;
-            this.btnMod_Op_corrugado.Text = "Etiquetas Corrugado";
-            // 
-            // btnMod_Op_CM
-            // 
-            this.btnMod_Op_CM.Location = new System.Drawing.Point(448, 80);
-            this.btnMod_Op_CM.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_CM.Name = "btnMod_Op_CM";
-            this.btnMod_Op_CM.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_CM.TabIndex = 5;
-            this.btnMod_Op_CM.Text = "Etiquetas CM";
-            // 
-            // btnMod_Op_ConversorUM
-            // 
-            this.btnMod_Op_ConversorUM.Location = new System.Drawing.Point(16, 144);
-            this.btnMod_Op_ConversorUM.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_ConversorUM.Name = "btnMod_Op_ConversorUM";
-            this.btnMod_Op_ConversorUM.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_ConversorUM.TabIndex = 6;
-            this.btnMod_Op_ConversorUM.Text = "Conversor UM";
-            // 
-            // btnMod_Op_CalculadoraTarimas
-            // 
-            this.btnMod_Op_CalculadoraTarimas.Location = new System.Drawing.Point(232, 144);
-            this.btnMod_Op_CalculadoraTarimas.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Op_CalculadoraTarimas.Name = "btnMod_Op_CalculadoraTarimas";
-            this.btnMod_Op_CalculadoraTarimas.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Op_CalculadoraTarimas.TabIndex = 7;
-            this.btnMod_Op_CalculadoraTarimas.Text = "Calculadora Tarimas";
             // 
             // pnlOpHeader
             // 
@@ -619,6 +538,9 @@ namespace GPI.Launcher
             // splitAdmin
             // 
             this.splitAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitAdmin.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
+            this.splitAdmin.Panel2MinSize = 260;
+            this.splitAdmin.SplitterWidth = 5;
             this.splitAdmin.Location = new System.Drawing.Point(0, 0);
             this.splitAdmin.Name = "splitAdmin";
             // 
@@ -635,7 +557,6 @@ namespace GPI.Launcher
             // 
             // leftAdmin
             // 
-            this.leftAdmin.Controls.Add(this.dgvUsuarios);
             this.leftAdmin.Controls.Add(this.grpRoles);
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
@@ -643,27 +564,60 @@ namespace GPI.Launcher
             this.leftAdmin.Size = new System.Drawing.Size(695, 498);
             this.leftAdmin.TabIndex = 0;
             // 
+            // grpRoles
+            // 
+            this.grpRoles.Controls.Add(this.barFiltroPlanta);
+            this.grpRoles.Controls.Add(this.dgvUsuarios);
+            this.grpRoles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.grpRoles.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
+            this.grpRoles.Location = new System.Drawing.Point(0, 0);
+            this.grpRoles.Name = "grpRoles";
+            this.grpRoles.Size = new System.Drawing.Size(695, 498);
+            this.grpRoles.TabIndex = 1;
+            this.grpRoles.TabStop = false;
+            this.grpRoles.Text = "Roles y Usuarios";
+            // 
+            // barFiltroPlanta
+            // 
+            this.barFiltroPlanta.Dock = System.Windows.Forms.DockStyle.Top;
+            this.barFiltroPlanta.Height = 34;
+            this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
+            this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(0);
+            this.barFiltroPlanta.FlowDirection = FlowDirection.LeftToRight;
+            this.barFiltroPlanta.WrapContents = false;
+            this.barFiltroPlanta.Controls.Add(this.chkPlantFilter);
+            this.barFiltroPlanta.Controls.Add(this.cboPlantFilter);
+            this.barFiltroPlanta.Name = "barFiltroPlanta";
+            // 
+            // chkPlantFilter
+            // 
+            this.chkPlantFilter.Text = "Filtrar por planta";
+            this.chkPlantFilter.AutoSize = true;
+            this.chkPlantFilter.Margin = new Padding(0, 6, 8, 0);
+            // 
+            // cboPlantFilter
+            // 
+            this.cboPlantFilter.DropDownStyle = ComboBoxStyle.DropDownList;
+            this.cboPlantFilter.Width = 160;
+            this.cboPlantFilter.Margin = new Padding(0, 2, 0, 0);
+            // 
             // dgvUsuarios
             // 
             this.dgvUsuarios.AllowUserToAddRows = false;
             this.dgvUsuarios.AllowUserToDeleteRows = false;
+            this.dgvUsuarios.RowHeadersVisible = false;
+            this.dgvUsuarios.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvUsuarios.MultiSelect = false;
+            this.dgvUsuarios.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvUsuarios.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(245, 248, 252);
+            this.dgvUsuarios.BackgroundColor = SystemColors.Window;
+            this.dgvUsuarios.BorderStyle = BorderStyle.None;
+            this.dgvUsuarios.AllowUserToOrderColumns = false;
+            this.dgvUsuarios.AllowUserToResizeRows = false;
             this.dgvUsuarios.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvUsuarios.Location = new System.Drawing.Point(0, 56);
             this.dgvUsuarios.Name = "dgvUsuarios";
             this.dgvUsuarios.ReadOnly = true;
-            this.dgvUsuarios.Size = new System.Drawing.Size(695, 442);
             this.dgvUsuarios.TabIndex = 0;
-            // 
-            // grpRoles
-            // 
-            this.grpRoles.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpRoles.Location = new System.Drawing.Point(0, 0);
-            this.grpRoles.Name = "grpRoles";
-            this.grpRoles.Padding = new System.Windows.Forms.Padding(8);
-            this.grpRoles.Size = new System.Drawing.Size(695, 56);
-            this.grpRoles.TabIndex = 1;
-            this.grpRoles.TabStop = false;
-            this.grpRoles.Text = "Roles y Usuarios";
             // 
             // rightAdmin
             // 
@@ -678,6 +632,15 @@ namespace GPI.Launcher
             // 
             this.dgvModulos.AllowUserToAddRows = false;
             this.dgvModulos.AllowUserToDeleteRows = false;
+            this.dgvModulos.RowHeadersVisible = false;
+            this.dgvModulos.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            this.dgvModulos.MultiSelect = false;
+            this.dgvModulos.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvModulos.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 248, 248);
+            this.dgvModulos.BackgroundColor = SystemColors.Window;
+            this.dgvModulos.BorderStyle = BorderStyle.None;
+            this.dgvModulos.AllowUserToOrderColumns = false;
+            this.dgvModulos.AllowUserToResizeRows = false;
             this.dgvModulos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvModulos.Location = new System.Drawing.Point(0, 0);
             this.dgvModulos.Name = "dgvModulos";
@@ -687,6 +650,9 @@ namespace GPI.Launcher
             // 
             // tabConfig
             // 
+            this.tabConfig.Controls.Add(this.btnDeleteModule);
+            this.tabConfig.Controls.Add(this.btnSaveModule);
+            this.tabConfig.Controls.Add(this.btnNewModule);
             this.tabConfig.Controls.Add(this.grpGeneral);
             this.tabConfig.Controls.Add(this.grpAcerca);
             this.tabConfig.Location = new System.Drawing.Point(4, 22);
@@ -695,9 +661,36 @@ namespace GPI.Launcher
             this.tabConfig.TabIndex = 4;
             this.tabConfig.Text = "Configuración";
             // 
+            // btnDeleteModule
+            // 
+            this.btnDeleteModule.Location = new System.Drawing.Point(205, 186);
+            this.btnDeleteModule.Name = "btnDeleteModule";
+            this.btnDeleteModule.Size = new System.Drawing.Size(75, 23);
+            this.btnDeleteModule.TabIndex = 4;
+            this.btnDeleteModule.Text = "Delete";
+            this.btnDeleteModule.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveModule
+            // 
+            this.btnSaveModule.Location = new System.Drawing.Point(124, 186);
+            this.btnSaveModule.Name = "btnSaveModule";
+            this.btnSaveModule.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveModule.TabIndex = 3;
+            this.btnSaveModule.Text = "Save Mod";
+            this.btnSaveModule.UseVisualStyleBackColor = true;
+            // 
+            // btnNewModule
+            // 
+            this.btnNewModule.Location = new System.Drawing.Point(43, 186);
+            this.btnNewModule.Name = "btnNewModule";
+            this.btnNewModule.Size = new System.Drawing.Size(75, 23);
+            this.btnNewModule.TabIndex = 2;
+            this.btnNewModule.Text = "New Module";
+            this.btnNewModule.UseVisualStyleBackColor = true;
+            // 
             // grpGeneral
             // 
-            this.grpGeneral.Controls.Add(this.chkRutasPermitidas);
+            this.grpGeneral.Controls.Add(this.dgvModulesConfig);
             this.grpGeneral.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpGeneral.Location = new System.Drawing.Point(0, 0);
             this.grpGeneral.Name = "grpGeneral";
@@ -707,13 +700,14 @@ namespace GPI.Launcher
             this.grpGeneral.TabStop = false;
             this.grpGeneral.Text = "General";
             // 
-            // chkRutasPermitidas
+            // dgvModulesConfig
             // 
-            this.chkRutasPermitidas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chkRutasPermitidas.Location = new System.Drawing.Point(8, 21);
-            this.chkRutasPermitidas.Name = "chkRutasPermitidas";
-            this.chkRutasPermitidas.Size = new System.Drawing.Size(853, 131);
-            this.chkRutasPermitidas.TabIndex = 0;
+            this.dgvModulesConfig.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvModulesConfig.Dock = System.Windows.Forms.DockStyle.Fill; // Ajustado para llenar el grupo
+            this.dgvModulesConfig.Location = new System.Drawing.Point(8, 21);
+            this.dgvModulesConfig.Name = "dgvModulesConfig";
+            this.dgvModulesConfig.Size = new System.Drawing.Size(853, 131); // Ajustado para ajustarse mejor
+            this.dgvModulesConfig.TabIndex = 1;
             // 
             // grpAcerca
             // 
@@ -853,9 +847,6 @@ namespace GPI.Launcher
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GPI – Lanzador de Módulos";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.Load += new System.EventHandler(this.MainForm_Load);
-            this.Shown += new System.EventHandler(this.MainForm_Shown);
-            this.Resize += new System.EventHandler(this.MainForm_Resize);
             this.menuMain.ResumeLayout(false);
             this.menuMain.PerformLayout();
             this.toolMain.ResumeLayout(false);
@@ -871,7 +862,6 @@ namespace GPI.Launcher
             this.tlpDash.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).EndInit();
             this.tabOperacion.ResumeLayout(false);
-            this.flpOperacion.ResumeLayout(false);
             this.pnlOpHeader.ResumeLayout(false);
             this.pnlOpHeader.PerformLayout();
             this.tabConsultas.ResumeLayout(false);
@@ -885,11 +875,14 @@ namespace GPI.Launcher
             ((System.ComponentModel.ISupportInitialize)(this.splitAdmin)).EndInit();
             this.splitAdmin.ResumeLayout(false);
             this.leftAdmin.ResumeLayout(false);
+            this.grpRoles.ResumeLayout(false);
+            this.barFiltroPlanta.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).EndInit();
             this.rightAdmin.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).EndInit();
             this.tabConfig.ResumeLayout(false);
             this.grpGeneral.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvModulesConfig)).EndInit();
             this.grpAcerca.ResumeLayout(false);
             this.cmuModulo.ResumeLayout(false);
             this.statusMain.ResumeLayout(false);
@@ -943,9 +936,6 @@ namespace GPI.Launcher
         private TextBox txtOpSearch;
         private Button btnOpRefrescar;
         private FlowLayoutPanel flpOperacion;
-        private Button btnMod_Op_Inventario;
-        private Button btnMod_Op_Logistica;
-        private Button btnMod_Op_Produccion;
 
         private Panel pnlConsHeader;
         private Label lblConsTitulo;
@@ -957,11 +947,9 @@ namespace GPI.Launcher
         private SplitContainer splitAdmin;
         private GroupBox grpRoles;
         private DataGridView dgvUsuarios;
-        //private GroupBox grpModulos;
         private DataGridView dgvModulos;
 
         private GroupBox grpGeneral;
-        private CheckedListBox chkRutasPermitidas;
         private GroupBox grpAcerca;
         private Label lblVersion;
         private Button btnGuardarConfig;
@@ -984,10 +972,12 @@ namespace GPI.Launcher
         private System.Windows.Forms.Panel pnlAdminButtons;
         private System.Windows.Forms.Button btnAdminGuardar;
         private System.Windows.Forms.Button btnAdminRefrescar;
-        private Button btnMod_Op_MP;
-        private Button btnMod_Op_corrugado;
-        private Button btnMod_Op_CM;
-        private Button btnMod_Op_ConversorUM;
-        private Button btnMod_Op_CalculadoraTarimas;
+        private Button btnDeleteModule;
+        private Button btnSaveModule;
+        private Button btnNewModule;
+        private DataGridView dgvModulesConfig;
+        private FlowLayoutPanel barFiltroPlanta;
+        private CheckBox chkPlantFilter;
+        private ComboBox cboPlantFilter;
     }
 }
