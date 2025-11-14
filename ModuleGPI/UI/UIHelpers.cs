@@ -1,50 +1,42 @@
-﻿using System;
-using System.Drawing;
-using System.Linq;
+﻿using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
 
 namespace ModuleGPI.UI
 {
-    public class UIHelpers : IUIHelpers
+    public sealed class UIHelpers : IUIHelpers
     {
         public void PositionHeaderSearchBoxes(
             Panel pnlOpHeader, Button btnOpRefrescar, TextBox txtOpSearch,
             Panel pnlConsHeader, TextBox txtConsSearch)
         {
-            if (pnlOpHeader == null || pnlConsHeader == null) return;
+            if (pnlOpHeader != null && pnlOpHeader.ClientSize.Width > 0 && btnOpRefrescar != null && txtOpSearch != null)
+            {
+                int r = pnlOpHeader.ClientSize.Width - 8;
+                btnOpRefrescar.Width = 90;
+                btnOpRefrescar.Location = new Point(r - btnOpRefrescar.Width, 10);
+                txtOpSearch.Width = 220;
+                txtOpSearch.Location = new Point(btnOpRefrescar.Left - txtOpSearch.Width - 8, 12);
+            }
 
-            txtOpSearch.Location = new Point(pnlOpHeader.Width - txtOpSearch.Width - 10, 5);
-            btnOpRefrescar.Location = new Point(txtOpSearch.Left - btnOpRefrescar.Width - 5, 5);
-
-            txtConsSearch.Location = new Point(pnlConsHeader.Width - txtConsSearch.Width - 10, 5);
+            if (pnlConsHeader != null && pnlConsHeader.ClientSize.Width > 0 && txtConsSearch != null)
+            {
+                int r2 = pnlConsHeader.ClientSize.Width - 8;
+                txtConsSearch.Width = 220;
+                txtConsSearch.Location = new Point(r2 - txtConsSearch.Width, 12);
+            }
         }
 
         public void EnableDgvDoubleBuffer(DataGridView dgv)
         {
+            if (dgv == null) return;
             try
             {
-                var pi = typeof(DataGridView).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+                var pi = typeof(DataGridView).GetProperty("DoubleBuffered",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
                 pi?.SetValue(dgv, true, null);
             }
             catch { /* ignore */ }
-        }
-
-        public DataGridView BuildOverridesGrid(Panel parent, int height)
-        {
-            var dgv = new DataGridView
-            {
-                Dock = DockStyle.Bottom,
-                Height = height
-            };
-            parent.Controls.Add(dgv);
-            return dgv;
-        }
-
-        public void ConfigureGridColumn(DataGridView dgv, string dataProperty, Action<DataGridViewColumn> apply)
-        {
-            var col = dgv.Columns.Cast<DataGridViewColumn>().FirstOrDefault(c => c.DataPropertyName == dataProperty);
-            if (col != null) apply(col);
         }
     }
 }

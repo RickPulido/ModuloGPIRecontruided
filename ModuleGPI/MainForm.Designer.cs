@@ -1,22 +1,34 @@
-﻿// MainForm.Designer.cs (actualizado con grpRoles como contenedor y filtro alineado debajo del título para coherencia visual)
-using System.Drawing;
+﻿using System.Drawing;
 using System.Windows.Forms;
 
-namespace GPI.Launcher
+namespace ModuleGPI
 {
     partial class MainForm
     {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
+            {
                 components.Dispose();
+            }
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
@@ -39,7 +51,7 @@ namespace GPI.Launcher
             this.tsbCerrarSesion = new System.Windows.Forms.ToolStripButton();
             this.splitMain = new System.Windows.Forms.SplitContainer();
             this.pnlLeft = new System.Windows.Forms.Panel();
-            this.tvCategorias = new System.Windows.Forms.TreeView();
+            this.treeCategories = new System.Windows.Forms.TreeView();
             this.txtFiltroCategoria = new System.Windows.Forms.TextBox();
             this.lblCategorias = new System.Windows.Forms.Label();
             this.tabMain = new System.Windows.Forms.TabControl();
@@ -121,7 +133,7 @@ namespace GPI.Launcher
             this.barFiltroPlanta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).BeginInit();
             this.rightAdmin.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).BeginInit();
             this.tabConfig.SuspendLayout();
             this.grpGeneral.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvModulesConfig)).BeginInit();
@@ -275,7 +287,7 @@ namespace GPI.Launcher
             // 
             // pnlLeft
             // 
-            this.pnlLeft.Controls.Add(this.tvCategorias);
+            this.pnlLeft.Controls.Add(this.treeCategories);
             this.pnlLeft.Controls.Add(this.txtFiltroCategoria);
             this.pnlLeft.Controls.Add(this.lblCategorias);
             this.pnlLeft.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -284,13 +296,13 @@ namespace GPI.Launcher
             this.pnlLeft.Size = new System.Drawing.Size(121, 524);
             this.pnlLeft.TabIndex = 0;
             // 
-            // tvCategorias
+            // treeCategories
             // 
-            this.tvCategorias.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tvCategorias.Location = new System.Drawing.Point(0, 44);
-            this.tvCategorias.Name = "tvCategorias";
-            this.tvCategorias.Size = new System.Drawing.Size(121, 480);
-            this.tvCategorias.TabIndex = 0;
+            this.treeCategories.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeCategories.Location = new System.Drawing.Point(0, 44);
+            this.treeCategories.Name = "treeCategories";
+            this.treeCategories.Size = new System.Drawing.Size(121, 480);
+            this.treeCategories.TabIndex = 0;
             // 
             // txtFiltroCategoria
             // 
@@ -703,10 +715,10 @@ namespace GPI.Launcher
             // dgvModulesConfig
             // 
             this.dgvModulesConfig.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvModulesConfig.Dock = System.Windows.Forms.DockStyle.Fill; // Ajustado para llenar el grupo
+            this.dgvModulesConfig.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvModulesConfig.Location = new System.Drawing.Point(8, 21);
             this.dgvModulesConfig.Name = "dgvModulesConfig";
-            this.dgvModulesConfig.Size = new System.Drawing.Size(853, 131); // Ajustado para ajustarse mejor
+            this.dgvModulesConfig.Size = new System.Drawing.Size(853, 131);
             this.dgvModulesConfig.TabIndex = 1;
             // 
             // grpAcerca
@@ -918,7 +930,7 @@ namespace GPI.Launcher
         private Panel pnlLeft;
         private Label lblCategorias;
         private TextBox txtFiltroCategoria;
-        private TreeView tvCategorias;
+        private TreeView treeCategories;
 
         private TabControl tabMain;
         private TabPage tabDashboard;

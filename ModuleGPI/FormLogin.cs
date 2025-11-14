@@ -117,17 +117,12 @@ namespace ModuleGPI
             //ACTIVAR EN CUANTO SE ACABE EL DESARROLLO    
 
 
-
             //1) Validar con Active Directory
             //if (!ValidateAdLogin(user, pass))
             //{
             //    MessageBox.Show("Usuario o contraseña incorrectos.");
             //    return;
             //}
-
-
-
-
 
 
             try
@@ -175,7 +170,7 @@ namespace ModuleGPI
 
                 // 4) Guardar sesión
                 Session.LogonName = user;
-                Session.Sucursal = info["USU_UserPLant"].ToString();
+                Session.Sucursal = Convert.ToInt32(info["USU_UserPLant"]);  
                 Session.TypeAut = Convert.ToInt32(info["USU_TypeAut"]);
                 Session.EmpId = empId;
                 // 5) Indicar éxito al Program.cs

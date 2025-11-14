@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ModuleGPI.Domain;
+using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
-using ModuleGPI.Domain;
 
 namespace ModuleGPI.Data
 {
@@ -44,8 +44,7 @@ namespace ModuleGPI.Data
                 cmd.Parameters.Add("@RequiresElevation", SqlDbType.Bit).Value = r["RequiresElevation"];
                 cmd.Parameters.Add("@RolesMinTypeAut", SqlDbType.Int).Value = r["RolesMinTypeAut"];
                 cmd.Parameters.Add("@Plant", SqlDbType.Int).Value = r["Plant"];
-                cn.Open();
-                cmd.ExecuteNonQuery();
+                cn.Open(); cmd.ExecuteNonQuery();
             }
         }
 
@@ -56,8 +55,7 @@ namespace ModuleGPI.Data
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@ButtonName", SqlDbType.NVarChar, 80).Value = buttonName;
-                cn.Open();
-                cmd.ExecuteNonQuery();
+                cn.Open(); cmd.ExecuteNonQuery();
             }
         }
 
@@ -129,10 +127,7 @@ namespace ModuleGPI.Data
                     try
                     {
                         using (var del = new SqlCommand("DELETE FROM dbo.ModGPI_Override WHERE ButtonName=@B", cn, tx))
-                        {
-                            del.Parameters.AddWithValue("@B", buttonName);
-                            del.ExecuteNonQuery();
-                        }
+                        { del.Parameters.AddWithValue("@B", buttonName); del.ExecuteNonQuery(); }
 
                         using (var ins = new SqlCommand(
                             "INSERT INTO dbo.ModGPI_Override (ButtonName, EmpId, Override) VALUES (@B,@E,@O)", cn, tx))
@@ -154,11 +149,7 @@ namespace ModuleGPI.Data
 
                         tx.Commit();
                     }
-                    catch
-                    {
-                        tx.Rollback();
-                        throw;
-                    }
+                    catch { tx.Rollback(); throw; }
                 }
             }
         }

@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
+using System.Linq;  
 using System.Windows.Forms;
 
 namespace ModuleGPI.Services
@@ -130,7 +130,12 @@ namespace ModuleGPI.Services
 
         private static void ClearButtons(FlowLayoutPanel flp)
         {
-            foreach (Control c in flp.Controls.ToArray()) c.Dispose();
+            Control[] controls = new Control[flp.Controls.Count];
+            flp.Controls.CopyTo(controls, 0);
+            foreach (Control c in controls)
+            {
+                c.Dispose();
+            }
             flp.Controls.Clear();
         }
 
