@@ -8,6 +8,8 @@ namespace ModuleGPI.Data
 {
     public sealed class SqlDataAccess : IDataAccess
     {
+        private SqlDataAdapter _daUsers; // Mantener adapter para usuarios
+
         private string GetConnString()
         {
             var cs = ConfigurationManager.ConnectionStrings["DBConnectionString"];
@@ -25,7 +27,8 @@ namespace ModuleGPI.Data
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@Plant", SqlDbType.Int).Value = (object)plant ?? DBNull.Value;
                 cn.Open();
-                using (var rd = cmd.ExecuteReader()) dt.Load(rd);
+                using (var rd = cmd.ExecuteReader())
+                    dt.Load(rd);
             }
             return dt;
         }
@@ -39,12 +42,14 @@ namespace ModuleGPI.Data
                 cmd.Parameters.Add("@ButtonName", SqlDbType.NVarChar, 80).Value = r["ButtonName"];
                 cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 100).Value = r["Name"];
                 cmd.Parameters.Add("@ExePath", SqlDbType.NVarChar, 500).Value = r["ExePath"];
-                cmd.Parameters.Add("@WorkingDir", SqlDbType.NVarChar, 500).Value = r["WorkingDir"];
+                cmd.Parameters.Add("@WorkingDir", SqlDbType.NVarChar, 500).Value = r["WorkingDir"] ?? DBNull.Value;
+                cmd.Parameters.Add("@Arguments", SqlDbType.NVarChar, 500).Value = r["Arguments"] ?? DBNull.Value;
                 cmd.Parameters.Add("@Category", SqlDbType.NVarChar, 50).Value = r["Category"];
                 cmd.Parameters.Add("@RequiresElevation", SqlDbType.Bit).Value = r["RequiresElevation"];
                 cmd.Parameters.Add("@RolesMinTypeAut", SqlDbType.Int).Value = r["RolesMinTypeAut"];
                 cmd.Parameters.Add("@Plant", SqlDbType.Int).Value = r["Plant"];
-                cn.Open(); cmd.ExecuteNonQuery();
+                cn.Open();
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -55,7 +60,8 @@ namespace ModuleGPI.Data
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@ButtonName", SqlDbType.NVarChar, 80).Value = buttonName;
-                cn.Open(); cmd.ExecuteNonQuery();
+                cn.Open();
+                cmd.ExecuteNonQuery();
             }
         }
 
@@ -63,44 +69,61 @@ namespace ModuleGPI.Data
         {
             var dt = new DataTable();
             string sql = @"SELECT U.USU_EmpID, U.USU_UserLog, U.USU_TypeAut, U.USU_Status, U.USU_UserPLant
-                           FROM dbo.ModGPI_User U ORDER BY U.USU_EmpID;";
+                           FROM dbo.ModGPI_User U 
+                           ORDER BY U.USU_EmpID;";
+
             using (var cn = new SqlConnection(GetConnString()))
-            using (var da = new SqlDataAdapter(sql, cn))
             {
-                da.MissingSchemaAction = MissingSchemaAction.AddWithKey;
-                da.Fill(dt);
+                _daUsers = new SqlDataAdapter(sql, cn);
+                _daUsers.MissingSchemaAction = MissingSchemaAction.AddWithKey;
+                _daUsers.Fill(dt);
             }
+
             return dt;
         }
 
         public void UpdateUsers(DataTable users)
         {
-            string sql = @"UPDATE dbo.ModGPI_User
-                           SET USU_TypeAut=@USU_TypeAut, USU_Status=@USU_Status, USU_UserPLant=@USU_UserPLant
-                           WHERE USU_EmpID=@USU_EmpID;";
-            using (var cn = new SqlConnection(GetConnString()))
-            using (var da = new SqlDataAdapter("SELECT USU_EmpID, USU_UserLog, USU_TypeAut, USU_Status, USU_UserPLant FROM dbo.ModGPI_User", cn))
+            if (_daUsers == null)
             {
-                da.UpdateCommand = new SqlCommand(sql, cn);
-                da.UpdateCommand.Parameters.Add("@USU_TypeAut", SqlDbType.Int).SourceColumn = "USU_TypeAut";
-                da.UpdateCommand.Parameters.Add("@USU_Status", SqlDbType.Int).SourceColumn = "USU_Status";
-                da.UpdateCommand.Parameters.Add("@USU_UserPLant", SqlDbType.Int).SourceColumn = "USU_UserPLant";
-                var pk = da.UpdateCommand.Parameters.Add("@USU_EmpID", SqlDbType.NVarChar, 10);
+                // Re-crear el adapter si es necesario
+                string selectSql = @"SELECT USU_EmpID, USU_UserLog, USU_TypeAut, USU_Status, USU_UserPLant 
+                                    FROM dbo.ModGPI_User";
+                _daUsers = new SqlDataAdapter(selectSql, GetConnString());
+            }
+
+            string updateSql = @"UPDATE dbo.ModGPI_User
+                               SET USU_TypeAut=@USU_TypeAut, 
+                                   USU_Status=@USU_Status, 
+                                   USU_UserPLant=@USU_UserPLant
+                               WHERE USU_EmpID=@USU_EmpID;";
+
+            using (var cn = new SqlConnection(GetConnString()))
+            {
+                _daUsers.UpdateCommand = new SqlCommand(updateSql, cn);
+                _daUsers.UpdateCommand.Parameters.Add("@USU_TypeAut", SqlDbType.Int).SourceColumn = "USU_TypeAut";
+                _daUsers.UpdateCommand.Parameters.Add("@USU_Status", SqlDbType.Int).SourceColumn = "USU_Status";
+                _daUsers.UpdateCommand.Parameters.Add("@USU_UserPLant", SqlDbType.Int).SourceColumn = "USU_UserPLant";
+
+                // Primary key parameter para el WHERE
+                var pk = _daUsers.UpdateCommand.Parameters.Add("@USU_EmpID", SqlDbType.NVarChar, 10);
                 pk.SourceColumn = "USU_EmpID";
                 pk.SourceVersion = DataRowVersion.Original;
 
-                da.Update(users);
+                _daUsers.Update(users);
             }
         }
 
         public OverridesStore GetOverrides()
         {
             var store = new OverridesStore();
+
             using (var cn = new SqlConnection(GetConnString()))
             using (var cmd = new SqlCommand("dbo.ModGPI_Override_GetAll", cn))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cn.Open();
+
                 using (var rd = cmd.ExecuteReader())
                 {
                     while (rd.Read())
@@ -114,6 +137,7 @@ namespace ModuleGPI.Data
                     }
                 }
             }
+
             return store;
         }
 
@@ -126,9 +150,16 @@ namespace ModuleGPI.Data
                 {
                     try
                     {
-                        using (var del = new SqlCommand("DELETE FROM dbo.ModGPI_Override WHERE ButtonName=@B", cn, tx))
-                        { del.Parameters.AddWithValue("@B", buttonName); del.ExecuteNonQuery(); }
+                        // Primero eliminar todos los overrides existentes para este botón
+                        // NOTA: Tabla corregida a ModGPI_Override (sin UserModule)
+                        using (var del = new SqlCommand(
+                            "DELETE FROM dbo.ModGPI_Override WHERE ButtonName=@B", cn, tx))
+                        {
+                            del.Parameters.AddWithValue("@B", buttonName);
+                            del.ExecuteNonQuery();
+                        }
 
+                        // Luego insertar los nuevos (solo los que no son heredados)
                         using (var ins = new SqlCommand(
                             "INSERT INTO dbo.ModGPI_Override (ButtonName, EmpId, Override) VALUES (@B,@E,@O)", cn, tx))
                         {
@@ -139,7 +170,10 @@ namespace ModuleGPI.Data
                             foreach (DataRow r in overridesView.Rows)
                             {
                                 int ov = Convert.ToInt32(r["Override"]);
+
+                                // Solo guardar overrides explícitos (no heredados)
                                 if (ov == 0) continue;
+
                                 ins.Parameters["@B"].Value = buttonName;
                                 ins.Parameters["@E"].Value = r["EmpId"];
                                 ins.Parameters["@O"].Value = ov;
@@ -149,7 +183,11 @@ namespace ModuleGPI.Data
 
                         tx.Commit();
                     }
-                    catch { tx.Rollback(); throw; }
+                    catch
+                    {
+                        tx.Rollback();
+                        throw;
+                    }
                 }
             }
         }

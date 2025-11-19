@@ -89,6 +89,9 @@
     <Compile Include="Data\IDataAccess.cs" />
     <Compile Include="Data\SqlDataAccess.cs" />
     <Compile Include="Domain\ModuleDef.cs" />
+    <Compile Include="Domain\Moduleeditform.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Domain\ModuleUserOverride.cs" />
     <Compile Include="Domain\OverridesStore.cs" />
     <Compile Include="FormLogin.cs">

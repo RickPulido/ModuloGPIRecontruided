@@ -282,7 +282,7 @@ namespace ModuleGPI
             // 
             this.splitMain.Panel2.Controls.Add(this.tabMain);
             this.splitMain.Size = new System.Drawing.Size(1002, 524);
-            this.splitMain.SplitterDistance = 121;
+            this.splitMain.SplitterDistance = 150;  // ✅ Ajustado para mejor layout en resoluciones altas
             this.splitMain.TabIndex = 2;
             // 
             // pnlLeft
@@ -293,7 +293,7 @@ namespace ModuleGPI
             this.pnlLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlLeft.Name = "pnlLeft";
-            this.pnlLeft.Size = new System.Drawing.Size(121, 524);
+            this.pnlLeft.Size = new System.Drawing.Size(150, 524);  // ✅ Ajustado ancho
             this.pnlLeft.TabIndex = 0;
             // 
             // treeCategories
@@ -301,7 +301,7 @@ namespace ModuleGPI
             this.treeCategories.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeCategories.Location = new System.Drawing.Point(0, 44);
             this.treeCategories.Name = "treeCategories";
-            this.treeCategories.Size = new System.Drawing.Size(121, 480);
+            this.treeCategories.Size = new System.Drawing.Size(150, 480);
             this.treeCategories.TabIndex = 0;
             // 
             // txtFiltroCategoria
@@ -309,7 +309,7 @@ namespace ModuleGPI
             this.txtFiltroCategoria.Dock = System.Windows.Forms.DockStyle.Top;
             this.txtFiltroCategoria.Location = new System.Drawing.Point(0, 24);
             this.txtFiltroCategoria.Name = "txtFiltroCategoria";
-            this.txtFiltroCategoria.Size = new System.Drawing.Size(121, 20);
+            this.txtFiltroCategoria.Size = new System.Drawing.Size(150, 20);
             this.txtFiltroCategoria.TabIndex = 1;
             this.txtFiltroCategoria.Tag = "Filtrar categorías…";
             // 
@@ -319,7 +319,7 @@ namespace ModuleGPI
             this.lblCategorias.Location = new System.Drawing.Point(0, 0);
             this.lblCategorias.Name = "lblCategorias";
             this.lblCategorias.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
-            this.lblCategorias.Size = new System.Drawing.Size(121, 24);
+            this.lblCategorias.Size = new System.Drawing.Size(150, 24);
             this.lblCategorias.TabIndex = 2;
             this.lblCategorias.Text = "Categorías";
             // 
@@ -334,7 +334,7 @@ namespace ModuleGPI
             this.tabMain.Location = new System.Drawing.Point(0, 0);
             this.tabMain.Name = "tabMain";
             this.tabMain.SelectedIndex = 0;
-            this.tabMain.Size = new System.Drawing.Size(877, 524);
+            this.tabMain.Size = new System.Drawing.Size(847, 524);  // ✅ Ajustado para resoluciones
             this.tabMain.TabIndex = 0;
             // 
             // tabDashboard
@@ -342,14 +342,14 @@ namespace ModuleGPI
             this.tabDashboard.Controls.Add(this.tlpDash);
             this.tabDashboard.Location = new System.Drawing.Point(4, 22);
             this.tabDashboard.Name = "tabDashboard";
-            this.tabDashboard.Size = new System.Drawing.Size(869, 498);
+            this.tabDashboard.Size = new System.Drawing.Size(839, 498);
             this.tabDashboard.TabIndex = 0;
             this.tabDashboard.Text = "Dashboard";
             // 
             // tlpDash
             // 
             this.tlpDash.ColumnCount = 1;
-            this.tlpDash.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tlpDash.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));  // ✅ Cambiado a Percent para responsividad
             this.tlpDash.Controls.Add(this.flpKPIs, 0, 0);
             this.tlpDash.Controls.Add(this.dgvLaunchLog, 0, 1);
             this.tlpDash.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -358,7 +358,7 @@ namespace ModuleGPI
             this.tlpDash.RowCount = 2;
             this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpDash.Size = new System.Drawing.Size(869, 498);
+            this.tlpDash.Size = new System.Drawing.Size(839, 498);
             this.tlpDash.TabIndex = 0;
             // 
             // flpKPIs
@@ -368,7 +368,7 @@ namespace ModuleGPI
             this.flpKPIs.Location = new System.Drawing.Point(3, 3);
             this.flpKPIs.Name = "flpKPIs";
             this.flpKPIs.Padding = new System.Windows.Forms.Padding(8);
-            this.flpKPIs.Size = new System.Drawing.Size(863, 114);
+            this.flpKPIs.Size = new System.Drawing.Size(833, 114);
             this.flpKPIs.TabIndex = 0;
             // 
             // dgvLaunchLog
@@ -379,7 +379,7 @@ namespace ModuleGPI
             this.dgvLaunchLog.Location = new System.Drawing.Point(3, 123);
             this.dgvLaunchLog.Name = "dgvLaunchLog";
             this.dgvLaunchLog.ReadOnly = true;
-            this.dgvLaunchLog.Size = new System.Drawing.Size(863, 372);
+            this.dgvLaunchLog.Size = new System.Drawing.Size(833, 372);
             this.dgvLaunchLog.TabIndex = 1;
             // 
             // tabOperacion
@@ -388,7 +388,7 @@ namespace ModuleGPI
             this.tabOperacion.Controls.Add(this.pnlOpHeader);
             this.tabOperacion.Location = new System.Drawing.Point(4, 22);
             this.tabOperacion.Name = "tabOperacion";
-            this.tabOperacion.Size = new System.Drawing.Size(869, 498);
+            this.tabOperacion.Size = new System.Drawing.Size(839, 498);
             this.tabOperacion.TabIndex = 1;
             this.tabOperacion.Text = "Operación";
             // 
@@ -399,7 +399,7 @@ namespace ModuleGPI
             this.flpOperacion.Location = new System.Drawing.Point(0, 48);
             this.flpOperacion.Name = "flpOperacion";
             this.flpOperacion.Padding = new System.Windows.Forms.Padding(8);
-            this.flpOperacion.Size = new System.Drawing.Size(869, 450);
+            this.flpOperacion.Size = new System.Drawing.Size(839, 450);
             this.flpOperacion.TabIndex = 0;
             // 
             // pnlOpHeader
@@ -411,7 +411,7 @@ namespace ModuleGPI
             this.pnlOpHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlOpHeader.Name = "pnlOpHeader";
             this.pnlOpHeader.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlOpHeader.Size = new System.Drawing.Size(869, 48);
+            this.pnlOpHeader.Size = new System.Drawing.Size(839, 48);
             this.pnlOpHeader.TabIndex = 1;
             // 
             // lblOpTitulo
@@ -426,7 +426,7 @@ namespace ModuleGPI
             // txtOpSearch
             // 
             this.txtOpSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOpSearch.Location = new System.Drawing.Point(527, 12);
+            this.txtOpSearch.Location = new System.Drawing.Point(497, 12);
             this.txtOpSearch.Name = "txtOpSearch";
             this.txtOpSearch.Size = new System.Drawing.Size(220, 20);
             this.txtOpSearch.TabIndex = 1;
@@ -434,9 +434,9 @@ namespace ModuleGPI
             // btnOpRefrescar
             // 
             this.btnOpRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOpRefrescar.Location = new System.Drawing.Point(755, 11);
+            this.btnOpRefrescar.Location = new System.Drawing.Point(725, 11);
             this.btnOpRefrescar.Name = "btnOpRefrescar";
-            this.btnOpRefrescar.Size = new System.Drawing.Size(90, 23);
+            this.btnOpRefrescar.Size = new System.Drawing.Size(100, 23);  // ✅ Tamaño unificado
             this.btnOpRefrescar.TabIndex = 2;
             this.btnOpRefrescar.Text = "Refrescar";
             // 
@@ -446,7 +446,7 @@ namespace ModuleGPI
             this.tabConsultas.Controls.Add(this.pnlConsHeader);
             this.tabConsultas.Location = new System.Drawing.Point(4, 22);
             this.tabConsultas.Name = "tabConsultas";
-            this.tabConsultas.Size = new System.Drawing.Size(869, 498);
+            this.tabConsultas.Size = new System.Drawing.Size(839, 498);
             this.tabConsultas.TabIndex = 2;
             this.tabConsultas.Text = "Consultas";
             // 
@@ -459,7 +459,7 @@ namespace ModuleGPI
             this.flpConsultas.Location = new System.Drawing.Point(0, 48);
             this.flpConsultas.Name = "flpConsultas";
             this.flpConsultas.Padding = new System.Windows.Forms.Padding(8);
-            this.flpConsultas.Size = new System.Drawing.Size(869, 450);
+            this.flpConsultas.Size = new System.Drawing.Size(839, 450);
             this.flpConsultas.TabIndex = 0;
             // 
             // btnMod_Cons_Reportes
@@ -488,7 +488,7 @@ namespace ModuleGPI
             this.pnlConsHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlConsHeader.Name = "pnlConsHeader";
             this.pnlConsHeader.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlConsHeader.Size = new System.Drawing.Size(869, 48);
+            this.pnlConsHeader.Size = new System.Drawing.Size(839, 48);
             this.pnlConsHeader.TabIndex = 1;
             // 
             // lblConsTitulo
@@ -503,7 +503,7 @@ namespace ModuleGPI
             // txtConsSearch
             // 
             this.txtConsSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtConsSearch.Location = new System.Drawing.Point(641, 12);
+            this.txtConsSearch.Location = new System.Drawing.Point(611, 12);
             this.txtConsSearch.Name = "txtConsSearch";
             this.txtConsSearch.Size = new System.Drawing.Size(220, 20);
             this.txtConsSearch.TabIndex = 1;
@@ -514,7 +514,7 @@ namespace ModuleGPI
             this.tabAdmin.Controls.Add(this.splitAdmin);
             this.tabAdmin.Location = new System.Drawing.Point(4, 22);
             this.tabAdmin.Name = "tabAdmin";
-            this.tabAdmin.Size = new System.Drawing.Size(869, 498);
+            this.tabAdmin.Size = new System.Drawing.Size(839, 498);
             this.tabAdmin.TabIndex = 3;
             this.tabAdmin.Text = "Administración";
             // 
@@ -526,13 +526,13 @@ namespace ModuleGPI
             this.pnlAdminButtons.Location = new System.Drawing.Point(0, 454);
             this.pnlAdminButtons.Name = "pnlAdminButtons";
             this.pnlAdminButtons.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlAdminButtons.Size = new System.Drawing.Size(869, 44);
+            this.pnlAdminButtons.Size = new System.Drawing.Size(839, 44);
             this.pnlAdminButtons.TabIndex = 1;
             // 
             // btnAdminGuardar
             // 
             this.btnAdminGuardar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdminGuardar.Location = new System.Drawing.Point(761, 8);
+            this.btnAdminGuardar.Location = new System.Drawing.Point(731, 8);
             this.btnAdminGuardar.Name = "btnAdminGuardar";
             this.btnAdminGuardar.Size = new System.Drawing.Size(100, 28);
             this.btnAdminGuardar.TabIndex = 0;
@@ -541,7 +541,7 @@ namespace ModuleGPI
             // btnAdminRefrescar
             // 
             this.btnAdminRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdminRefrescar.Location = new System.Drawing.Point(653, 8);
+            this.btnAdminRefrescar.Location = new System.Drawing.Point(623, 8);
             this.btnAdminRefrescar.Name = "btnAdminRefrescar";
             this.btnAdminRefrescar.Size = new System.Drawing.Size(100, 28);
             this.btnAdminRefrescar.TabIndex = 1;
@@ -563,8 +563,8 @@ namespace ModuleGPI
             // splitAdmin.Panel2
             // 
             this.splitAdmin.Panel2.Controls.Add(this.rightAdmin);
-            this.splitAdmin.Size = new System.Drawing.Size(869, 498);
-            this.splitAdmin.SplitterDistance = 695;
+            this.splitAdmin.Size = new System.Drawing.Size(839, 498);
+            this.splitAdmin.SplitterDistance = 565;  // ✅ Ajustado para balance en resoluciones
             this.splitAdmin.TabIndex = 0;
             // 
             // leftAdmin
@@ -573,7 +573,7 @@ namespace ModuleGPI
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
             this.leftAdmin.Name = "leftAdmin";
-            this.leftAdmin.Size = new System.Drawing.Size(695, 498);
+            this.leftAdmin.Size = new System.Drawing.Size(565, 498);
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
@@ -584,7 +584,7 @@ namespace ModuleGPI
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
             this.grpRoles.Name = "grpRoles";
-            this.grpRoles.Size = new System.Drawing.Size(695, 498);
+            this.grpRoles.Size = new System.Drawing.Size(565, 498);
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
@@ -637,7 +637,7 @@ namespace ModuleGPI
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
-            this.rightAdmin.Size = new System.Drawing.Size(170, 498);
+            this.rightAdmin.Size = new System.Drawing.Size(269, 498);  // ✅ Ajustado ancho
             this.rightAdmin.TabIndex = 0;
             // 
             // dgvModulos
@@ -657,7 +657,7 @@ namespace ModuleGPI
             this.dgvModulos.Location = new System.Drawing.Point(0, 0);
             this.dgvModulos.Name = "dgvModulos";
             this.dgvModulos.ReadOnly = true;
-            this.dgvModulos.Size = new System.Drawing.Size(170, 498);
+            this.dgvModulos.Size = new System.Drawing.Size(269, 498);
             this.dgvModulos.TabIndex = 0;
             // 
             // tabConfig
@@ -669,7 +669,7 @@ namespace ModuleGPI
             this.tabConfig.Controls.Add(this.grpAcerca);
             this.tabConfig.Location = new System.Drawing.Point(4, 22);
             this.tabConfig.Name = "tabConfig";
-            this.tabConfig.Size = new System.Drawing.Size(869, 498);
+            this.tabConfig.Size = new System.Drawing.Size(839, 498);
             this.tabConfig.TabIndex = 4;
             this.tabConfig.Text = "Configuración";
             // 
@@ -677,25 +677,25 @@ namespace ModuleGPI
             // 
             this.btnDeleteModule.Location = new System.Drawing.Point(205, 186);
             this.btnDeleteModule.Name = "btnDeleteModule";
-            this.btnDeleteModule.Size = new System.Drawing.Size(75, 23);
+            this.btnDeleteModule.Size = new System.Drawing.Size(100, 30);  // ✅ Tamaño unificado
             this.btnDeleteModule.TabIndex = 4;
             this.btnDeleteModule.Text = "Delete";
             this.btnDeleteModule.UseVisualStyleBackColor = true;
             // 
             // btnSaveModule
             // 
-            this.btnSaveModule.Location = new System.Drawing.Point(124, 186);
+            this.btnSaveModule.Location = new System.Drawing.Point(110, 186);
             this.btnSaveModule.Name = "btnSaveModule";
-            this.btnSaveModule.Size = new System.Drawing.Size(75, 23);
+            this.btnSaveModule.Size = new System.Drawing.Size(100, 30);
             this.btnSaveModule.TabIndex = 3;
             this.btnSaveModule.Text = "Save Mod";
             this.btnSaveModule.UseVisualStyleBackColor = true;
             // 
             // btnNewModule
             // 
-            this.btnNewModule.Location = new System.Drawing.Point(43, 186);
+            this.btnNewModule.Location = new System.Drawing.Point(15, 186);
             this.btnNewModule.Name = "btnNewModule";
-            this.btnNewModule.Size = new System.Drawing.Size(75, 23);
+            this.btnNewModule.Size = new System.Drawing.Size(100, 30);
             this.btnNewModule.TabIndex = 2;
             this.btnNewModule.Text = "New Module";
             this.btnNewModule.UseVisualStyleBackColor = true;
@@ -707,7 +707,7 @@ namespace ModuleGPI
             this.grpGeneral.Location = new System.Drawing.Point(0, 0);
             this.grpGeneral.Name = "grpGeneral";
             this.grpGeneral.Padding = new System.Windows.Forms.Padding(8);
-            this.grpGeneral.Size = new System.Drawing.Size(869, 160);
+            this.grpGeneral.Size = new System.Drawing.Size(839, 180);  // ✅ Ajustado alto para resoluciones
             this.grpGeneral.TabIndex = 0;
             this.grpGeneral.TabStop = false;
             this.grpGeneral.Text = "General";
@@ -718,7 +718,7 @@ namespace ModuleGPI
             this.dgvModulesConfig.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvModulesConfig.Location = new System.Drawing.Point(8, 21);
             this.dgvModulesConfig.Name = "dgvModulesConfig";
-            this.dgvModulesConfig.Size = new System.Drawing.Size(853, 131);
+            this.dgvModulesConfig.Size = new System.Drawing.Size(823, 151);
             this.dgvModulesConfig.TabIndex = 1;
             // 
             // grpAcerca
@@ -729,7 +729,7 @@ namespace ModuleGPI
             this.grpAcerca.Location = new System.Drawing.Point(0, 378);
             this.grpAcerca.Name = "grpAcerca";
             this.grpAcerca.Padding = new System.Windows.Forms.Padding(8);
-            this.grpAcerca.Size = new System.Drawing.Size(869, 120);
+            this.grpAcerca.Size = new System.Drawing.Size(839, 120);
             this.grpAcerca.TabIndex = 1;
             this.grpAcerca.TabStop = false;
             this.grpAcerca.Text = "Acerca de";
@@ -739,7 +739,7 @@ namespace ModuleGPI
             this.lblVersion.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblVersion.Location = new System.Drawing.Point(8, 21);
             this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(853, 24);
+            this.lblVersion.Size = new System.Drawing.Size(823, 24);
             this.lblVersion.TabIndex = 0;
             this.lblVersion.Text = "Versión: 1.0.0";
             // 
@@ -749,7 +749,7 @@ namespace ModuleGPI
             this.btnGuardarConfig.Enabled = false;
             this.btnGuardarConfig.Location = new System.Drawing.Point(8, 76);
             this.btnGuardarConfig.Name = "btnGuardarConfig";
-            this.btnGuardarConfig.Size = new System.Drawing.Size(853, 36);
+            this.btnGuardarConfig.Size = new System.Drawing.Size(823, 36);
             this.btnGuardarConfig.TabIndex = 1;
             this.btnGuardarConfig.Text = "Guardar";
             // 
@@ -851,6 +851,8 @@ namespace ModuleGPI
             // 
             // MainForm
             // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);  // ✅ Agregado para mejor handling de DPI/resoluciones
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;  // ✅ Agregado para responsividad
             this.ClientSize = new System.Drawing.Size(1008, 601);
             this.Controls.Add(this.root);
             this.KeyPreview = true;
@@ -906,6 +908,7 @@ namespace ModuleGPI
         }
 
         #endregion
+
 
         private MenuStrip menuMain;
         private ToolStripMenuItem mnuArchivo;
