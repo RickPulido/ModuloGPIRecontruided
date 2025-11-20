@@ -265,6 +265,15 @@ namespace ModuleGPI
 
                 cboPlantFilter.SelectedIndexChanged += (s, e) => FilterUsersByPlant();
             }
+
+            if (dgvOverrides != null)
+            {
+                dgvOverrides.CurrentCellDirtyStateChanged += DgvOverrides_CurrentCellDirtyStateChanged;
+                dgvOverrides.CellValueChanged += DgvOverrides_CellValueChanged;
+                dgvOverrides.CellFormatting += DgvOverrides_CellFormatting; // ✅ Agregar esto
+                dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
+                _uiHelpers.EnableDgvDoubleBuffer(dgvOverrides);
+            }
         }
 
         private void SetupOverridesGrid()
@@ -274,18 +283,24 @@ namespace ModuleGPI
                 dgvOverrides = new DataGridView
                 {
                     Name = "dgvOverrides",
-                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                    AutoGenerateColumns = true, // ✅ Importante: dejar que genere automáticamente
+                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
                     AllowUserToAddRows = false,
                     AllowUserToDeleteRows = false,
-                    ReadOnly = true,
+                    ReadOnly = false, // Permitir edición
                     RowHeadersVisible = false,
-                    Dock = DockStyle.Fill
+                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                    MultiSelect = false,
+                    Dock = DockStyle.Fill,
+                    BackgroundColor = SystemColors.Window,
+                    BorderStyle = BorderStyle.None
                 };
 
+                // Eventos
                 dgvOverrides.CurrentCellDirtyStateChanged += DgvOverrides_CurrentCellDirtyStateChanged;
                 dgvOverrides.CellValueChanged += DgvOverrides_CellValueChanged;
-                dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
                 dgvOverrides.CellFormatting += DgvOverrides_CellFormatting;
+                dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
 
                 _uiHelpers.EnableDgvDoubleBuffer(dgvOverrides);
 
@@ -301,16 +316,20 @@ namespace ModuleGPI
                         SplitterDistance = rightAdmin.Height / 2
                     };
 
+                    // Panel superior: módulos
                     splitContainer.Panel1.Controls.Add(dgvModulos);
                     dgvModulos.Dock = DockStyle.Fill;
 
+                    // Panel inferior: overrides
                     var lblOverrides = new Label
                     {
-                        Text = "Overrides por Usuario",
+                        Text = "🔐 Permisos Personalizados por Usuario",
                         Dock = DockStyle.Top,
-                        Height = 24,
+                        Height = 28,
                         TextAlign = ContentAlignment.MiddleLeft,
-                        Font = new Font("Segoe UI", 9F, FontStyle.Bold)
+                        Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                        Padding = new Padding(8, 0, 0, 0),
+                        BackColor = SystemColors.Control
                     };
 
                     splitContainer.Panel2.Controls.Add(dgvOverrides);
@@ -320,6 +339,7 @@ namespace ModuleGPI
                 }
             }
         }
+
         #endregion
 
         #region Tab Navigation
@@ -696,22 +716,48 @@ namespace ModuleGPI
 
             try
             {
-                _dtModulesAdmin = _dataAccess.GetModules(null);
+                this.Cursor = Cursors.WaitCursor;
 
-                dgvModulos.DataSource = null; // ← Importante: limpiar primero
+                // ✅ 1. Cargar módulos
+                _dtModulesAdmin = _dataAccess.GetModules(null);
+                dgvModulos.DataSource = null;
                 dgvModulos.DataSource = _dtModulesAdmin;
                 dgvModulos.ReadOnly = !_adminCanEdit;
+                ConfigureModulesAdminGrid();
 
-                ConfigureModulesAdminGrid(); // ← Solo visibilidad y texto
+                // ✅ 2. Cargar usuarios (NUEVO)
+                _dtUsers = _dataAccess.GetUsers();
+                dgvUsuarios.DataSource = _dtUsers;
+                dgvUsuarios.ReadOnly = !_adminCanEdit;
+                ConfigureUsersGrid();
 
-                // Los anchos se aplican automáticamente cuando el control se muestre
+                // ✅ 3. Inicializar filtro de planta (NUEVO)
+                LoadPlantFilter();
+
+                // ✅ 4. Cargar overrides si hay un módulo seleccionado
+                if (dgvModulos.Rows.Count > 0)
+                {
+                    dgvModulos.Rows[0].Selected = true;
+                    var drv = dgvModulos.Rows[0].DataBoundItem as DataRowView;
+                    if (drv != null)
+                    {
+                        string buttonName = Convert.ToString(drv["ButtonName"]);
+                        BuildOverridesViewFor(buttonName);
+                    }
+                }
+
+                UpdateStatus("Datos de administración cargados");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show($"Error al cargar datos de administración: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
-
         private void ConfigureModulesAdminGrid()
         {
             if (dgvModulos == null || dgvModulos.Columns.Count == 0) return;
@@ -975,70 +1021,160 @@ namespace ModuleGPI
         {
             if (_dtUsers == null || dgvOverrides == null) return;
 
-            _dtOverridesView = new DataTable();
-            _dtOverridesView.Columns.Add("EmpId", typeof(string));
-            _dtOverridesView.Columns.Add("UserName", typeof(string));
-            _dtOverridesView.Columns.Add("RoleName", typeof(string));
-            _dtOverridesView.Columns.Add("Override", typeof(int));
-
-            foreach (DataRow userRow in _dtUsers.Rows)
+            try
             {
-                string empId = Convert.ToString(userRow["USU_EmpID"]);
-                string userName = Convert.ToString(userRow["USU_UserLog"]);
-                int userRole = Convert.ToInt32(userRow["USU_TypeAut"]);
+                // 1. Crear tabla de datos
+                _dtOverridesView = new DataTable();
+                _dtOverridesView.Columns.Add("EmpId", typeof(string));
+                _dtOverridesView.Columns.Add("UserName", typeof(string));
+                _dtOverridesView.Columns.Add("RoleName", typeof(string));
+                _dtOverridesView.Columns.Add("Override", typeof(int));
 
-                var ov = _overrides.Get(buttonName, empId) ?? 0;
-
-                _dtOverridesView.Rows.Add(empId, userName, _roleManager.GetRoleName(userRole), ov);
-            }
-
-            dgvOverrides.DataSource = _dtOverridesView;
-
-            // Configurar columna combo para Override
-            if (!dgvOverrides.Columns.Contains("OverrideCombo"))
-            {
-                var comboCol = new DataGridViewComboBoxColumn
+                // 2. Llenar datos
+                foreach (DataRow userRow in _dtUsers.Rows)
                 {
-                    Name = "OverrideCombo",
-                    HeaderText = "Override",
-                    DataPropertyName = "Override",
-                    DataSource = new[]
-                    {
-                        new { Value = -1, Display = "Denegar" },
-                        new { Value = 0, Display = "Heredado" },
-                        new { Value = 1, Display = "Permitir" }
-                    },
-                    ValueMember = "Value",
-                    DisplayMember = "Display",
-                    Width = 100
-                };
+                    string empId = Convert.ToString(userRow["USU_EmpID"]);
+                    string userName = Convert.ToString(userRow["USU_UserLog"]);
+                    int userRole = Convert.ToInt32(userRow["USU_TypeAut"]);
+                    var ov = _overrides.Get(buttonName, empId) ?? 0;
+                    _dtOverridesView.Rows.Add(empId, userName, _roleManager.GetRoleName(userRole), ov);
+                }
 
-                if (dgvOverrides.Columns["Override"] != null)
+                // 3. Asignar DataSource
+                dgvOverrides.DataSource = null;
+                dgvOverrides.DataSource = _dtOverridesView;
+
+                // 4. ⭐ CRÍTICO: Configurar columnas en el siguiente ciclo del mensaje
+                if (dgvOverrides.IsHandleCreated)
                 {
-                    var index = dgvOverrides.Columns["Override"].Index;
-                    dgvOverrides.Columns.RemoveAt(index);
-                    dgvOverrides.Columns.Insert(index, comboCol);
+                    dgvOverrides.BeginInvoke(new Action(ConfigureOverridesColumns));
+                }
+                else
+                {
+                    // Si el handle no existe, esperar a que se cree
+                    dgvOverrides.HandleCreated += (s, e) =>
+                        dgvOverrides.BeginInvoke(new Action(ConfigureOverridesColumns));
                 }
             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al construir vista de overrides: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
-            // Configurar otras columnas
-            if (dgvOverrides.Columns["EmpId"] != null)
+        // Método auxiliar para configurar columnas de forma segura
+        private void ConfigureOverridesColumns()
+        {
+            // Validación defensiva
+            if (dgvOverrides == null || !dgvOverrides.IsHandleCreated)
             {
-                dgvOverrides.Columns["EmpId"].HeaderText = "ID";
-                dgvOverrides.Columns["EmpId"].Width = 60;
-            }
-            if (dgvOverrides.Columns["UserName"] != null)
-            {
-                dgvOverrides.Columns["UserName"].HeaderText = "Usuario";
-                dgvOverrides.Columns["UserName"].Width = 120;
-            }
-            if (dgvOverrides.Columns["RoleName"] != null)
-            {
-                dgvOverrides.Columns["RoleName"].HeaderText = "Rol Base";
-                dgvOverrides.Columns["RoleName"].Width = 80;
+                Debug.WriteLine("[ConfigureOverridesColumns] ❌ Control no inicializado");
+                return;
             }
 
-            dgvOverrides.ReadOnly = !_adminCanEdit;
+            if (dgvOverrides.Columns.Count == 0)
+            {
+                Debug.WriteLine("[ConfigureOverridesColumns] ❌ No hay columnas");
+                return;
+            }
+
+            try
+            {
+                Debug.WriteLine($"[ConfigureOverridesColumns] ✅ Iniciando - Columnas: {dgvOverrides.Columns.Count}");
+
+                // Suspender layout
+                dgvOverrides.SuspendLayout();
+
+                // Listar columnas existentes
+                foreach (DataGridViewColumn col in dgvOverrides.Columns)
+                {
+                    Debug.WriteLine($"  📋 Columna: {col.Name}, Index: {col.Index}, Width: {col.Width}");
+                }
+
+                // 1. Configurar EmpId (con validación extra)
+                var empIdCol = dgvOverrides.Columns["EmpId"];
+                if (empIdCol != null)
+                {
+                    empIdCol.HeaderText = "ID";
+                    empIdCol.ReadOnly = true;
+                    empIdCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    empIdCol.Width = 80; // ⚠️ Ahora sí es seguro
+                    Debug.WriteLine("  ✅ Columna EmpId configurada");
+                }
+
+                // 2. Configurar UserName
+                var userNameCol = dgvOverrides.Columns["UserName"];
+                if (userNameCol != null)
+                {
+                    userNameCol.HeaderText = "Usuario";
+                    userNameCol.ReadOnly = true;
+                    userNameCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    userNameCol.Width = 140;
+                    Debug.WriteLine("  ✅ Columna UserName configurada");
+                }
+
+                // 3. Configurar RoleName
+                var roleNameCol = dgvOverrides.Columns["RoleName"];
+                if (roleNameCol != null)
+                {
+                    roleNameCol.HeaderText = "Rol Base";
+                    roleNameCol.ReadOnly = true;
+                    roleNameCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    roleNameCol.Width = 100;
+                    Debug.WriteLine("  ✅ Columna RoleName configurada");
+                }
+
+                // 4. Reemplazar columna Override con ComboBox
+                var overrideCol = dgvOverrides.Columns["Override"];
+                if (overrideCol != null)
+                {
+                    int overrideIndex = overrideCol.Index;
+                    dgvOverrides.Columns.Remove(overrideCol); // Usar Remove en vez de RemoveAt
+
+                    var comboCol = new DataGridViewComboBoxColumn
+                    {
+                        Name = "Override",
+                        HeaderText = "Permiso",
+                        DataPropertyName = "Override",
+                        DataSource = new[]
+                        {
+                    new { Value = -1, Display = "❌ Denegar" },
+                    new { Value = 0, Display = "⚪ Heredado" },
+                    new { Value = 1, Display = "✅ Permitir" }
+                },
+                        ValueMember = "Value",
+                        DisplayMember = "Display",
+                        AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                        Width = 120,
+                        ReadOnly = !_adminCanEdit,
+                        DisplayStyle = DataGridViewComboBoxDisplayStyle.Nothing
+                    };
+
+                    dgvOverrides.Columns.Insert(overrideIndex, comboCol);
+                    Debug.WriteLine("  ✅ Columna Override configurada (ComboBox)");
+                }
+
+                // 5. Configuración general
+                dgvOverrides.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                dgvOverrides.AllowUserToAddRows = false;
+                dgvOverrides.AllowUserToDeleteRows = false;
+                dgvOverrides.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+                dgvOverrides.MultiSelect = false;
+                dgvOverrides.RowHeadersVisible = false;
+                dgvOverrides.ReadOnly = !_adminCanEdit;
+
+                // Reanudar layout
+                dgvOverrides.ResumeLayout();
+
+                Debug.WriteLine("[ConfigureOverridesColumns] ✅ Configuración completada");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ConfigureOverridesColumns] ❌ Error: {ex.Message}\n{ex.StackTrace}");
+                MessageBox.Show($"Error al configurar columnas de overrides:\n{ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         private void DgvOverrides_CurrentCellDirtyStateChanged(object sender, EventArgs e)
@@ -1090,30 +1226,36 @@ namespace ModuleGPI
 
         private void DgvOverrides_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (e.RowIndex < 0) return;
+            if (e.RowIndex < 0 || dgvOverrides.Columns[e.ColumnIndex].Name != "Override")
+                return;
 
-            var drv = dgvOverrides.Rows[e.RowIndex].DataBoundItem as DataRowView;
-            if (drv == null) return;
-
-            int ov = 0;
-            object raw = drv.Row["Override"];
-            if (raw != DBNull.Value)
+            try
             {
-                int.TryParse(raw.ToString(), out ov);
+                var cellValue = dgvOverrides.Rows[e.RowIndex].Cells["Override"].Value;
+                if (cellValue == null || cellValue == DBNull.Value) return;
+
+                int overrideValue = Convert.ToInt32(cellValue);
+                var row = dgvOverrides.Rows[e.RowIndex];
+
+                switch (overrideValue)
+                {
+                    case 1: // Permitir
+                        row.DefaultCellStyle.BackColor = Color.FromArgb(230, 255, 230);
+                        row.DefaultCellStyle.ForeColor = Color.DarkGreen;
+                        break;
+                    case -1: // Denegar
+                        row.DefaultCellStyle.BackColor = Color.FromArgb(255, 230, 230);
+                        row.DefaultCellStyle.ForeColor = Color.DarkRed;
+                        break;
+                    default: // Heredado (0)
+                        row.DefaultCellStyle.BackColor = Color.White;
+                        row.DefaultCellStyle.ForeColor = Color.Black;
+                        break;
+                }
             }
-
-            var row = dgvOverrides.Rows[e.RowIndex];
-            switch (ov)
+            catch
             {
-                case 1:
-                    row.DefaultCellStyle.BackColor = Color.FromArgb(220, 255, 220); // Verde claro
-                    break;
-                case -1:
-                    row.DefaultCellStyle.BackColor = Color.FromArgb(255, 230, 230); // Rojo claro
-                    break;
-                default:
-                    row.DefaultCellStyle.BackColor = Color.White; // Heredado
-                    break;
+                // Ignorar errores de formateo
             }
         }
         #endregion
