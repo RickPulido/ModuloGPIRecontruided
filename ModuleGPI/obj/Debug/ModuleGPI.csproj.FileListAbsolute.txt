@@ -33,4 +33,3 @@ C:\Users\Edgar.Pulido\source\repos\ModuleGPI\ModuleGPI\obj\Debug\ModuleGPI.cspro
 C:\Users\Edgar.Pulido\source\repos\ModuleGPI\ModuleGPI\obj\Debug\ModuleGPI.csproj.Up2Date
 C:\Users\Edgar.Pulido\source\repos\ModuleGPI\ModuleGPI\obj\Debug\ModuleGPI.exe
 C:\Users\Edgar.Pulido\source\repos\ModuleGPI\ModuleGPI\obj\Debug\ModuleGPI.pdb
-C:\Users\Edgar.Pulido\source\repos\ModuleGPI\ModuleGPI\obj\Debug\ModuleGPI.exe.config

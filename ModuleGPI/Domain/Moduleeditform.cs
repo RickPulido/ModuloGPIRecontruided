@@ -66,8 +66,8 @@ namespace ModuleGPI
         {
             // Form settings
             this.Text = "Editar Módulo";
-            this.Size = new System.Drawing.Size(650, 500);
-            this.MinimumSize = new System.Drawing.Size(650, 500);
+            this.Size = new System.Drawing.Size(650, 620);
+            this.MinimumSize = new System.Drawing.Size(650, 620);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -129,19 +129,20 @@ namespace ModuleGPI
 
             grpBasic.Controls.AddRange(new Control[]
             {
-                lblButtonName, txtButtonName,
-                lblName, txtName,
-                lblCategory, cboCategory
+        lblButtonName, txtButtonName,
+        lblName, txtName,
+        lblCategory, cboCategory
             });
 
-            // === GRUPO: Rutas ===
+            // === GRUPO: Rutas y Directorios (CON ICONOS) ===
             grpPaths = new GroupBox
             {
                 Text = "Rutas y Directorios",
                 Location = new System.Drawing.Point(12, 140),
-                Size = new System.Drawing.Size(610, 120)
+                Size = new System.Drawing.Size(610, 240) // ✅ Altura aumentada para incluir iconos
             };
 
+            // Ejecutable
             var lblExePath = new Label
             {
                 Text = "Ejecutable:",
@@ -149,23 +150,6 @@ namespace ModuleGPI
                 Size = new System.Drawing.Size(100, 23),
                 TextAlign = System.Drawing.ContentAlignment.MiddleRight
             };
-
-            var lblArguments = new Label
-            {
-                Text = "Argumentos:",
-                Location = new System.Drawing.Point(15, 115), // ✅ Nueva posición
-                Size = new System.Drawing.Size(100, 23),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight
-            };
-
-            var txtArguments = new TextBox
-            {
-                Name = "txtArguments",
-                Location = new System.Drawing.Point(120, 115),
-                Size = new System.Drawing.Size(420, 23),
-                MaxLength = 500
-            };
-
 
             txtExePath = new TextBox
             {
@@ -182,6 +166,7 @@ namespace ModuleGPI
             };
             btnBrowseExe.Click += BtnBrowseExe_Click;
 
+            // Directorio de Trabajo
             var lblWorkingDir = new Label
             {
                 Text = "Dir. Trabajo:",
@@ -205,30 +190,97 @@ namespace ModuleGPI
             };
             btnBrowseDir.Click += BtnBrowseDir_Click;
 
+            // Argumentos
+            var lblArguments = new Label
+            {
+                Text = "Argumentos:",
+                Location = new System.Drawing.Point(15, 85),
+                Size = new System.Drawing.Size(100, 23),
+                TextAlign = System.Drawing.ContentAlignment.MiddleRight
+            };
+
+            var txtArguments = new TextBox
+            {
+                Name = "txtArguments",
+                Location = new System.Drawing.Point(120, 85),
+                Size = new System.Drawing.Size(465, 23),
+                MaxLength = 500
+            };
+
+            // Icono
+            var lblIconPath = new Label
+            {
+                Text = "Icono (.ico):",
+                Location = new System.Drawing.Point(15, 115),
+                Size = new System.Drawing.Size(100, 23),
+                TextAlign = System.Drawing.ContentAlignment.MiddleRight
+            };
+
+            txtIconPath = new TextBox
+            {
+                Location = new System.Drawing.Point(120, 115),
+                Size = new System.Drawing.Size(420, 23),
+                MaxLength = 500
+            };
+
+            var lblIconHelp = new Label
+            {
+                Text = "(Opcional - Deje vacío para extraer icono del ejecutable)",
+                Location = new System.Drawing.Point(120, 138),
+                Size = new System.Drawing.Size(420, 15),
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Italic)
+            };
+
+            btnBrowseIcon = new Button
+            {
+                Text = "...",
+                Location = new System.Drawing.Point(545, 114),
+                Size = new System.Drawing.Size(40, 25)
+            };
+            btnBrowseIcon.Click += BtnBrowseIcon_Click;
+
+            // Vista previa del icono
+            picIconPreview = new PictureBox
+            {
+                Location = new System.Drawing.Point(120, 160),
+                Size = new System.Drawing.Size(48, 48),
+                SizeMode = PictureBoxSizeMode.StretchImage,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            var btnExtractIcon = new Button
+            {
+                Text = "Extraer del EXE",
+                Location = new System.Drawing.Point(180, 165),
+                Size = new System.Drawing.Size(110, 25)
+            };
+            btnExtractIcon.Click += BtnExtractIcon_Click;
+
             btnTest = new Button
             {
                 Text = "Probar Módulo",
-                Location = new System.Drawing.Point(120, 85),
+                Location = new System.Drawing.Point(300, 165),
                 Size = new System.Drawing.Size(120, 25)
             };
             btnTest.Click += BtnTest_Click;
 
+            // ✅ Agregar TODOS los controles de rutas
             grpPaths.Controls.AddRange(new Control[]
             {
-                lblExePath, txtExePath, btnBrowseExe,
-                lblWorkingDir, txtWorkingDir, btnBrowseDir,
-                lblArguments, txtArguments, 
-                btnTest
+        lblExePath, txtExePath, btnBrowseExe,
+        lblWorkingDir, txtWorkingDir, btnBrowseDir,
+        lblArguments, txtArguments,
+        lblIconPath, txtIconPath, lblIconHelp, btnBrowseIcon,
+        picIconPreview, btnExtractIcon,
+        btnTest
             });
-
-            grpPaths.Size = new System.Drawing.Size(610, 150); // ✅ Más alto
-
 
             // === GRUPO: Permisos ===
             grpPermissions = new GroupBox
             {
                 Text = "Permisos y Configuración",
-                Location = new System.Drawing.Point(12, 270),
+                Location = new System.Drawing.Point(12, 390), // ✅ Ajustado para el nuevo tamaño
                 Size = new System.Drawing.Size(610, 120)
             };
 
@@ -248,11 +300,11 @@ namespace ModuleGPI
             };
             cboRoleMin.Items.AddRange(new object[]
             {
-                new { Value = 1, Text = "1 - Viewer" },
-                new { Value = 2, Text = "2 - Operator" },
-                new { Value = 3, Text = "3 - Supervisor" },
-                new { Value = 4, Text = "4 - AdminDept" },
-                new { Value = 5, Text = "5 - SysAdmin" }
+        new { Value = 1, Text = "1 - Viewer" },
+        new { Value = 2, Text = "2 - Operator" },
+        new { Value = 3, Text = "3 - Supervisor" },
+        new { Value = 4, Text = "4 - AdminDept" },
+        new { Value = 5, Text = "5 - SysAdmin" }
             });
             cboRoleMin.DisplayMember = "Text";
             cboRoleMin.ValueMember = "Value";
@@ -284,16 +336,16 @@ namespace ModuleGPI
 
             grpPermissions.Controls.AddRange(new Control[]
             {
-                lblRoleMin, cboRoleMin,
-                lblPlant, nudPlant,
-                chkRequiresElevation
+        lblRoleMin, cboRoleMin,
+        lblPlant, nudPlant,
+        chkRequiresElevation
             });
 
             // === BOTONES ===
             btnSave = new Button
             {
                 Text = _isNewModule ? "Crear" : "Guardar",
-                Location = new System.Drawing.Point(466, 410),
+                Location = new System.Drawing.Point(466, 530),
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.OK
             };
@@ -302,7 +354,7 @@ namespace ModuleGPI
             btnCancel = new Button
             {
                 Text = "Cancelar",
-                Location = new System.Drawing.Point(547, 410),
+                Location = new System.Drawing.Point(547, 530),
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.Cancel
             };
@@ -310,88 +362,15 @@ namespace ModuleGPI
             // Agregar todos los controles al formulario
             this.Controls.AddRange(new Control[]
             {
-                grpBasic, grpPaths, grpPermissions,
-                btnSave, btnCancel
+        grpBasic, grpPaths, grpPermissions,
+        btnSave, btnCancel
             });
 
             // Establecer botones de aceptar/cancelar
             this.AcceptButton = btnSave;
             this.CancelButton = btnCancel;
-
-            //Icon JPGND
-
-            grpPaths = new GroupBox
-            {
-                Text = "Rutas y Directorios",
-                Location = new System.Drawing.Point(12, 140),
-                Size = new System.Drawing.Size(610, 180) // ⚠️ Aumentar altura de 120 a 180
-            };
-
-            var lblIconPath = new Label
-            {
-                Text = "Icono (.ico):",
-                Location = new System.Drawing.Point(15, 85),
-                Size = new System.Drawing.Size(100, 23),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight
-            };
-
-            txtIconPath = new TextBox
-            {
-                Location = new System.Drawing.Point(120, 85),
-                Size = new System.Drawing.Size(420, 23),
-                MaxLength = 500,
-                PlaceholderText = "(Opcional) Ruta al archivo .ico o extraer del .exe"
-            };
-
-            var btnExtractIcon = new Button
-            {
-                Text = "Extraer del EXE",
-                Location = new System.Drawing.Point(430, 115),
-                Size = new System.Drawing.Size(110, 25)
-            };
-            btnExtractIcon.Click += BtnExtractIcon_Click;
-
-            grpPaths.Controls.Add(btnExtractIcon);
-
-            btnBrowseIcon = new Button
-            {
-                Text = "...",
-                Location = new System.Drawing.Point(545, 84),
-                Size = new System.Drawing.Size(40, 25)
-            };
-            btnBrowseIcon.Click += BtnBrowseIcon_Click;
-
-            // ✅ Vista previa del icono
-            picIconPreview = new PictureBox
-            {
-                Location = new System.Drawing.Point(120, 115),
-                Size = new System.Drawing.Size(48, 48),
-                SizeMode = PictureBoxSizeMode.StretchImage,
-                BorderStyle = BorderStyle.FixedSingle
-            };
-
-            // Mover el botón "Probar Módulo"
-            btnTest.Location = new System.Drawing.Point(180, 125);
-
-            grpPaths.Controls.AddRange(new Control[]
-            {
-        lblExePath, txtExePath, btnBrowseExe,
-        lblWorkingDir, txtWorkingDir, btnBrowseDir,
-        lblIconPath, txtIconPath, btnBrowseIcon, picIconPreview, // ✅ Nuevos controles
-        btnTest
-            });
-
-            // ⚠️ Ajustar posición del siguiente grupo
-            grpPermissions.Location = new System.Drawing.Point(12, 330); // Era 270
-
-            // ⚠️ Ajustar posición de botones
-            btnSave.Location = new System.Drawing.Point(466, 470);
-            btnCancel.Location = new System.Drawing.Point(547, 470);
-
-            // Ajustar tamaño del formulario
-            this.Size = new System.Drawing.Size(650, 560);
-            this.MinimumSize = new System.Drawing.Size(650, 560);
         }
+
         #endregion
 
         #region Private Methods
