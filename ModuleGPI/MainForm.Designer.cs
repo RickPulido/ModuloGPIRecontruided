@@ -577,9 +577,8 @@ namespace ModuleGPI
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
-            // 
-            this.grpRoles.Controls.Add(this.barFiltroPlanta);
-            this.grpRoles.Controls.Add(this.dgvUsuarios);
+            this.grpRoles.Controls.Add(this.barFiltroPlanta);  // ✅ PRIMERO el filtro
+            this.grpRoles.Controls.Add(this.dgvUsuarios);      // ✅ DESPUÉS el grid
             this.grpRoles.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8, 8, 8, 8);
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
@@ -588,11 +587,10 @@ namespace ModuleGPI
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
-            // 
+
             // barFiltroPlanta
-            // 
-            this.barFiltroPlanta.Dock = System.Windows.Forms.DockStyle.Top;
-            this.barFiltroPlanta.Height = 34;
+            this.barFiltroPlanta.Dock = System.Windows.Forms.DockStyle.Top;  // ✅ Top (arriba)
+            this.barFiltroPlanta.Height = 40;  // ✅ Altura fija
             this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
             this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(0);
             this.barFiltroPlanta.FlowDirection = FlowDirection.LeftToRight;
@@ -600,21 +598,18 @@ namespace ModuleGPI
             this.barFiltroPlanta.Controls.Add(this.chkPlantFilter);
             this.barFiltroPlanta.Controls.Add(this.cboPlantFilter);
             this.barFiltroPlanta.Name = "barFiltroPlanta";
-            // 
+
             // chkPlantFilter
-            // 
             this.chkPlantFilter.Text = "Filtrar por planta";
             this.chkPlantFilter.AutoSize = true;
-            this.chkPlantFilter.Margin = new Padding(0, 6, 8, 0);
-            // 
+            this.chkPlantFilter.Margin = new Padding(0, 8, 12, 0);  // ✅ Ajustar margen vertical
+
             // cboPlantFilter
-            // 
             this.cboPlantFilter.DropDownStyle = ComboBoxStyle.DropDownList;
             this.cboPlantFilter.Width = 160;
-            this.cboPlantFilter.Margin = new Padding(0, 2, 0, 0);
-            // 
+            this.cboPlantFilter.Margin = new Padding(0, 5, 0, 0);  // ✅ Ajustar margen vertical
+
             // dgvUsuarios
-            // 
             this.dgvUsuarios.AllowUserToAddRows = false;
             this.dgvUsuarios.AllowUserToDeleteRows = false;
             this.dgvUsuarios.RowHeadersVisible = false;
@@ -626,10 +621,10 @@ namespace ModuleGPI
             this.dgvUsuarios.BorderStyle = BorderStyle.None;
             this.dgvUsuarios.AllowUserToOrderColumns = false;
             this.dgvUsuarios.AllowUserToResizeRows = false;
-            this.dgvUsuarios.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvUsuarios.Dock = System.Windows.Forms.DockStyle.Fill;  // ✅ Fill, pero DESPUÉS del filtro
             this.dgvUsuarios.Name = "dgvUsuarios";
-            this.dgvUsuarios.ReadOnly = true;
-            this.dgvUsuarios.TabIndex = 0;
+            this.dgvUsuarios.ReadOnly = false;  // ✅ Cambiar a false para permitir edición
+            this.dgvUsuarios.TabIndex = 1;  // ✅ Cambiar TabIndex
             // 
             // rightAdmin
             // 

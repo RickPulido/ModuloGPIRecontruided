@@ -1,6 +1,8 @@
 ﻿using ModuleGPI.Domain;
 using System;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ModuleGPI
@@ -10,6 +12,11 @@ namespace ModuleGPI
         #region Fields
         private ModuleDef _module;
         private bool _isNewModule;
+
+        private TextBox txtIconPath;
+        private Button btnBrowseIcon;
+        private PictureBox picIconPreview;
+
 
         // Controls
         private TextBox txtButtonName;
@@ -45,6 +52,8 @@ namespace ModuleGPI
                 RolesMinTypeAut = 2,
                 Plant = 1
             };
+
+           
 
             InitializeComponent();
             LoadModuleData();
@@ -141,6 +150,23 @@ namespace ModuleGPI
                 TextAlign = System.Drawing.ContentAlignment.MiddleRight
             };
 
+            var lblArguments = new Label
+            {
+                Text = "Argumentos:",
+                Location = new System.Drawing.Point(15, 115), // ✅ Nueva posición
+                Size = new System.Drawing.Size(100, 23),
+                TextAlign = System.Drawing.ContentAlignment.MiddleRight
+            };
+
+            var txtArguments = new TextBox
+            {
+                Name = "txtArguments",
+                Location = new System.Drawing.Point(120, 115),
+                Size = new System.Drawing.Size(420, 23),
+                MaxLength = 500
+            };
+
+
             txtExePath = new TextBox
             {
                 Location = new System.Drawing.Point(120, 25),
@@ -191,8 +217,12 @@ namespace ModuleGPI
             {
                 lblExePath, txtExePath, btnBrowseExe,
                 lblWorkingDir, txtWorkingDir, btnBrowseDir,
+                lblArguments, txtArguments, 
                 btnTest
             });
+
+            grpPaths.Size = new System.Drawing.Size(610, 150); // ✅ Más alto
+
 
             // === GRUPO: Permisos ===
             grpPermissions = new GroupBox
@@ -287,6 +317,80 @@ namespace ModuleGPI
             // Establecer botones de aceptar/cancelar
             this.AcceptButton = btnSave;
             this.CancelButton = btnCancel;
+
+            //Icon JPGND
+
+            grpPaths = new GroupBox
+            {
+                Text = "Rutas y Directorios",
+                Location = new System.Drawing.Point(12, 140),
+                Size = new System.Drawing.Size(610, 180) // ⚠️ Aumentar altura de 120 a 180
+            };
+
+            var lblIconPath = new Label
+            {
+                Text = "Icono (.ico):",
+                Location = new System.Drawing.Point(15, 85),
+                Size = new System.Drawing.Size(100, 23),
+                TextAlign = System.Drawing.ContentAlignment.MiddleRight
+            };
+
+            txtIconPath = new TextBox
+            {
+                Location = new System.Drawing.Point(120, 85),
+                Size = new System.Drawing.Size(420, 23),
+                MaxLength = 500,
+                PlaceholderText = "(Opcional) Ruta al archivo .ico o extraer del .exe"
+            };
+
+            var btnExtractIcon = new Button
+            {
+                Text = "Extraer del EXE",
+                Location = new System.Drawing.Point(430, 115),
+                Size = new System.Drawing.Size(110, 25)
+            };
+            btnExtractIcon.Click += BtnExtractIcon_Click;
+
+            grpPaths.Controls.Add(btnExtractIcon);
+
+            btnBrowseIcon = new Button
+            {
+                Text = "...",
+                Location = new System.Drawing.Point(545, 84),
+                Size = new System.Drawing.Size(40, 25)
+            };
+            btnBrowseIcon.Click += BtnBrowseIcon_Click;
+
+            // ✅ Vista previa del icono
+            picIconPreview = new PictureBox
+            {
+                Location = new System.Drawing.Point(120, 115),
+                Size = new System.Drawing.Size(48, 48),
+                SizeMode = PictureBoxSizeMode.StretchImage,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            // Mover el botón "Probar Módulo"
+            btnTest.Location = new System.Drawing.Point(180, 125);
+
+            grpPaths.Controls.AddRange(new Control[]
+            {
+        lblExePath, txtExePath, btnBrowseExe,
+        lblWorkingDir, txtWorkingDir, btnBrowseDir,
+        lblIconPath, txtIconPath, btnBrowseIcon, picIconPreview, // ✅ Nuevos controles
+        btnTest
+            });
+
+            // ⚠️ Ajustar posición del siguiente grupo
+            grpPermissions.Location = new System.Drawing.Point(12, 330); // Era 270
+
+            // ⚠️ Ajustar posición de botones
+            btnSave.Location = new System.Drawing.Point(466, 470);
+            btnCancel.Location = new System.Drawing.Point(547, 470);
+
+            // Ajustar tamaño del formulario
+            this.Size = new System.Drawing.Size(650, 560);
+            this.MinimumSize = new System.Drawing.Size(650, 560);
         }
         #endregion
 
@@ -310,6 +414,11 @@ namespace ModuleGPI
             txtName.Text = _module.Name;
             txtExePath.Text = _module.ExePath;
             txtWorkingDir.Text = _module.WorkingDir;
+            txtIconPath.Text = _module.IconPath;
+
+            var txtArgs = this.Controls.Find("txtArguments", true).FirstOrDefault() as TextBox;
+            if (txtArgs != null)
+                txtArgs.Text = _module.Arguments ?? "";
 
             // Seleccionar categoría
             cboCategory.SelectedItem = _module.Category ?? "Operación";
@@ -327,6 +436,11 @@ namespace ModuleGPI
 
             nudPlant.Value = _module.Plant > 0 ? _module.Plant : 1;
             chkRequiresElevation.Checked = _module.RequiresElevation;
+
+            if (!string.IsNullOrEmpty(_module.IconPath))
+            {
+                LoadIconPreview(_module.IconPath);
+            }
         }
 
         private bool ValidateInput()
@@ -442,25 +556,32 @@ namespace ModuleGPI
 
         private void BtnBrowseDir_Click(object sender, EventArgs e)
         {
-            using (var dialog = new FolderBrowserDialog())
+            using (var dialog = new OpenFileDialog())
             {
-                dialog.Description = "Seleccionar Directorio de Trabajo";
-                dialog.ShowNewFolderButton = false;
+                dialog.Title = "Seleccionar Directorio de Trabajo";
+                dialog.Filter = "Todos los archivos (*.*)|*.*";
+                dialog.CheckFileExists = false;
+                dialog.CheckPathExists = true;
+                dialog.FileName = "Seleccionar esta carpeta";
 
                 if (!string.IsNullOrEmpty(txtWorkingDir.Text) && Directory.Exists(txtWorkingDir.Text))
                 {
-                    dialog.SelectedPath = txtWorkingDir.Text;
+                    dialog.InitialDirectory = txtWorkingDir.Text;
                 }
                 else if (!string.IsNullOrEmpty(txtExePath.Text))
                 {
                     string dir = Path.GetDirectoryName(txtExePath.Text);
                     if (Directory.Exists(dir))
-                        dialog.SelectedPath = dir;
+                        dialog.InitialDirectory = dir;
                 }
 
                 if (dialog.ShowDialog() == DialogResult.OK)
                 {
-                    txtWorkingDir.Text = dialog.SelectedPath;
+                    string selectedPath = Path.GetDirectoryName(dialog.FileName);
+                    if (!string.IsNullOrEmpty(selectedPath))
+                    {
+                        txtWorkingDir.Text = selectedPath;
+                    }
                 }
             }
         }
@@ -509,6 +630,41 @@ namespace ModuleGPI
             }
         }
 
+
+        private void BtnExtractIcon_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtExePath.Text))
+            {
+                MessageBox.Show("Primero seleccione un ejecutable.",
+                    "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                txtExePath.Focus();
+                return;
+            }
+
+            if (!File.Exists(txtExePath.Text))
+            {
+                MessageBox.Show("El archivo ejecutable no existe.",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                // Usar el mismo path del EXE
+                txtIconPath.Text = txtExePath.Text;
+                LoadIconPreview(txtExePath.Text);
+
+                MessageBox.Show("Icono extraído correctamente del ejecutable.",
+                    "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"No se pudo extraer el icono:\n{ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
         private void BtnSave_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
@@ -517,11 +673,15 @@ namespace ModuleGPI
                 return;
             }
 
-            // Actualizar el objeto módulo con los valores del formulario
             _module.ButtonName = txtButtonName.Text.Trim();
             _module.Name = txtName.Text.Trim();
             _module.ExePath = txtExePath.Text.Trim();
             _module.WorkingDir = txtWorkingDir.Text.Trim();
+            _module.IconPath = txtIconPath.Text.Trim();
+
+            var txtArgs = this.Controls.Find("txtArguments", true).FirstOrDefault() as TextBox;
+            _module.Arguments = txtArgs?.Text.Trim() ?? "";
+
             _module.Category = cboCategory.SelectedItem?.ToString() ?? "Operación";
 
             dynamic selectedRole = cboRoleMin.SelectedItem;
@@ -533,5 +693,84 @@ namespace ModuleGPI
             this.DialogResult = DialogResult.OK;
         }
         #endregion
+
+
+        #region Icon Helpers
+
+        private void BtnBrowseIcon_Click(object sender, EventArgs e)
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Title = "Seleccionar Icono";
+                dialog.Filter = "Archivos de Icono (*.ico)|*.ico|Ejecutables (*.exe)|*.exe|Todos los archivos (*.*)|*.*";
+                dialog.CheckFileExists = false;
+
+                // Establecer directorio inicial
+                if (!string.IsNullOrEmpty(txtIconPath.Text))
+                {
+                    dialog.FileName = Path.GetFileName(txtIconPath.Text);
+                    string dir = Path.GetDirectoryName(txtIconPath.Text);
+                    if (Directory.Exists(dir))
+                        dialog.InitialDirectory = dir;
+                }
+                else if (!string.IsNullOrEmpty(txtWorkingDir.Text) && Directory.Exists(txtWorkingDir.Text))
+                {
+                    dialog.InitialDirectory = txtWorkingDir.Text;
+                }
+                else if (!string.IsNullOrEmpty(txtExePath.Text))
+                {
+                    string dir = Path.GetDirectoryName(txtExePath.Text);
+                    if (Directory.Exists(dir))
+                        dialog.InitialDirectory = dir;
+                }
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    txtIconPath.Text = dialog.FileName;
+                    LoadIconPreview(dialog.FileName);
+                }
+            }
+        }
+
+        private void LoadIconPreview(string iconPath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(iconPath) || !File.Exists(iconPath))
+                {
+                    picIconPreview.Image = null;
+                    return;
+                }
+
+                string extension = Path.GetExtension(iconPath).ToLower();
+
+                if (extension == ".ico")
+                {
+                    // Cargar archivo .ico directamente
+                    using (var icon = new Icon(iconPath))
+                    {
+                        picIconPreview.Image = icon.ToBitmap();
+                    }
+                }
+                else if (extension == ".exe" || extension == ".dll")
+                {
+                    // Extraer icono del ejecutable
+                    var icon = Icon.ExtractAssociatedIcon(iconPath);
+                    if (icon != null)
+                    {
+                        picIconPreview.Image = icon.ToBitmap();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                picIconPreview.Image = null;
+                MessageBox.Show($"No se pudo cargar el icono:\n{ex.Message}",
+                    "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+
+        #endregion
+
     }
 }

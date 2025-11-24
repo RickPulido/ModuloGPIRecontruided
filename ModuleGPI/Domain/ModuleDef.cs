@@ -15,6 +15,8 @@
         public int RolesMinTypeAut { get; set; }
         public int Plant { get; set; }
 
+        public string IconPath { get; set; }
+
         public ModuleDef()
         {
             ButtonName = string.Empty;

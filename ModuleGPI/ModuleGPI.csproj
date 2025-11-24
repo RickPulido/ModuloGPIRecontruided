@@ -110,6 +110,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\IModuleService.cs" />
     <Compile Include="Services\IRoleManager.cs" />
+    <Compile Include="Services\ModuleButton.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="Services\ModuleService.cs" />
     <Compile Include="Services\RoleManager.cs" />
     <Compile Include="Session.cs" />
