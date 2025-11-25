@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Windows.Forms;
 
@@ -11,10 +12,10 @@ namespace ModuleGPI.Controls
         private Label lblText;
         private string _iconPath;
         private static readonly Icon DefaultIcon;
+        private bool _isHovered = false;
 
         static ModuleButton()
         {
-            // Icono por defecto (puedes usar un icono embebido o System.Drawing)
             DefaultIcon = SystemIcons.Application;
         }
 
@@ -25,15 +26,16 @@ namespace ModuleGPI.Controls
 
         private void InitializeComponents()
         {
-            this.Size = new Size(100, 100);
+            this.Size = new Size(120, 120);
             this.Cursor = Cursors.Hand;
             this.BackColor = Color.Transparent;
+            this.DoubleBuffered = true;  // ✅ Reduce parpadeo
 
             // PictureBox para el icono
             picIcon = new PictureBox
             {
-                Size = new Size(48, 48),
-                Location = new Point((this.Width - 48) / 2, 10),
+                Size = new Size(64, 64),  // ✅ Icono más grande
+                Location = new Point((this.Width - 64) / 2, 15),
                 SizeMode = PictureBoxSizeMode.StretchImage,
                 BackColor = Color.Transparent
             };
@@ -41,12 +43,13 @@ namespace ModuleGPI.Controls
             // Label para el texto
             lblText = new Label
             {
-                Size = new Size(this.Width, 30),
-                Location = new Point(0, 62),
+                Size = new Size(this.Width - 10, 35),
+                Location = new Point(5, 85),
                 TextAlign = ContentAlignment.TopCenter,
                 Font = new Font("Segoe UI", 9F, FontStyle.Regular),
                 BackColor = Color.Transparent,
-                AutoEllipsis = true
+                AutoEllipsis = true,
+                MaximumSize = new Size(this.Width - 10, 35)
             };
 
             this.Controls.Add(picIcon);
@@ -65,7 +68,6 @@ namespace ModuleGPI.Controls
             lblText.Click += (s, e) => this.OnClick(e);
         }
 
-        // Propiedades públicas
         public string ButtonText
         {
             get => lblText.Text;
@@ -88,7 +90,6 @@ namespace ModuleGPI.Controls
             {
                 if (string.IsNullOrEmpty(_iconPath) || !File.Exists(_iconPath))
                 {
-                    // Usar icono por defecto
                     picIcon.Image = DefaultIcon.ToBitmap();
                     return;
                 }
@@ -97,7 +98,7 @@ namespace ModuleGPI.Controls
 
                 if (extension == ".ico")
                 {
-                    using (var icon = new Icon(_iconPath, 48, 48))
+                    using (var icon = new Icon(_iconPath, 64, 64))  // ✅ Tamaño 64x64
                     {
                         picIcon.Image = icon.ToBitmap();
                     }
@@ -107,7 +108,7 @@ namespace ModuleGPI.Controls
                     var icon = Icon.ExtractAssociatedIcon(_iconPath);
                     if (icon != null)
                     {
-                        picIcon.Image = new Icon(icon, 48, 48).ToBitmap();
+                        picIcon.Image = new Icon(icon, 64, 64).ToBitmap();  // ✅ Tamaño 64x64
                     }
                     else
                     {
@@ -127,12 +128,31 @@ namespace ModuleGPI.Controls
 
         private void ModuleButton_MouseEnter(object sender, EventArgs e)
         {
-            this.BackColor = Color.FromArgb(229, 243, 255); // Azul claro
+            _isHovered = true;
+            this.BackColor = Color.FromArgb(229, 243, 255);  // Azul claro
+            this.Invalidate();  // Forzar repintado
         }
 
         private void ModuleButton_MouseLeave(object sender, EventArgs e)
         {
+            _isHovered = false;
             this.BackColor = Color.Transparent;
+            this.Invalidate();
+        }
+
+        // ✅ Agregar borde redondeado al hover
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            if (_isHovered)
+            {
+                using (Pen pen = new Pen(Color.FromArgb(0, 120, 215), 2))
+                {
+                    e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+                    e.Graphics.DrawRectangle(pen, 1, 1, this.Width - 3, this.Height - 3);
+                }
+            }
         }
 
         protected override void Dispose(bool disposing)

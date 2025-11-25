@@ -395,6 +395,7 @@ namespace ModuleGPI
             // flpOperacion
             // 
             this.flpOperacion.AutoScroll = true;
+            this.flpOperacion.WrapContents = true;
             this.flpOperacion.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpOperacion.Location = new System.Drawing.Point(0, 48);
             this.flpOperacion.Name = "flpOperacion";

@@ -24,6 +24,7 @@
             ExePath = string.Empty;
             Arguments = string.Empty;
             WorkingDir = string.Empty;
+            IconPath = string.Empty;
             Category = "Operación";
             RequiresElevation = false;
             RolesMinTypeAut = 1;

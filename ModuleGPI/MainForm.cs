@@ -399,9 +399,10 @@ namespace ModuleGPI
 
         private void ModuleButton_Click(object sender, EventArgs e)
         {
-            if (sender is Button btn && btn.Tag is ModuleDef m)
+            // ✅ Funciona tanto para Button como para ModuleButton (ambos heredan de Control)
+            if (sender is Control ctrl && ctrl.Tag is ModuleDef m)
             {
-                _moduleService.LaunchModule(btn.Name, m, false, ALLOWED_ROOTS, UpdateStatus);
+                _moduleService.LaunchModule(ctrl.Name, m, false, ALLOWED_ROOTS, UpdateStatus);
             }
         }
         #endregion
@@ -414,6 +415,12 @@ namespace ModuleGPI
                 this.Cursor = Cursors.WaitCursor;
 
                 _dtModulesConfig = _dataAccess.GetModules(null);
+
+                // ✅ FORZAR que IconPath NO sea ReadOnly
+                if (_dtModulesConfig.Columns.Contains("IconPath"))
+                {
+                    _dtModulesConfig.Columns["IconPath"].ReadOnly = false;
+                }
 
                 if (dgvModulesConfig != null)
                 {
@@ -1431,15 +1438,16 @@ namespace ModuleGPI
         #region Context Menu
         private void OpenContextSelected(bool asAdmin)
         {
-            if (cmuModulo?.SourceControl is Button btn && btn.Tag is ModuleDef m)
+            // ✅ Funciona con cualquier control que tenga Tag de tipo ModuleDef
+            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
             {
-                _moduleService.LaunchModule(btn.Name, m, asAdmin, ALLOWED_ROOTS, UpdateStatus);
+                _moduleService.LaunchModule(ctrl.Name, m, asAdmin, ALLOWED_ROOTS, UpdateStatus);
             }
         }
 
         private void CopyModulePathFromContext()
         {
-            if (cmuModulo?.SourceControl is Button btn && btn.Tag is ModuleDef m && !string.IsNullOrEmpty(m.ExePath))
+            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m && !string.IsNullOrEmpty(m.ExePath))
             {
                 Clipboard.SetText(m.ExePath);
                 UpdateStatus("Ruta copiada al portapapeles");
@@ -1448,12 +1456,12 @@ namespace ModuleGPI
 
         private void ShowModulePropertiesFromContext()
         {
-            if (cmuModulo?.SourceControl is Button btn && btn.Tag is ModuleDef m)
+            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
             {
                 var info = $"Nombre: {m.Name}\n" +
                           $"Ruta: {m.ExePath ?? "(no especificada)"}\n" +
                           $"Directorio: {m.WorkingDir ?? "(no especificado)"}\n" +
-                          $"Argumentos: {m.Arguments ?? "(ninguno)"}\n" +
+                          $"Icono: {m.IconPath ?? "(usar icono del ejecutable)"}\n" +
                           $"Categoría: {m.Category}\n" +
                           $"Rol mínimo: {_roleManager.GetRoleName(m.RolesMinTypeAut)}\n" +
                           $"Requiere elevación: {(m.RequiresElevation ? "Sí" : "No")}";

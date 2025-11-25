@@ -1,12 +1,13 @@
 ﻿using ModuleGPI.Data;
 using ModuleGPI.Domain;
+using ModuleGPI.Controls;  // ✅ AGREGAR ESTE USING
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;  
+using System.Linq;
 using System.Windows.Forms;
 
 namespace ModuleGPI.Services
@@ -25,6 +26,7 @@ namespace ModuleGPI.Services
         {
             ClearButtons(op);
             ClearButtons(cons);
+
             foreach (DataRow row in dt.Rows)
             {
                 var cat = Convert.ToString(row["Category"]);
@@ -33,42 +35,70 @@ namespace ModuleGPI.Services
                 if (panel == null) continue;
 
                 string btnName = Convert.ToString(row["ButtonName"]);
-                if (panel.Controls.OfType<Button>().Any(b => b.Name == btnName)) continue;
+
+                // ✅ Verificar si ya existe (buscar tanto Button como ModuleButton)
+                if (panel.Controls.OfType<Control>().Any(c => c.Name == btnName))
+                    continue;
 
                 var def = new ModuleDef
                 {
                     Name = Convert.ToString(row["Name"]),
                     ExePath = Convert.ToString(row["ExePath"]),
                     WorkingDir = Convert.ToString(row["WorkingDir"]),
+                    Arguments = row.Table.Columns.Contains("Arguments") ? Convert.ToString(row["Arguments"]) : "",
+                    IconPath = row.Table.Columns.Contains("IconPath") ? Convert.ToString(row["IconPath"]) : "",  // ✅ LEER ICONPATH
                     Category = cat,
                     RequiresElevation = row["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(row["RequiresElevation"]),
                     RolesMinTypeAut = row["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(row["RolesMinTypeAut"])
                 };
 
-                var btn = new Button { Name = btnName, Text = def.Name, Width = 160, Height = 48, Tag = def, ContextMenuStrip = cm };
-                bool v = canSee(btn.Name, def);
-                btn.Visible = v;
-                btn.Enabled = v;
-                tips?.SetToolTip(btn, def.Name + Environment.NewLine + (def.ExePath ?? ""));
-                panel.Controls.Add(btn);
+                // ✅ CREAR ModuleButton EN LUGAR DE Button
+                var moduleBtn = new ModuleButton
+                {
+                    Name = btnName,
+                    ButtonText = def.Name,
+                    IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,  // ✅ Usar IconPath o ExePath
+                    Size = new System.Drawing.Size(120, 120),  // Tamaño estilo Windows Apps
+                    Margin = new Padding(10),
+                    Tag = def,
+                    ContextMenuStrip = cm
+                };
+
+                bool v = canSee(btnName, def);
+                moduleBtn.Visible = v;
+                moduleBtn.Enabled = v;
+
+                // ToolTip
+                if (tips != null)
+                {
+                    tips.SetToolTip(moduleBtn, def.Name + Environment.NewLine + (def.ExePath ?? ""));
+                }
+
+                panel.Controls.Add(moduleBtn);
             }
         }
 
         public void RefreshVisibility(FlowLayoutPanel op, FlowLayoutPanel cons, Func<string, ModuleDef, bool> canSee)
         {
-            foreach (var b in op.Controls.OfType<Button>())
+            // ✅ Actualizar para soportar tanto Button como ModuleButton
+            foreach (var control in op.Controls.OfType<Control>())
             {
-                var m = b.Tag as ModuleDef;
-                bool v = canSee(b.Name, m);
-                b.Visible = v;
-                b.Enabled = v;
+                if (control.Tag is ModuleDef m)
+                {
+                    bool v = canSee(control.Name, m);
+                    control.Visible = v;
+                    control.Enabled = v;
+                }
             }
-            foreach (var b in cons.Controls.OfType<Button>())
+
+            foreach (var control in cons.Controls.OfType<Control>())
             {
-                var m = b.Tag as ModuleDef;
-                bool v = canSee(b.Name, m);
-                b.Visible = v;
-                b.Enabled = v;
+                if (control.Tag is ModuleDef m)
+                {
+                    bool v = canSee(control.Name, m);
+                    control.Visible = v;
+                    control.Enabled = v;
+                }
             }
         }
 
@@ -118,13 +148,21 @@ namespace ModuleGPI.Services
 
         public void WireButtons(FlowLayoutPanel op, FlowLayoutPanel cons, EventHandler clickHandler)
         {
-            foreach (var btn in op.Controls.OfType<Button>())
+            // ✅ Conectar eventos para cualquier control (Button o ModuleButton)
+            foreach (Control ctrl in op.Controls)
             {
-                btn.Click += clickHandler;
+                if (ctrl.Tag is ModuleDef)
+                {
+                    ctrl.Click += clickHandler;
+                }
             }
-            foreach (var btn in cons.Controls.OfType<Button>())
+
+            foreach (Control ctrl in cons.Controls)
             {
-                btn.Click += clickHandler;
+                if (ctrl.Tag is ModuleDef)
+                {
+                    ctrl.Click += clickHandler;
+                }
             }
         }
 
