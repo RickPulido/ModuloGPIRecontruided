@@ -209,14 +209,18 @@ namespace ModuleGPI
             }
 
             if (dgvUsuarios != null)
-            {
-                // ✅ CRÍTICO: Agregar eventos de cambio
-                dgvUsuarios.CellValueChanged += DgvUsuarios_CellValueChanged;
-                dgvUsuarios.CurrentCellDirtyStateChanged += DgvUsuarios_CurrentCellDirtyStateChanged;
-                dgvUsuarios.CellEndEdit += DgvUsuarios_CellEndEdit;
-                dgvUsuarios.DataError += (s, e) => e.ThrowException = false;
-                _uiHelpers.EnableDgvDoubleBuffer(dgvUsuarios);
-            }
+    {
+        // ✅ CRÍTICO: Agregar eventos de cambio
+        dgvUsuarios.CellValueChanged += DgvUsuarios_CellValueChanged;
+        dgvUsuarios.CurrentCellDirtyStateChanged += DgvUsuarios_CurrentCellDirtyStateChanged;
+        dgvUsuarios.CellEndEdit += DgvUsuarios_CellEndEdit;
+        
+        // ✅ NUEVO: Para que los checkboxes funcionen
+        dgvUsuarios.CellContentClick += DgvUsuarios_CellContentClick;
+        
+        dgvUsuarios.DataError += (s, e) => e.ThrowException = false;
+        _uiHelpers.EnableDgvDoubleBuffer(dgvUsuarios);
+    }
 
             if (dgvModulesConfig != null)
             {
@@ -239,7 +243,30 @@ namespace ModuleGPI
         }
 
 
-        // ✅ NUEVO: Handler para cuando la celda se vuelve "sucia" (dirty)
+        private void DgvUsuarios_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 0) return;
+
+            var columnName = dgvUsuarios.Columns[e.ColumnIndex].Name;
+
+            // ✅ Si es un checkbox de planta, hacer commit inmediato
+            if (columnName == "MTY_Access" || columnName == "QRO_Access" || columnName == "TIJ_Access")
+            {
+                dgvUsuarios.CommitEdit(DataGridViewDataErrorContexts.Commit);
+
+                // ✅ Forzar actualización visual
+                dgvUsuarios.RefreshEdit();
+
+                UpdateStatus($"⚠️ Acceso a {columnName.Replace("_Access", "")} modificado - Presione GUARDAR para aplicar");
+
+                // ✅ Habilitar botón Guardar
+                if (btnAdminGuardar != null && _adminCanEdit)
+                {
+                    btnAdminGuardar.Enabled = true;
+                    btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180);
+                }
+            }
+        }
         private void DgvUsuarios_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
             if (dgvUsuarios.IsCurrentCellDirty)
@@ -951,8 +978,8 @@ namespace ModuleGPI
                 },
                         ValueMember = "Value",
                         DisplayMember = "Display",
-                        ReadOnly = false, // ✅ EDITABLE
-                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox // ✅ Mostrar siempre como ComboBox
+                        ReadOnly = false,
+                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
                     };
 
                     dgvUsuarios.Columns.Insert(roleIndex, roleCombo);
@@ -976,7 +1003,7 @@ namespace ModuleGPI
                 },
                         ValueMember = "Value",
                         DisplayMember = "Display",
-                        ReadOnly = false, // ✅ EDITABLE
+                        ReadOnly = false,
                         DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
                     };
 
@@ -1002,11 +1029,77 @@ namespace ModuleGPI
                 },
                         ValueMember = "Value",
                         DisplayMember = "Display",
-                        ReadOnly = false, // ✅ EDITABLE
+                        ReadOnly = false,
                         DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
                     };
 
                     dgvUsuarios.Columns.Insert(plantIndex, plantCombo);
+                }
+
+                // ✅ Reemplazar columna MTY_Access con CheckBox EDITABLE
+                if (dgvUsuarios.Columns.Contains("MTY_Access"))
+                {
+                    int mtyIndex = dgvUsuarios.Columns["MTY_Access"].Index;
+                    dgvUsuarios.Columns.RemoveAt(mtyIndex);
+
+                    var mtyCheckbox = new DataGridViewCheckBoxColumn
+                    {
+                        Name = "MTY_Access",
+                        HeaderText = "✓ MTY",
+                        DataPropertyName = "MTY_Access",
+                        ReadOnly = false,
+                        TrueValue = true,
+                        FalseValue = false,
+                        IndeterminateValue = false,
+                        FlatStyle = FlatStyle.Standard,
+                        ThreeState = false
+                    };
+
+                    dgvUsuarios.Columns.Insert(mtyIndex, mtyCheckbox);
+                }
+
+                // ✅ Reemplazar columna QRO_Access con CheckBox EDITABLE
+                if (dgvUsuarios.Columns.Contains("QRO_Access"))
+                {
+                    int qroIndex = dgvUsuarios.Columns["QRO_Access"].Index;
+                    dgvUsuarios.Columns.RemoveAt(qroIndex);
+
+                    var qroCheckbox = new DataGridViewCheckBoxColumn
+                    {
+                        Name = "QRO_Access",
+                        HeaderText = "✓ QRO",
+                        DataPropertyName = "QRO_Access",
+                        ReadOnly = false,
+                        TrueValue = true,
+                        FalseValue = false,
+                        IndeterminateValue = false,
+                        FlatStyle = FlatStyle.Standard,
+                        ThreeState = false
+                    };
+
+                    dgvUsuarios.Columns.Insert(qroIndex, qroCheckbox);
+                }
+
+                // ✅ Reemplazar columna TIJ_Access con CheckBox EDITABLE
+                if (dgvUsuarios.Columns.Contains("TIJ_Access"))
+                {
+                    int tijIndex = dgvUsuarios.Columns["TIJ_Access"].Index;
+                    dgvUsuarios.Columns.RemoveAt(tijIndex);
+
+                    var tijCheckbox = new DataGridViewCheckBoxColumn
+                    {
+                        Name = "TIJ_Access",
+                        HeaderText = "✓ TIJ",
+                        DataPropertyName = "TIJ_Access",
+                        ReadOnly = false,
+                        TrueValue = true,
+                        FalseValue = false,
+                        IndeterminateValue = false,
+                        FlatStyle = FlatStyle.Standard,
+                        ThreeState = false
+                    };
+
+                    dgvUsuarios.Columns.Insert(tijIndex, tijCheckbox);
                 }
 
                 // Configurar anchos de forma diferida
@@ -1049,6 +1142,7 @@ namespace ModuleGPI
                 if (dgvUsuarios.Columns["USU_UserLog"] != null)
                 {
                     dgvUsuarios.Columns["USU_UserLog"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dgvUsuarios.Columns["USU_UserLog"].MinimumWidth = 120;
                 }
 
                 if (dgvUsuarios.Columns["USU_TypeAut"] != null)
@@ -1066,7 +1160,26 @@ namespace ModuleGPI
                 if (dgvUsuarios.Columns["USU_UserPLant"] != null)
                 {
                     dgvUsuarios.Columns["USU_UserPLant"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["USU_UserPLant"].Width = 80;
+                    dgvUsuarios.Columns["USU_UserPLant"].Width = 120;
+                }
+
+                // ✅ Checkboxes de plantas
+                if (dgvUsuarios.Columns["MTY_Access"] != null)
+                {
+                    dgvUsuarios.Columns["MTY_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    dgvUsuarios.Columns["MTY_Access"].Width = 60;
+                }
+
+                if (dgvUsuarios.Columns["QRO_Access"] != null)
+                {
+                    dgvUsuarios.Columns["QRO_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    dgvUsuarios.Columns["QRO_Access"].Width = 60;
+                }
+
+                if (dgvUsuarios.Columns["TIJ_Access"] != null)
+                {
+                    dgvUsuarios.Columns["TIJ_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    dgvUsuarios.Columns["TIJ_Access"].Width = 60;
                 }
 
                 dgvUsuarios.ResumeLayout();

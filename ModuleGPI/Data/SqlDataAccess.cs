@@ -3,6 +3,7 @@ using System;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
 
 namespace ModuleGPI.Data
 {
@@ -74,9 +75,20 @@ namespace ModuleGPI.Data
         public DataTable GetUsers()
         {
             var dt = new DataTable();
-            string sql = @"SELECT U.USU_EmpID, U.USU_UserLog, U.USU_TypeAut, U.USU_Status, U.USU_UserPLant
-                           FROM dbo.ModGPI_User U 
-                           ORDER BY U.USU_EmpID;";
+
+            // ✅ CAST explícito a BIT para asegurar tipo correcto
+            string sql = @"
+        SELECT 
+            U.USU_EmpID, 
+            U.USU_UserLog, 
+            U.USU_TypeAut, 
+            U.USU_Status, 
+            U.USU_UserPLant,
+            CAST(ISNULL(U.MTY_Access, 0) AS BIT) AS MTY_Access,
+            CAST(ISNULL(U.QRO_Access, 0) AS BIT) AS QRO_Access,
+            CAST(ISNULL(U.TIJ_Access, 0) AS BIT) AS TIJ_Access
+        FROM dbo.ModGPI_User U 
+        ORDER BY U.USU_EmpID;";
 
             using (var cn = new SqlConnection(GetConnString()))
             {
@@ -85,6 +97,12 @@ namespace ModuleGPI.Data
                 _daUsers.Fill(dt);
             }
 
+            // ✅ Verificar tipos de columnas
+            Debug.WriteLine("=== TIPOS DE COLUMNAS ===");
+            Debug.WriteLine($"MTY_Access: {dt.Columns["MTY_Access"].DataType}");
+            Debug.WriteLine($"QRO_Access: {dt.Columns["QRO_Access"].DataType}");
+            Debug.WriteLine($"TIJ_Access: {dt.Columns["TIJ_Access"].DataType}");
+
             return dt;
         }
 
@@ -92,31 +110,49 @@ namespace ModuleGPI.Data
         {
             if (_daUsers == null)
             {
-                // Re-crear el adapter si es necesario
-                string selectSql = @"SELECT USU_EmpID, USU_UserLog, USU_TypeAut, USU_Status, USU_UserPLant 
-                                    FROM dbo.ModGPI_User";
+                string selectSql = @"
+            SELECT 
+                USU_EmpID, USU_UserLog, USU_TypeAut, USU_Status, USU_UserPLant,
+                CAST(ISNULL(MTY_Access, 0) AS BIT) AS MTY_Access,
+                CAST(ISNULL(QRO_Access, 0) AS BIT) AS QRO_Access,
+                CAST(ISNULL(TIJ_Access, 0) AS BIT) AS TIJ_Access
+            FROM dbo.ModGPI_User";
+
                 _daUsers = new SqlDataAdapter(selectSql, GetConnString());
             }
 
-            string updateSql = @"UPDATE dbo.ModGPI_User
-                               SET USU_TypeAut=@USU_TypeAut, 
-                                   USU_Status=@USU_Status, 
-                                   USU_UserPLant=@USU_UserPLant
-                               WHERE USU_EmpID=@USU_EmpID;";
+            string updateSql = @"
+        UPDATE dbo.ModGPI_User
+        SET 
+            USU_TypeAut = @USU_TypeAut, 
+            USU_Status = @USU_Status, 
+            USU_UserPLant = @USU_UserPLant,
+            MTY_Access = @MTY_Access,
+            QRO_Access = @QRO_Access,
+            TIJ_Access = @TIJ_Access
+        WHERE USU_EmpID = @USU_EmpID;";
 
             using (var cn = new SqlConnection(GetConnString()))
             {
                 _daUsers.UpdateCommand = new SqlCommand(updateSql, cn);
+
                 _daUsers.UpdateCommand.Parameters.Add("@USU_TypeAut", SqlDbType.Int).SourceColumn = "USU_TypeAut";
                 _daUsers.UpdateCommand.Parameters.Add("@USU_Status", SqlDbType.Int).SourceColumn = "USU_Status";
                 _daUsers.UpdateCommand.Parameters.Add("@USU_UserPLant", SqlDbType.Int).SourceColumn = "USU_UserPLant";
 
-                // Primary key parameter para el WHERE
+                // ✅ Parámetros BIT para checkboxes
+                _daUsers.UpdateCommand.Parameters.Add("@MTY_Access", SqlDbType.Bit).SourceColumn = "MTY_Access";
+                _daUsers.UpdateCommand.Parameters.Add("@QRO_Access", SqlDbType.Bit).SourceColumn = "QRO_Access";
+                _daUsers.UpdateCommand.Parameters.Add("@TIJ_Access", SqlDbType.Bit).SourceColumn = "TIJ_Access";
+
+                // Primary key
                 var pk = _daUsers.UpdateCommand.Parameters.Add("@USU_EmpID", SqlDbType.NVarChar, 10);
                 pk.SourceColumn = "USU_EmpID";
                 pk.SourceVersion = DataRowVersion.Original;
 
-                _daUsers.Update(users);
+                int rowsAffected = _daUsers.Update(users);
+
+                Debug.WriteLine($"✅ Usuarios actualizados: {rowsAffected}");
             }
         }
 
