@@ -453,7 +453,8 @@ namespace ModuleGPI
             { "Name", "Nombre Módulo" },
             { "ExePath", "Ruta Ejecutable" },
             { "WorkingDir", "Directorio Trabajo" },
-            { "Arguments", "Argumentos" },
+           // { "Arguments", "Argumentos" },
+            { "IconPath", "Ruta Icono" },
             { "Category", "Categoría" },
             { "RequiresElevation", "Requiere Admin" },
             { "RolesMinTypeAut", "Rol Mínimo" },
@@ -511,6 +512,7 @@ namespace ModuleGPI
             { "ExePath", 300 },
             { "WorkingDir", 250 },
             { "Arguments", 150 },
+            { "IconPath", 250 }, // ✅ AGREGAR
             { "Category", 100 },
             { "RequiresElevation", 80 },
             { "RolesMinTypeAut", 80 },
@@ -549,7 +551,8 @@ namespace ModuleGPI
                         newRow["Name"] = module.Name;
                         newRow["ExePath"] = module.ExePath;
                         newRow["WorkingDir"] = string.IsNullOrEmpty(module.WorkingDir) ? "" : module.WorkingDir;
-                        newRow["Arguments"] = string.IsNullOrEmpty(module.Arguments) ? "" : module.Arguments;
+                       // newRow["Arguments"] = string.IsNullOrEmpty(module.Arguments) ? "" : module.Arguments;
+                        newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath; // ✅ AGREGAR
                         newRow["Category"] = module.Category;
                         newRow["RequiresElevation"] = module.RequiresElevation;
                         newRow["RolesMinTypeAut"] = module.RolesMinTypeAut;
@@ -652,7 +655,8 @@ namespace ModuleGPI
                     Name = Convert.ToString(drv["Name"]),
                     ExePath = Convert.ToString(drv["ExePath"]),
                     WorkingDir = Convert.ToString(drv["WorkingDir"]),
-                    Arguments = Convert.ToString(drv["Arguments"]),
+                   // Arguments = Convert.ToString(drv["Arguments"]),
+                    IconPath = Convert.ToString(drv["IconPath"]), // ✅ LEER IconPath
                     Category = Convert.ToString(drv["Category"]),
                     RequiresElevation = drv["RequiresElevation"] != DBNull.Value &&
                                        Convert.ToBoolean(drv["RequiresElevation"]),
@@ -668,7 +672,8 @@ namespace ModuleGPI
                         drv["Name"] = form.Module.Name;
                         drv["ExePath"] = form.Module.ExePath;
                         drv["WorkingDir"] = form.Module.WorkingDir ?? "";
-                        drv["Arguments"] = form.Module.Arguments ?? "";
+                       // drv["Arguments"] = form.Module.Arguments ?? "";
+                        drv["IconPath"] = form.Module.IconPath ?? ""; // ✅ GUARDAR IconPath
                         drv["Category"] = form.Module.Category;
                         drv["RequiresElevation"] = form.Module.RequiresElevation;
                         drv["RolesMinTypeAut"] = form.Module.RolesMinTypeAut;

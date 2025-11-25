@@ -43,7 +43,13 @@ namespace ModuleGPI.Data
                 cmd.Parameters.Add("@Name", SqlDbType.NVarChar, 100).Value = r["Name"];
                 cmd.Parameters.Add("@ExePath", SqlDbType.NVarChar, 500).Value = r["ExePath"];
                 cmd.Parameters.Add("@WorkingDir", SqlDbType.NVarChar, 500).Value = r["WorkingDir"] ?? DBNull.Value;
-                cmd.Parameters.Add("@Arguments", SqlDbType.NVarChar, 500).Value = r["Arguments"] ?? DBNull.Value;
+
+                // ✅ SOLO IconPath, sin Arguments
+                cmd.Parameters.Add("@IconPath", SqlDbType.NVarChar, 500).Value =
+                    r.Table.Columns.Contains("IconPath") && r["IconPath"] != DBNull.Value && !string.IsNullOrEmpty(r["IconPath"].ToString())
+                    ? r["IconPath"]
+                    : (object)DBNull.Value;
+
                 cmd.Parameters.Add("@Category", SqlDbType.NVarChar, 50).Value = r["Category"];
                 cmd.Parameters.Add("@RequiresElevation", SqlDbType.Bit).Value = r["RequiresElevation"];
                 cmd.Parameters.Add("@RolesMinTypeAut", SqlDbType.Int).Value = r["RolesMinTypeAut"];
@@ -151,9 +157,8 @@ namespace ModuleGPI.Data
                     try
                     {
                         // Primero eliminar todos los overrides existentes para este botón
-                        // NOTA: Tabla corregida a ModGPI_Override (sin UserModule)
                         using (var del = new SqlCommand(
-                            "DELETE FROM dbo.ModGPI_Override WHERE ButtonName=@B", cn, tx))
+                            "DELETE FROM dbo.ModGPI_UserModuleOverride WHERE ButtonName=@B", cn, tx))
                         {
                             del.Parameters.AddWithValue("@B", buttonName);
                             del.ExecuteNonQuery();
@@ -161,7 +166,7 @@ namespace ModuleGPI.Data
 
                         // Luego insertar los nuevos (solo los que no son heredados)
                         using (var ins = new SqlCommand(
-                            "INSERT INTO dbo.ModGPI_Override (ButtonName, EmpId, Override) VALUES (@B,@E,@O)", cn, tx))
+                            "INSERT INTO dbo.ModGPI_UserModuleOverride (ButtonName, EmpId, Override) VALUES (@B,@E,@O)", cn, tx))
                         {
                             ins.Parameters.Add("@B", SqlDbType.NVarChar, 80);
                             ins.Parameters.Add("@E", SqlDbType.NVarChar, 10);

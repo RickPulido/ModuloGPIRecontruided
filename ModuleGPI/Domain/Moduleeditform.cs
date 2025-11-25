@@ -23,6 +23,7 @@ namespace ModuleGPI
         private TextBox txtName;
         private TextBox txtExePath;
         private TextBox txtWorkingDir;
+      //  private TextBox txtArguments;
         private ComboBox cboCategory;
         private ComboBox cboRoleMin;
         private NumericUpDown nudPlant;
@@ -139,7 +140,7 @@ namespace ModuleGPI
             {
                 Text = "Rutas y Directorios",
                 Location = new System.Drawing.Point(12, 140),
-                Size = new System.Drawing.Size(610, 240) // ✅ Altura aumentada para incluir iconos
+                Size = new System.Drawing.Size(610, 210)  // ✅ Era 240, ahora 210 (30px menos)
             };
 
             // Ejecutable
@@ -191,34 +192,34 @@ namespace ModuleGPI
             btnBrowseDir.Click += BtnBrowseDir_Click;
 
             // Argumentos
-            var lblArguments = new Label
-            {
-                Text = "Argumentos:",
-                Location = new System.Drawing.Point(15, 85),
-                Size = new System.Drawing.Size(100, 23),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight
-            };
+            //var lblArguments = new Label
+            //{
+            //    Text = "Argumentos:",
+            //    Location = new System.Drawing.Point(15, 85),
+            //    Size = new System.Drawing.Size(100, 23),
+            //    TextAlign = System.Drawing.ContentAlignment.MiddleRight
+            //};
 
-            var txtArguments = new TextBox
-            {
-                Name = "txtArguments",
-                Location = new System.Drawing.Point(120, 85),
-                Size = new System.Drawing.Size(465, 23),
-                MaxLength = 500
-            };
+            //txtArguments = new TextBox  
+            //{
+            //    Name = "txtArguments",
+            //    Location = new System.Drawing.Point(120, 85),
+            //    Size = new System.Drawing.Size(465, 23),
+            //    MaxLength = 500
+            //};
 
             // Icono
             var lblIconPath = new Label
             {
                 Text = "Icono (.ico):",
-                Location = new System.Drawing.Point(15, 115),
+                Location = new System.Drawing.Point(15, 85),
                 Size = new System.Drawing.Size(100, 23),
                 TextAlign = System.Drawing.ContentAlignment.MiddleRight
             };
 
             txtIconPath = new TextBox
             {
-                Location = new System.Drawing.Point(120, 115),
+                Location = new System.Drawing.Point(120, 85),
                 Size = new System.Drawing.Size(420, 23),
                 MaxLength = 500
             };
@@ -226,7 +227,7 @@ namespace ModuleGPI
             var lblIconHelp = new Label
             {
                 Text = "(Opcional - Deje vacío para extraer icono del ejecutable)",
-                Location = new System.Drawing.Point(120, 138),
+                Location = new System.Drawing.Point(120, 108),
                 Size = new System.Drawing.Size(420, 15),
                 ForeColor = Color.Gray,
                 Font = new Font("Segoe UI", 7.5F, FontStyle.Italic)
@@ -235,7 +236,7 @@ namespace ModuleGPI
             btnBrowseIcon = new Button
             {
                 Text = "...",
-                Location = new System.Drawing.Point(545, 114),
+                Location = new System.Drawing.Point(545, 84),
                 Size = new System.Drawing.Size(40, 25)
             };
             btnBrowseIcon.Click += BtnBrowseIcon_Click;
@@ -243,7 +244,7 @@ namespace ModuleGPI
             // Vista previa del icono
             picIconPreview = new PictureBox
             {
-                Location = new System.Drawing.Point(120, 160),
+                Location = new System.Drawing.Point(120, 130),
                 Size = new System.Drawing.Size(48, 48),
                 SizeMode = PictureBoxSizeMode.StretchImage,
                 BorderStyle = BorderStyle.FixedSingle
@@ -252,7 +253,7 @@ namespace ModuleGPI
             var btnExtractIcon = new Button
             {
                 Text = "Extraer del EXE",
-                Location = new System.Drawing.Point(180, 165),
+                Location = new System.Drawing.Point(180, 135),
                 Size = new System.Drawing.Size(110, 25)
             };
             btnExtractIcon.Click += BtnExtractIcon_Click;
@@ -270,7 +271,6 @@ namespace ModuleGPI
             {
         lblExePath, txtExePath, btnBrowseExe,
         lblWorkingDir, txtWorkingDir, btnBrowseDir,
-        lblArguments, txtArguments,
         lblIconPath, txtIconPath, lblIconHelp, btnBrowseIcon,
         picIconPreview, btnExtractIcon,
         btnTest
@@ -280,7 +280,7 @@ namespace ModuleGPI
             grpPermissions = new GroupBox
             {
                 Text = "Permisos y Configuración",
-                Location = new System.Drawing.Point(12, 390), // ✅ Ajustado para el nuevo tamaño
+                Location = new System.Drawing.Point(12, 360),  // ✅ Era 390, ahora 360
                 Size = new System.Drawing.Size(610, 120)
             };
 
@@ -345,7 +345,7 @@ namespace ModuleGPI
             btnSave = new Button
             {
                 Text = _isNewModule ? "Crear" : "Guardar",
-                Location = new System.Drawing.Point(466, 530),
+                Location = new System.Drawing.Point(466, 500),  // ✅ Era 530, ahora 500
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.OK
             };
@@ -354,7 +354,7 @@ namespace ModuleGPI
             btnCancel = new Button
             {
                 Text = "Cancelar",
-                Location = new System.Drawing.Point(547, 530),
+                Location = new System.Drawing.Point(547, 500),  // ✅ Era 530, ahora 500
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.Cancel
             };
@@ -393,11 +393,8 @@ namespace ModuleGPI
             txtName.Text = _module.Name;
             txtExePath.Text = _module.ExePath;
             txtWorkingDir.Text = _module.WorkingDir;
-            txtIconPath.Text = _module.IconPath;
-
-            var txtArgs = this.Controls.Find("txtArguments", true).FirstOrDefault() as TextBox;
-            if (txtArgs != null)
-                txtArgs.Text = _module.Arguments ?? "";
+            txtIconPath.Text = _module.IconPath ?? ""; // ✅ Usar string vacío si es null
+           // txtArguments.Text = _module.Arguments ?? ""; // ✅ ACCESO DIRECTO
 
             // Seleccionar categoría
             cboCategory.SelectedItem = _module.Category ?? "Operación";
@@ -416,6 +413,7 @@ namespace ModuleGPI
             nudPlant.Value = _module.Plant > 0 ? _module.Plant : 1;
             chkRequiresElevation.Checked = _module.RequiresElevation;
 
+            // ✅ Cargar preview del icono
             if (!string.IsNullOrEmpty(_module.IconPath))
             {
                 LoadIconPreview(_module.IconPath);
@@ -629,11 +627,13 @@ namespace ModuleGPI
 
             try
             {
-                // Usar el mismo path del EXE
+                // ✅ GUARDAR LA RUTA DEL EXE COMO FUENTE DEL ICONO
+                // El sistema extraerá el icono del .exe en tiempo de ejecución
                 txtIconPath.Text = txtExePath.Text;
                 LoadIconPreview(txtExePath.Text);
 
-                MessageBox.Show("Icono extraído correctamente del ejecutable.",
+                MessageBox.Show("Icono extraído correctamente del ejecutable.\n\n" +
+                               "Se usará el icono del ejecutable automáticamente.",
                     "Éxito", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
@@ -642,6 +642,9 @@ namespace ModuleGPI
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+
+
 
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -656,10 +659,8 @@ namespace ModuleGPI
             _module.Name = txtName.Text.Trim();
             _module.ExePath = txtExePath.Text.Trim();
             _module.WorkingDir = txtWorkingDir.Text.Trim();
-            _module.IconPath = txtIconPath.Text.Trim();
-
-            var txtArgs = this.Controls.Find("txtArguments", true).FirstOrDefault() as TextBox;
-            _module.Arguments = txtArgs?.Text.Trim() ?? "";
+            _module.IconPath = txtIconPath.Text.Trim(); // ✅ Guardar IconPath
+           // _module.Arguments = txtArguments.Text.Trim(); // ✅ ACCESO DIRECTO
 
             _module.Category = cboCategory.SelectedItem?.ToString() ?? "Operación";
 
