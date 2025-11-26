@@ -3,15 +3,15 @@
   "WorkspaceRootPath": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\data\\sqldataaccess.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\data\\sqldataaccess.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\data\\sqldataaccess.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\services\\moduleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\services\\moduleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\services\\moduleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -64,10 +64,9 @@
               "RelativeDocumentMoniker": "ModuleGPI\\Data\\SqlDataAccess.cs",
               "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\Data\\SqlDataAccess.cs",
               "RelativeToolTip": "ModuleGPI\\Data\\SqlDataAccess.cs",
-              "ViewState": "AgIAAIQAAAAAAAAAAAAAwJwAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAF0AAAAAAAAAAAAgwHoAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-25T16:47:39.553Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-25T16:47:39.553Z"
             },
             {
               "$type": "Document",
@@ -103,8 +102,7 @@
               "RelativeToolTip": "ModuleGPI\\Services\\ModuleService.cs",
               "ViewState": "AgIAAIsAAAAAAAAAAAAQwMIAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-20T15:28:53.25Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-20T15:28:53.25Z"
             },
             {
               "$type": "Document",
@@ -124,9 +122,9 @@
               "Title": "MainForm.cs",
               "DocumentMoniker": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs",
               "RelativeDocumentMoniker": "ModuleGPI\\MainForm.cs",
-              "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs*",
-              "RelativeToolTip": "ModuleGPI\\MainForm.cs*",
-              "ViewState": "AgIAAMoAAAAAAAAAAIAwwN4AAAAFAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs",
+              "RelativeToolTip": "ModuleGPI\\MainForm.cs",
+              "ViewState": "AgIAANoEAAAAAAAAAAAgwOAEAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-11-14T16:17:28.092Z",
               "EditorCaption": ""

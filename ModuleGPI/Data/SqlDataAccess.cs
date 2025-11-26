@@ -97,11 +97,27 @@ namespace ModuleGPI.Data
                 _daUsers.Fill(dt);
             }
 
+            // ✅ CRÍTICO: Forzar que las columnas de checkboxes NO sean ReadOnly
+            if (dt.Columns.Contains("MTY_Access"))
+            {
+                dt.Columns["MTY_Access"].ReadOnly = false;
+            }
+
+            if (dt.Columns.Contains("QRO_Access"))
+            {
+                dt.Columns["QRO_Access"].ReadOnly = false;
+            }
+
+            if (dt.Columns.Contains("TIJ_Access"))
+            {
+                dt.Columns["TIJ_Access"].ReadOnly = false;
+            }
+
             // ✅ Verificar tipos de columnas
             Debug.WriteLine("=== TIPOS DE COLUMNAS ===");
-            Debug.WriteLine($"MTY_Access: {dt.Columns["MTY_Access"].DataType}");
-            Debug.WriteLine($"QRO_Access: {dt.Columns["QRO_Access"].DataType}");
-            Debug.WriteLine($"TIJ_Access: {dt.Columns["TIJ_Access"].DataType}");
+            Debug.WriteLine($"MTY_Access: {dt.Columns["MTY_Access"].DataType} - ReadOnly: {dt.Columns["MTY_Access"].ReadOnly}");
+            Debug.WriteLine($"QRO_Access: {dt.Columns["QRO_Access"].DataType} - ReadOnly: {dt.Columns["QRO_Access"].ReadOnly}");
+            Debug.WriteLine($"TIJ_Access: {dt.Columns["TIJ_Access"].DataType} - ReadOnly: {dt.Columns["TIJ_Access"].ReadOnly}");
 
             return dt;
         }
