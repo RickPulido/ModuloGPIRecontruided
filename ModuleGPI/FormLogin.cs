@@ -151,9 +151,10 @@ namespace ModuleGPI
                 DataRow info;
                 using (var con = new SqlConnection(_cs))
                 using (var da = new SqlDataAdapter(@"
-                    SELECT USU_EmpID, USU_UserLog, USU_TypeAut, USU_Status, USU_UserPLant
-                    FROM ModGPI_User
-                    WHERE USU_EmpID = @empId AND USU_Status = 1;", con))
+                SELECT USU_EmpID, USU_UserLog, USU_TypeAut, USU_Status, USU_UserPLant,
+                       MTY_Access, QRO_Access, TIJ_Access
+                FROM ModGPI_User
+                WHERE USU_EmpID = @empId AND USU_Status = 1;", con))
                 {
                     da.SelectCommand.Parameters.Add("@empId", SqlDbType.NVarChar, 10).Value = empId;
                     var dt = new DataTable();
@@ -169,10 +170,21 @@ namespace ModuleGPI
                 }
 
                 // 4) Guardar sesión
+                // 4) Guardar sesión
                 Session.LogonName = user;
-                Session.Sucursal = Convert.ToInt32(info["USU_UserPLant"]);  
+                Session.Sucursal = Convert.ToInt32(info["USU_UserPLant"]);
                 Session.TypeAut = Convert.ToInt32(info["USU_TypeAut"]);
                 Session.EmpId = empId;
+
+                // ✅ NUEVO: Cargar acceso multi-planta
+                Session.MTY_Access = info["MTY_Access"] != DBNull.Value &&
+                                     Convert.ToBoolean(info["MTY_Access"]);
+
+                Session.QRO_Access = info["QRO_Access"] != DBNull.Value &&
+                                     Convert.ToBoolean(info["QRO_Access"]);
+
+                Session.TIJ_Access = info["TIJ_Access"] != DBNull.Value &&
+                                     Convert.ToBoolean(info["TIJ_Access"]);
                 // 5) Indicar éxito al Program.cs
                 this.DialogResult = DialogResult.OK;
                 this.Close();

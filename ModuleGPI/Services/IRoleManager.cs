@@ -8,5 +8,8 @@ namespace ModuleGPI.Services
         string GetRoleName(int typeAut);
         void ApplyVisibility(TabControl tabMain, TabPage tabAdmin, TabPage tabConfig, int typeAut);
         bool CanSeeModule(string buttonName, ModuleDef module, int userRole, string empId, OverridesStore store);
+        string DiagnoseModuleAccess(string buttonName, ModuleDef module, int userRole, string empId, OverridesStore store);
+
+
     }
 }

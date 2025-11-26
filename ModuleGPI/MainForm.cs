@@ -332,6 +332,67 @@ namespace ModuleGPI
             }
         }
 
+
+        // Agrega este método en MainForm.cs
+        private void BtnDiagnosticar_Click(object sender, EventArgs e)
+        {
+            if (dgvModulos?.CurrentRow?.DataBoundItem is DataRowView drv)
+            {
+                try
+                {
+                    string buttonName = Convert.ToString(drv["ButtonName"]);
+
+                    var module = new ModuleDef
+                    {
+                        ButtonName = buttonName,
+                        Name = Convert.ToString(drv["Name"]),
+                        RolesMinTypeAut = Convert.ToInt32(drv["RolesMinTypeAut"]),
+                        Plant = Convert.ToInt32(drv["Plant"])
+                    };
+
+                    string diagnostico = _roleManager.DiagnoseModuleAccess(
+                        buttonName,
+                        module,
+                        Session.TypeAut,
+                        Session.EmpId,
+                        _overrides
+                    );
+
+                    // Mostrar en un form con scroll para textos largos
+                    var formDiag = new Form
+                    {
+                        Text = "Diagnóstico de Acceso",
+                        Size = new System.Drawing.Size(600, 500),
+                        StartPosition = FormStartPosition.CenterParent,
+                        FormBorderStyle = FormBorderStyle.SizableToolWindow
+                    };
+
+                    var txtDiag = new TextBox
+                    {
+                        Multiline = true,
+                        ReadOnly = true,
+                        ScrollBars = ScrollBars.Vertical,
+                        Dock = DockStyle.Fill,
+                        Font = new System.Drawing.Font("Consolas", 9F),
+                        Text = diagnostico
+                    };
+
+                    formDiag.Controls.Add(txtDiag);
+                    formDiag.ShowDialog(this);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error en diagnóstico: {ex.Message}", "Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Seleccione un módulo primero", "Información",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
         private void SetupOverridesGrid()
         {
             if (dgvOverrides == null)
