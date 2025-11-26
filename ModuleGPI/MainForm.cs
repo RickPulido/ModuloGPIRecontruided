@@ -486,7 +486,10 @@ namespace ModuleGPI
             {
                 this.Cursor = Cursors.WaitCursor;
 
-                var dt = _moduleService.LoadModules(Session.Sucursal);
+                // ✅ Cargar TODOS los módulos (null = todas las plantas)
+                // El filtrado por acceso multi-planta se hace en CanSeeModule()
+                var dt = _moduleService.LoadModules(null);
+
                 _moduleService.PaintButtons(dt, flpOperacion, flpConsultas, cmuModulo, _toolTips,
                     (btnName, module) => _roleManager.CanSeeModule(btnName, module, Session.TypeAut,
                         Session.EmpId ?? Session.LogonName, _overrides));
