@@ -1,8 +1,7 @@
 ﻿using ModuleGPI.Data;
 using ModuleGPI.Domain;
-using ModuleGPI.Controls;  
+using ModuleGPI.Controls;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
@@ -10,13 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
-
 namespace ModuleGPI.Services
 {
-
-    private static readonly Dictionary<string, Process> _activeProcesses = new Dictionary<string, Process>();
-    private static readonly object _processLock = new object();
-
     public sealed class ModuleService : IModuleService
     {
         private readonly IDataAccess _db;
@@ -41,7 +35,6 @@ namespace ModuleGPI.Services
 
                 string btnName = Convert.ToString(row["ButtonName"]);
 
-                // Verificar si ya existe (buscar tanto Button como ModuleButton)
                 if (panel.Controls.OfType<Control>().Any(c => c.Name == btnName))
                     continue;
 
@@ -55,16 +48,15 @@ namespace ModuleGPI.Services
                     Category = cat,
                     RequiresElevation = row["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(row["RequiresElevation"]),
                     RolesMinTypeAut = row["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(row["RolesMinTypeAut"]),
-                    Plant = row["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(row["Plant"])  //  CRÍTICO: Cargar Plant
+                    Plant = row["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(row["Plant"])
                 };
 
-                // CREAR ModuleButton EN LUGAR DE Button
                 var moduleBtn = new ModuleButton
                 {
                     Name = btnName,
                     ButtonText = def.Name,
-                    IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,  //  Usar IconPath o ExePath
-                    Size = new System.Drawing.Size(120, 120),  // Tamaño estilo Windows Apps
+                    IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,
+                    Size = new System.Drawing.Size(120, 120),
                     Margin = new Padding(10),
                     Tag = def,
                     ContextMenuStrip = cm
@@ -74,7 +66,6 @@ namespace ModuleGPI.Services
                 moduleBtn.Visible = v;
                 moduleBtn.Enabled = v;
 
-                // ToolTip
                 if (tips != null)
                 {
                     tips.SetToolTip(moduleBtn, def.Name + Environment.NewLine + (def.ExePath ?? ""));
@@ -86,7 +77,6 @@ namespace ModuleGPI.Services
 
         public void RefreshVisibility(FlowLayoutPanel op, FlowLayoutPanel cons, Func<string, ModuleDef, bool> canSee)
         {
-            //  Actualizar para soportar tanto Button como ModuleButton
             foreach (var control in op.Controls.OfType<Control>())
             {
                 if (control.Tag is ModuleDef m)
@@ -110,7 +100,6 @@ namespace ModuleGPI.Services
 
         public void LaunchModule(string buttonName, ModuleDef m, bool asAdmin, string[] allowedRoots, Action<string> setStatus)
         {
-            // Debounce
             if (DateTime.Now - _lastLaunch < TimeSpan.FromSeconds(1.5)) return;
             _lastLaunch = DateTime.Now;
 
@@ -120,7 +109,7 @@ namespace ModuleGPI.Services
                 return;
             }
 
-            // ✅ NUEVO: Verificar si ya está ejecutándose
+            // ✅ Verificar si ya está ejecutándose
             if (ProcessTracker.IsModuleRunning(buttonName))
             {
                 MessageBox.Show($"El módulo '{m.Name}' ya está ejecutándose.\n\nNo se pueden abrir múltiples instancias.",
@@ -151,9 +140,7 @@ namespace ModuleGPI.Services
 
                 if (p != null)
                 {
-                    // ✅ NUEVO: Registrar proceso
                     ProcessTracker.RegisterProcess(buttonName, p.Id);
-
                     setStatus?.Invoke((psi.Verb == "runas") ? $"Lanzado: {m.Name} (Admin)" : $"Lanzado: {m.Name}");
                 }
             }
@@ -170,7 +157,6 @@ namespace ModuleGPI.Services
 
         public void WireButtons(FlowLayoutPanel op, FlowLayoutPanel cons, EventHandler clickHandler)
         {
-            //  Conectar eventos para cualquier control (Button o ModuleButton)
             foreach (Control ctrl in op.Controls)
             {
                 if (ctrl.Tag is ModuleDef)

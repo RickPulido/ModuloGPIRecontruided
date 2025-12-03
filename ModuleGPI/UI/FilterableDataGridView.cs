@@ -1,8 +1,9 @@
-﻿using System;
+﻿using ModuleGPI.Controls;
+using ModuleGPI.Services;
+using ModuleGPI.UI;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
-using ModuleGPI.Services;
-
 
 namespace ModuleGPI.UI
 {
@@ -24,10 +25,8 @@ namespace ModuleGPI.UI
 
         private void InitializeComponents()
         {
-            // Panel contenedor
             this.Dock = DockStyle.Fill;
 
-            // Panel de filtros (arriba)
             _filterPanel = new Panel
             {
                 Dock = DockStyle.Top,
@@ -46,7 +45,6 @@ namespace ModuleGPI.UI
 
             _filterPanel.Controls.Add(_filterLayout);
 
-            // DataGridView (abajo)
             _grid = new DataGridView
             {
                 Dock = DockStyle.Fill,
@@ -61,7 +59,6 @@ namespace ModuleGPI.UI
 
             _grid.DataBindingComplete += Grid_DataBindingComplete;
 
-            // Agregar controles
             this.Controls.Add(_grid);
             this.Controls.Add(_filterPanel);
         }
@@ -89,11 +86,14 @@ namespace ModuleGPI.UI
                 var txtFilter = new TextBox
                 {
                     Dock = DockStyle.Fill,
-                    PlaceholderText = $"Buscar {col.HeaderText}...",
                     Font = new Font("Segoe UI", 8.5F),
-                    Tag = col.DataPropertyName
+                    Tag = col.DataPropertyName,
+                    ForeColor = Color.Gray,
+                    Text = $"Buscar {col.HeaderText}..."
                 };
 
+                // ✅ Usar helper para placeholder
+                txtFilter.SetPlaceholder($"Buscar {col.HeaderText}...");
                 txtFilter.TextChanged += (s, e) => ApplyFilters();
 
                 _filterLayout.Controls.Add(txtFilter, i, 0);
@@ -113,13 +113,18 @@ namespace ModuleGPI.UI
 
                 foreach (Control ctrl in _filterLayout.Controls)
                 {
-                    if (ctrl is TextBox txt && !string.IsNullOrWhiteSpace(txt.Text))
+                    if (ctrl is TextBox txt)
                     {
-                        string columnName = txt.Tag?.ToString();
-                        if (!string.IsNullOrEmpty(columnName))
+                        string realText = txt.GetRealText(); // ✅ Usar helper
+
+                        if (!string.IsNullOrWhiteSpace(realText))
                         {
-                            if (filter.Length > 0) filter += " AND ";
-                            filter += $"Convert([{columnName}], 'System.String') LIKE '%{txt.Text.Replace("'", "''")}%'";
+                            string columnName = txt.Tag?.ToString();
+                            if (!string.IsNullOrEmpty(columnName))
+                            {
+                                if (filter.Length > 0) filter += " AND ";
+                                filter += $"Convert([{columnName}], 'System.String') LIKE '%{realText.Replace("'", "''")}%'";
+                            }
                         }
                     }
                 }
