@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Windows.Forms;
-using ModuleGPI.Domain;  // ModuleDef public
+using ModuleGPI.Domain;  
 
 namespace ModuleGPI.Services
 {

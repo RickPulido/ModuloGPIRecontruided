@@ -135,12 +135,12 @@ namespace ModuleGPI
         lblCategory, cboCategory
             });
 
-            // === GRUPO: Rutas y Directorios (CON ICONOS) ===
+            // === GRUPO: Rutas y Directorios 
             grpPaths = new GroupBox
             {
                 Text = "Rutas y Directorios",
                 Location = new System.Drawing.Point(12, 140),
-                Size = new System.Drawing.Size(610, 210)  // ✅ Era 240, ahora 210 (30px menos)
+                Size = new System.Drawing.Size(610, 210)  
             };
 
             // Ejecutable
@@ -266,7 +266,7 @@ namespace ModuleGPI
             };
             btnTest.Click += BtnTest_Click;
 
-            // ✅ Agregar TODOS los controles de rutas
+            // Agregar TODOS los controles de rutas
             grpPaths.Controls.AddRange(new Control[]
             {
         lblExePath, txtExePath, btnBrowseExe,
@@ -280,7 +280,7 @@ namespace ModuleGPI
             grpPermissions = new GroupBox
             {
                 Text = "Permisos y Configuración",
-                Location = new System.Drawing.Point(12, 360),  // ✅ Era 390, ahora 360
+                Location = new System.Drawing.Point(12, 360),  
                 Size = new System.Drawing.Size(610, 120)
             };
 
@@ -345,7 +345,7 @@ namespace ModuleGPI
             btnSave = new Button
             {
                 Text = _isNewModule ? "Crear" : "Guardar",
-                Location = new System.Drawing.Point(466, 500),  // ✅ Era 530, ahora 500
+                Location = new System.Drawing.Point(466, 500),  
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.OK
             };
@@ -354,7 +354,7 @@ namespace ModuleGPI
             btnCancel = new Button
             {
                 Text = "Cancelar",
-                Location = new System.Drawing.Point(547, 500),  // ✅ Era 530, ahora 500
+                Location = new System.Drawing.Point(547, 500),  
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.Cancel
             };
@@ -393,8 +393,8 @@ namespace ModuleGPI
             txtName.Text = _module.Name;
             txtExePath.Text = _module.ExePath;
             txtWorkingDir.Text = _module.WorkingDir;
-            txtIconPath.Text = _module.IconPath ?? ""; // ✅ Usar string vacío si es null
-           // txtArguments.Text = _module.Arguments ?? ""; // ✅ ACCESO DIRECTO
+            txtIconPath.Text = _module.IconPath ?? ""; 
+           // txtArguments.Text = _module.Arguments ?? ""; 
 
             // Seleccionar categoría
             cboCategory.SelectedItem = _module.Category ?? "Operación";
@@ -413,7 +413,7 @@ namespace ModuleGPI
             nudPlant.Value = _module.Plant > 0 ? _module.Plant : 1;
             chkRequiresElevation.Checked = _module.RequiresElevation;
 
-            // ✅ Cargar preview del icono
+            // Cargar preview del icono
             if (!string.IsNullOrEmpty(_module.IconPath))
             {
                 LoadIconPreview(_module.IconPath);
@@ -627,7 +627,7 @@ namespace ModuleGPI
 
             try
             {
-                // ✅ GUARDAR LA RUTA DEL EXE COMO FUENTE DEL ICONO
+                // GUARDAR LA RUTA DEL EXE COMO FUENTE DEL ICONO
                 // El sistema extraerá el icono del .exe en tiempo de ejecución
                 txtIconPath.Text = txtExePath.Text;
                 LoadIconPreview(txtExePath.Text);
@@ -659,8 +659,8 @@ namespace ModuleGPI
             _module.Name = txtName.Text.Trim();
             _module.ExePath = txtExePath.Text.Trim();
             _module.WorkingDir = txtWorkingDir.Text.Trim();
-            _module.IconPath = txtIconPath.Text.Trim(); // ✅ Guardar IconPath
-           // _module.Arguments = txtArguments.Text.Trim(); // ✅ ACCESO DIRECTO
+            _module.IconPath = txtIconPath.Text.Trim(); 
+           // _module.Arguments = txtArguments.Text.Trim(); 
 
             _module.Category = cboCategory.SelectedItem?.ToString() ?? "Operación";
 

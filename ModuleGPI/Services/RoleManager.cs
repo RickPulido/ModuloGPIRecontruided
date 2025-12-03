@@ -116,9 +116,7 @@ namespace ModuleGPI.Services
         }
 
 
-        /// <summary>
-        /// Método de diagnóstico para verificar paso a paso por qué un usuario puede/no puede ver un módulo
-        /// </summary>
+        // Método de diagnóstico para verificar paso a paso por qué un usuario puede/no puede ver un módulo
         public string DiagnoseModuleAccess(string buttonName, ModuleDef module, int userRole, string empId, OverridesStore store)
         {
             var sb = new System.Text.StringBuilder();
@@ -184,9 +182,7 @@ namespace ModuleGPI.Services
                 return sb.ToString();
             }
 
-            // ========================================
-            // PASO 2: OVERRIDE
-            // ========================================
+           
             sb.AppendLine();
             sb.AppendLine("─────────────────────────────────────────");
             sb.AppendLine("PASO 2: VERIFICAR OVERRIDE PERSONALIZADO");

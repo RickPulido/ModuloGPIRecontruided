@@ -4,17 +4,15 @@ using System.Linq;
 
 namespace ModuleGPI.Domain
 {
-    /// <summary>
-    /// Contenedor en memoria de overrides por usuario/módulo.
-    /// </summary>
+    // Contenedor en memoria de overrides por usuario/módulo.
+    
     public sealed class OverridesStore
     {
         public List<ModuleUserOverride> Items { get; } = new List<ModuleUserOverride>();
 
-        /// <summary>
-        /// Obtiene el valor de override para (buttonName, empId).
-        /// Devuelve null si no hay registro (=> heredado).
-        /// </summary>
+       
+        // Obtiene el valor de override para (buttonName, empId).
+        // Devuelve null si no hay registro (=> heredado).
         public int? Get(string buttonName, string empId)
         {
             var ov = Items.FirstOrDefault(x =>
@@ -24,9 +22,7 @@ namespace ModuleGPI.Domain
             return ov == null ? (int?)null : ov.Override;
         }
 
-        /// <summary>
-        /// Establece/actualiza override. Si value==0 se elimina (heredado).
-        /// </summary>
+        // Establece/actualiza override. Si value==0 se elimina (heredado).
         public void Set(string buttonName, string empId, int value)
         {
             var existing = Items.FirstOrDefault(x =>
@@ -54,9 +50,7 @@ namespace ModuleGPI.Domain
             }
         }
 
-        /// <summary>
-        /// Elimina cualquier override explícito para (buttonName, empId).
-        /// </summary>
+        // Elimina cualquier override explícito para (buttonName, empId).
         public void Remove(string buttonName, string empId)
         {
             Items.RemoveAll(x =>

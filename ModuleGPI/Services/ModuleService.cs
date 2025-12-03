@@ -1,6 +1,6 @@
 ﻿using ModuleGPI.Data;
 using ModuleGPI.Domain;
-using ModuleGPI.Controls;  // ✅ AGREGAR ESTE USING
+using ModuleGPI.Controls;  
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,7 +36,7 @@ namespace ModuleGPI.Services
 
                 string btnName = Convert.ToString(row["ButtonName"]);
 
-                // ✅ Verificar si ya existe (buscar tanto Button como ModuleButton)
+                // Verificar si ya existe (buscar tanto Button como ModuleButton)
                 if (panel.Controls.OfType<Control>().Any(c => c.Name == btnName))
                     continue;
 
@@ -46,18 +46,19 @@ namespace ModuleGPI.Services
                     ExePath = Convert.ToString(row["ExePath"]),
                     WorkingDir = Convert.ToString(row["WorkingDir"]),
                     Arguments = row.Table.Columns.Contains("Arguments") ? Convert.ToString(row["Arguments"]) : "",
-                    IconPath = row.Table.Columns.Contains("IconPath") ? Convert.ToString(row["IconPath"]) : "",  // ✅ LEER ICONPATH
+                    IconPath = row.Table.Columns.Contains("IconPath") ? Convert.ToString(row["IconPath"]) : "",
                     Category = cat,
                     RequiresElevation = row["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(row["RequiresElevation"]),
-                    RolesMinTypeAut = row["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(row["RolesMinTypeAut"])
+                    RolesMinTypeAut = row["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(row["RolesMinTypeAut"]),
+                    Plant = row["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(row["Plant"])  //  CRÍTICO: Cargar Plant
                 };
 
-                // ✅ CREAR ModuleButton EN LUGAR DE Button
+                // CREAR ModuleButton EN LUGAR DE Button
                 var moduleBtn = new ModuleButton
                 {
                     Name = btnName,
                     ButtonText = def.Name,
-                    IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,  // ✅ Usar IconPath o ExePath
+                    IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,  //  Usar IconPath o ExePath
                     Size = new System.Drawing.Size(120, 120),  // Tamaño estilo Windows Apps
                     Margin = new Padding(10),
                     Tag = def,
@@ -80,7 +81,7 @@ namespace ModuleGPI.Services
 
         public void RefreshVisibility(FlowLayoutPanel op, FlowLayoutPanel cons, Func<string, ModuleDef, bool> canSee)
         {
-            // ✅ Actualizar para soportar tanto Button como ModuleButton
+            //  Actualizar para soportar tanto Button como ModuleButton
             foreach (var control in op.Controls.OfType<Control>())
             {
                 if (control.Tag is ModuleDef m)
@@ -148,7 +149,7 @@ namespace ModuleGPI.Services
 
         public void WireButtons(FlowLayoutPanel op, FlowLayoutPanel cons, EventHandler clickHandler)
         {
-            // ✅ Conectar eventos para cualquier control (Button o ModuleButton)
+            //  Conectar eventos para cualquier control (Button o ModuleButton)
             foreach (Control ctrl in op.Controls)
             {
                 if (ctrl.Tag is ModuleDef)

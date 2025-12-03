@@ -66,10 +66,10 @@ namespace ModuleGPI
             {
                 _uiHelpers.PositionHeaderSearchBoxes(pnlOpHeader, btnOpRefrescar, txtOpSearch, pnlConsHeader, txtConsSearch);
 
-                // ✅ Actualizar status bar con datos de sesión
+                //  Actualizar status bar con datos de sesión
                 UpdateStatusBar();
 
-                // ✅ Aplicar visibilidad según rol
+                //  Aplicar visibilidad según rol
                 _roleManager.ApplyVisibility(tabMain, tabAdmin, tabConfig, Session.TypeAut);
                 _adminCanEdit = Session.TypeAut >= 5;
 
@@ -251,16 +251,16 @@ namespace ModuleGPI
 
             var columnName = dgvUsuarios.Columns[e.ColumnIndex].Name;
 
-            // ✅ Si es un checkbox de planta, hacer cambio inmediato
+            // Si es un checkbox de planta, hacer cambio inmediato
             if (columnName == "MTY_Access" || columnName == "QRO_Access" || columnName == "TIJ_Access")
             {
                 try
                 {
-                    // ✅ PASO 1: Obtener el valor actual
+                    // PASO 1: Obtener el valor actual
                     var currentCell = dgvUsuarios[e.ColumnIndex, e.RowIndex];
                     var currentValue = currentCell.Value;
 
-                    // ✅ PASO 2: Calcular el nuevo valor (invertir)
+                    // PASO 2: Calcular el nuevo valor (invertir)
                     bool newValue;
                     if (currentValue == null || currentValue == DBNull.Value)
                     {
@@ -271,16 +271,16 @@ namespace ModuleGPI
                         newValue = !Convert.ToBoolean(currentValue);
                     }
 
-                    // ✅ PASO 3: Asignar el nuevo valor directamente
+                    // PASO 3: Asignar el nuevo valor directamente
                     currentCell.Value = newValue;
 
-                    // ✅ PASO 4: Forzar commit del cambio
+                    //PASO 4: Forzar commit del cambio
                     dgvUsuarios.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
-                    // ✅ PASO 5: Refrescar la celda para que se vea el cambio
+                    // PASO 5: Refrescar la celda para que se vea el cambio
                     dgvUsuarios.RefreshEdit();
 
-                    // ✅ PASO 6: Marcar que hay cambios pendientes
+                    // PASO 6: Marcar que hay cambios pendientes
                     UpdateStatus($"⚠️ Acceso a {columnName.Replace("_Access", "")} modificado - Presione GUARDAR para aplicar");
 
                     if (btnAdminGuardar != null && _adminCanEdit)
@@ -289,7 +289,7 @@ namespace ModuleGPI
                         btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180);
                     }
 
-                    // ✅ PASO 7: Log para debugging (temporal)
+                    // PASO 7: Log para debugging (temporal)
                     Debug.WriteLine($"Checkbox {columnName} cambiado a: {newValue} para fila {e.RowIndex}");
                 }
                 catch (Exception ex)
@@ -309,17 +309,14 @@ namespace ModuleGPI
             }
         }
 
-        // ✅ NUEVO: Handler para cuando cambia el valor de una celda
         private void DgvUsuarios_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
             try
             {
-                // Marcar que hay cambios pendientes
                 UpdateStatus("⚠️ Cambios sin guardar - Presione GUARDAR para aplicar");
 
-                // ✅ Asegurar que el botón Guardar esté habilitado
                 if (btnAdminGuardar != null && _adminCanEdit)
                 {
                     btnAdminGuardar.Enabled = true;
@@ -333,7 +330,6 @@ namespace ModuleGPI
         }
 
 
-        // Agrega este método en MainForm.cs
         private void BtnDiagnosticar_Click(object sender, EventArgs e)
         {
             if (dgvModulos?.CurrentRow?.DataBoundItem is DataRowView drv)
@@ -358,7 +354,6 @@ namespace ModuleGPI
                         _overrides
                     );
 
-                    // Mostrar en un form con scroll para textos largos
                     var formDiag = new Form
                     {
                         Text = "Diagnóstico de Acceso",
@@ -486,8 +481,7 @@ namespace ModuleGPI
             {
                 this.Cursor = Cursors.WaitCursor;
 
-                // ✅ Cargar TODOS los módulos (null = todas las plantas)
-                // El filtrado por acceso multi-planta se hace en CanSeeModule()
+               
                 var dt = _moduleService.LoadModules(null);
 
                 _moduleService.PaintButtons(dt, flpOperacion, flpConsultas, cmuModulo, _toolTips,
@@ -523,7 +517,6 @@ namespace ModuleGPI
 
         private void ModuleButton_Click(object sender, EventArgs e)
         {
-            // ✅ Funciona tanto para Button como para ModuleButton (ambos heredan de Control)
             if (sender is Control ctrl && ctrl.Tag is ModuleDef m)
             {
                 _moduleService.LaunchModule(ctrl.Name, m, false, ALLOWED_ROOTS, UpdateStatus);
@@ -540,7 +533,6 @@ namespace ModuleGPI
 
                 _dtModulesConfig = _dataAccess.GetModules(null);
 
-                // ✅ FORZAR que IconPath NO sea ReadOnly
                 if (_dtModulesConfig.Columns.Contains("IconPath"))
                 {
                     _dtModulesConfig.Columns["IconPath"].ReadOnly = false;
@@ -643,7 +635,7 @@ namespace ModuleGPI
             { "ExePath", 300 },
             { "WorkingDir", 250 },
             { "Arguments", 150 },
-            { "IconPath", 250 }, // ✅ AGREGAR
+            { "IconPath", 250 }, 
             { "Category", 100 },
             { "RequiresElevation", 80 },
             { "RolesMinTypeAut", 80 },
@@ -683,7 +675,7 @@ namespace ModuleGPI
                         newRow["ExePath"] = module.ExePath;
                         newRow["WorkingDir"] = string.IsNullOrEmpty(module.WorkingDir) ? "" : module.WorkingDir;
                        // newRow["Arguments"] = string.IsNullOrEmpty(module.Arguments) ? "" : module.Arguments;
-                        newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath; // ✅ AGREGAR
+                        newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath; 
                         newRow["Category"] = module.Category;
                         newRow["RequiresElevation"] = module.RequiresElevation;
                         newRow["RolesMinTypeAut"] = module.RolesMinTypeAut;
@@ -787,7 +779,7 @@ namespace ModuleGPI
                     ExePath = Convert.ToString(drv["ExePath"]),
                     WorkingDir = Convert.ToString(drv["WorkingDir"]),
                    // Arguments = Convert.ToString(drv["Arguments"]),
-                    IconPath = Convert.ToString(drv["IconPath"]), // ✅ LEER IconPath
+                    IconPath = Convert.ToString(drv["IconPath"]), 
                     Category = Convert.ToString(drv["Category"]),
                     RequiresElevation = drv["RequiresElevation"] != DBNull.Value &&
                                        Convert.ToBoolean(drv["RequiresElevation"]),
@@ -804,7 +796,7 @@ namespace ModuleGPI
                         drv["ExePath"] = form.Module.ExePath;
                         drv["WorkingDir"] = form.Module.WorkingDir ?? "";
                        // drv["Arguments"] = form.Module.Arguments ?? "";
-                        drv["IconPath"] = form.Module.IconPath ?? ""; // ✅ GUARDAR IconPath
+                        drv["IconPath"] = form.Module.IconPath ?? ""; 
                         drv["Category"] = form.Module.Category;
                         drv["RequiresElevation"] = form.Module.RequiresElevation;
                         drv["RolesMinTypeAut"] = form.Module.RolesMinTypeAut;
@@ -867,24 +859,19 @@ namespace ModuleGPI
             {
                 this.Cursor = Cursors.WaitCursor;
 
-                // ✅ FORZAR LAYOUT CORRECTO
                 if (grpRoles != null && barFiltroPlanta != null && dgvUsuarios != null)
                 {
                     grpRoles.SuspendLayout();
 
-                    // Remover controles temporalmente
                     grpRoles.Controls.Clear();
 
-                    // Configurar filtro
                     barFiltroPlanta.Dock = DockStyle.Top;
                     barFiltroPlanta.Height = 40;
 
-                    // Configurar grid
                     dgvUsuarios.Dock = DockStyle.Fill;
 
-                    // Agregar en orden correcto
-                    grpRoles.Controls.Add(dgvUsuarios);      // Primero el que va Fill
-                    grpRoles.Controls.Add(barFiltroPlanta);  // Después el que va Top
+                    grpRoles.Controls.Add(dgvUsuarios);      
+                    grpRoles.Controls.Add(barFiltroPlanta);  
 
                     grpRoles.ResumeLayout();
                 }
@@ -900,18 +887,15 @@ namespace ModuleGPI
 
                 Debug.WriteLine("✅ LoadAdminData: Forzado ReadOnly=false en checkboxes");
 
-                // Cargar módulos
                 _dtModulesAdmin = _dataAccess.GetModules(null);
                 dgvModulos.DataSource = _dtModulesAdmin;
                 dgvModulos.ReadOnly = true;
                 ConfigureModulesAdminGrid();
 
-                // Cargar usuarios
                 _dtUsers = _dataAccess.GetUsers();
                 dgvUsuarios.DataSource = _dtUsers;
                 ConfigureUsersGrid();
 
-              //  DiagnosticarCheckbox();
 
                 if (btnAdminGuardar != null)
                 {
@@ -1028,7 +1012,7 @@ namespace ModuleGPI
                 }
 
                 if (dgvModulos.Columns["RolesMinTypeAut"] != null)
-                {
+                {   
                     dgvModulos.Columns["RolesMinTypeAut"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                     dgvModulos.Columns["RolesMinTypeAut"].Width = 90;
                 }
@@ -1053,7 +1037,6 @@ namespace ModuleGPI
             {
                 dgvUsuarios.SuspendLayout();
 
-                // ✅ Configuración general del grid
                 dgvUsuarios.ReadOnly = false;
                 dgvUsuarios.AllowUserToAddRows = false;
                 dgvUsuarios.AllowUserToDeleteRows = false;
@@ -1079,7 +1062,6 @@ namespace ModuleGPI
                 // COMBOBOXES (Reemplazar columnas)
                 // ========================================
 
-                // ✅ TypeAut - ComboBox
                 if (dgvUsuarios.Columns["USU_TypeAut"] != null)
                 {
                     int roleIndex = dgvUsuarios.Columns["USU_TypeAut"].Index;
@@ -1108,7 +1090,6 @@ namespace ModuleGPI
                     Debug.WriteLine("✅ ComboBox TypeAut creado");
                 }
 
-                // ✅ Status - ComboBox
                 if (dgvUsuarios.Columns["USU_Status"] != null)
                 {
                     int statusIndex = dgvUsuarios.Columns["USU_Status"].Index;
@@ -1134,7 +1115,6 @@ namespace ModuleGPI
                     Debug.WriteLine("✅ ComboBox Status creado");
                 }
 
-                // ✅ UserPLant - ComboBox
                 if (dgvUsuarios.Columns["USU_UserPLant"] != null)
                 {
                     int plantIndex = dgvUsuarios.Columns["USU_UserPLant"].Index;
@@ -1162,7 +1142,7 @@ namespace ModuleGPI
                 }
 
                 // ========================================
-                // ✅ CHECKBOXES - CREAR SI NO EXISTEN
+                // ✅ CHECKBOXES 
                 // ========================================
 
                 // ✅ MTY_Access
@@ -1188,7 +1168,6 @@ namespace ModuleGPI
                 }
                 else
                 {
-                    // La columna NO existe, agregarla al final
                     var mtyCheckbox = new DataGridViewCheckBoxColumn
                     {
                         Name = "MTY_Access",
@@ -1289,7 +1268,6 @@ namespace ModuleGPI
                 }
                 else
                 {
-                    // Si el grid no está visible aún, diferir el ajuste
                     EventHandler handlerCreated = null;
                     EventHandler handlerVisible = null;
 
@@ -1360,7 +1338,6 @@ namespace ModuleGPI
                     dgvUsuarios.Columns["USU_UserPLant"].Width = 120;
                 }
 
-                // ✅ Checkboxes de plantas
                 if (dgvUsuarios.Columns["MTY_Access"] != null)
                 {
                     dgvUsuarios.Columns["MTY_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
@@ -1390,58 +1367,7 @@ namespace ModuleGPI
 
 
 
-        //private void DiagnosticarCheckbox()
-        //{
-        //    if (dgvUsuarios == null || dgvUsuarios.Columns.Count == 0) return;
-
-        //    var diagnostico = new System.Text.StringBuilder();
-        //    diagnostico.AppendLine("=== DIAGNÓSTICO DE CHECKBOXES ===\n");
-
-        //    // Verificar configuración del grid
-        //    diagnostico.AppendLine($"Grid ReadOnly: {dgvUsuarios.ReadOnly}");
-        //    diagnostico.AppendLine($"Grid EditMode: {dgvUsuarios.EditMode}");
-        //    diagnostico.AppendLine($"Grid Enabled: {dgvUsuarios.Enabled}\n");
-
-        //    // Verificar columnas de checkboxes
-        //    foreach (var colName in new[] { "MTY_Access", "QRO_Access", "TIJ_Access" })
-        //    {
-        //        if (dgvUsuarios.Columns.Contains(colName))
-        //        {
-        //            var col = dgvUsuarios.Columns[colName];
-        //            diagnostico.AppendLine($"Columna: {colName}");
-        //            diagnostico.AppendLine($"  Tipo: {col.GetType().Name}");
-        //            diagnostico.AppendLine($"  ReadOnly: {col.ReadOnly}");
-        //            diagnostico.AppendLine($"  Visible: {col.Visible}");
-
-        //            if (col is DataGridViewCheckBoxColumn chkCol)
-        //            {
-        //                diagnostico.AppendLine($"  TrueValue: {chkCol.TrueValue}");
-        //                diagnostico.AppendLine($"  FalseValue: {chkCol.FalseValue}");
-        //                diagnostico.AppendLine($"  ThreeState: {chkCol.ThreeState}");
-        //            }
-        //            diagnostico.AppendLine();
-        //        }
-        //    }
-
-        //    // Verificar datos de la primera fila
-        //    if (dgvUsuarios.Rows.Count > 0)
-        //    {
-        //        diagnostico.AppendLine("Primera fila:");
-        //        var row = dgvUsuarios.Rows[0];
-        //        foreach (var colName in new[] { "MTY_Access", "QRO_Access", "TIJ_Access" })
-        //        {
-        //            if (dgvUsuarios.Columns.Contains(colName))
-        //            {
-        //                var value = row.Cells[colName].Value;
-        //                var readOnly = row.Cells[colName].ReadOnly;
-        //                diagnostico.AppendLine($"  {colName}: Value={value}, ReadOnly={readOnly}");
-        //            }
-        //        }
-        //    }
-
-        //    MessageBox.Show(diagnostico.ToString(), "Diagnóstico",
-        //        MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //}
+       
         private void LoadPlantFilter()
         {
             if (cboPlantFilter == null) return;
@@ -1512,7 +1438,6 @@ namespace ModuleGPI
                 // Guardar overrides
                 SaveAllOverrides();
 
-                // ✅ Resetear botón Guardar
                 if (btnAdminGuardar != null)
                 {
                     btnAdminGuardar.BackColor = SystemColors.Control;
@@ -1648,7 +1573,6 @@ namespace ModuleGPI
                     empIdCol.Width = 80;
                 }
 
-                // Configurar UserName
                 var userNameCol = dgvOverrides.Columns["UserName"];
                 if (userNameCol != null)
                 {
@@ -1657,7 +1581,6 @@ namespace ModuleGPI
                     userNameCol.Width = 140;
                 }
 
-                // Configurar RoleName
                 var roleNameCol = dgvOverrides.Columns["RoleName"];
                 if (roleNameCol != null)
                 {
@@ -1666,7 +1589,6 @@ namespace ModuleGPI
                     roleNameCol.Width = 100;
                 }
 
-                // ✅ Reemplazar columna Override con ComboBox EDITABLE
                 var overrideCol = dgvOverrides.Columns["Override"];
                 if (overrideCol != null)
                 {
@@ -1687,22 +1609,21 @@ namespace ModuleGPI
                         ValueMember = "Value",
                         DisplayMember = "Display",
                         Width = 130,
-                        ReadOnly = false, // ✅ EDITABLE
-                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox, // ✅ Mostrar siempre como ComboBox
+                        ReadOnly = false, 
+                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox, 
                         FlatStyle = FlatStyle.Flat
                     };
 
                     dgvOverrides.Columns.Insert(overrideIndex, comboCol);
                 }
 
-                // ✅ Configuración general - PERMITIR EDICIÓN
                 dgvOverrides.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
                 dgvOverrides.AllowUserToAddRows = false;
                 dgvOverrides.AllowUserToDeleteRows = false;
                 dgvOverrides.SelectionMode = DataGridViewSelectionMode.CellSelect;
                 dgvOverrides.MultiSelect = false;
                 dgvOverrides.RowHeadersVisible = false;
-                dgvOverrides.ReadOnly = false; // ✅ Grid NO es ReadOnly
+                dgvOverrides.ReadOnly = false; 
                 dgvOverrides.EditMode = DataGridViewEditMode.EditOnEnter;
 
                 dgvOverrides.ResumeLayout();
@@ -1731,13 +1652,12 @@ namespace ModuleGPI
             string buttonName = Convert.ToString(drv["ButtonName"]);
             ApplyOneOverrideFromRow(buttonName, e.RowIndex);
 
-            // ✅ Habilitar botón Guardar y cambiar color
             UpdateStatus("⚠️ Override modificado - Presione GUARDAR para aplicar cambios");
 
             if (btnAdminGuardar != null && _adminCanEdit)
             {
                 btnAdminGuardar.Enabled = true;
-                btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180); // Color de advertencia
+                btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180); 
             }
         }
 
@@ -1803,7 +1723,6 @@ namespace ModuleGPI
         #region Context Menu
         private void OpenContextSelected(bool asAdmin)
         {
-            // ✅ Funciona con cualquier control que tenga Tag de tipo ModuleDef
             if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
             {
                 _moduleService.LaunchModule(ctrl.Name, m, asAdmin, ALLOWED_ROOTS, UpdateStatus);

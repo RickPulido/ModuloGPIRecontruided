@@ -2,9 +2,7 @@
 
 namespace ModuleGPI
 {
-    /// <summary>
-    /// Información de la sesión actual del usuario
-    /// </summary>
+
     public static class Session
     {
         public static string LogonName { get; set; }
@@ -21,7 +19,7 @@ namespace ModuleGPI
         /// <summary>
         /// Verifica si el usuario tiene acceso a una planta específica
         /// </summary>
-        /// <param name="plant">1=MTY, 2=QRO, 3=TIJ, 0=Todas las plantas</param>
+        // <param name="plant">1=MTY, 2=QRO, 3=TIJ, 0=Todas las plantas</param>
         /// <returns>True si tiene acceso, False si no</returns>
         public static bool HasAccessToPlant(int plant)
         {
@@ -43,9 +41,7 @@ namespace ModuleGPI
             }
         }
 
-        /// <summary>
-        /// Obtiene el nombre legible de la planta
-        /// </summary>
+        
         public static string GetPlantName(int plant)
         {
             switch (plant)
@@ -58,9 +54,7 @@ namespace ModuleGPI
             }
         }
 
-        /// <summary>
-        /// Limpia la sesión actual
-        /// </summary>
+       
         public static void Clear()
         {
             LogonName = null;

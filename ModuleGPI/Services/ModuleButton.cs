@@ -29,12 +29,12 @@ namespace ModuleGPI.Controls
             this.Size = new Size(120, 120);
             this.Cursor = Cursors.Hand;
             this.BackColor = Color.Transparent;
-            this.DoubleBuffered = true;  // ✅ Reduce parpadeo
+            this.DoubleBuffered = true;  
 
             // PictureBox para el icono
             picIcon = new PictureBox
             {
-                Size = new Size(64, 64),  // ✅ Icono más grande
+                Size = new Size(64, 64),  
                 Location = new Point((this.Width - 64) / 2, 15),
                 SizeMode = PictureBoxSizeMode.StretchImage,
                 BackColor = Color.Transparent
@@ -98,7 +98,7 @@ namespace ModuleGPI.Controls
 
                 if (extension == ".ico")
                 {
-                    using (var icon = new Icon(_iconPath, 64, 64))  // ✅ Tamaño 64x64
+                    using (var icon = new Icon(_iconPath, 64, 64))  
                     {
                         picIcon.Image = icon.ToBitmap();
                     }
@@ -108,7 +108,7 @@ namespace ModuleGPI.Controls
                     var icon = Icon.ExtractAssociatedIcon(_iconPath);
                     if (icon != null)
                     {
-                        picIcon.Image = new Icon(icon, 64, 64).ToBitmap();  // ✅ Tamaño 64x64
+                        picIcon.Image = new Icon(icon, 64, 64).ToBitmap(); 
                     }
                     else
                     {
@@ -140,7 +140,7 @@ namespace ModuleGPI.Controls
             this.Invalidate();
         }
 
-        // ✅ Agregar borde redondeado al hover
+        //  Agregar borde redondeado al hover
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

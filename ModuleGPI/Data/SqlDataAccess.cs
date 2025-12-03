@@ -45,7 +45,7 @@ namespace ModuleGPI.Data
                 cmd.Parameters.Add("@ExePath", SqlDbType.NVarChar, 500).Value = r["ExePath"];
                 cmd.Parameters.Add("@WorkingDir", SqlDbType.NVarChar, 500).Value = r["WorkingDir"] ?? DBNull.Value;
 
-                // ✅ SOLO IconPath, sin Arguments
+                // SOLO IconPath, sin Arguments
                 cmd.Parameters.Add("@IconPath", SqlDbType.NVarChar, 500).Value =
                     r.Table.Columns.Contains("IconPath") && r["IconPath"] != DBNull.Value && !string.IsNullOrEmpty(r["IconPath"].ToString())
                     ? r["IconPath"]
@@ -76,7 +76,7 @@ namespace ModuleGPI.Data
         {
             var dt = new DataTable();
 
-            // ✅ CAST explícito a BIT para asegurar tipo correcto
+            // CAST explícito a BIT para asegurar tipo correcto
             string sql = @"
         SELECT 
             U.USU_EmpID, 
@@ -97,7 +97,7 @@ namespace ModuleGPI.Data
                 _daUsers.Fill(dt);
             }
 
-            // ✅ CRÍTICO: Forzar que las columnas de checkboxes NO sean ReadOnly
+            // CRÍTICO: Forzar que las columnas de checkboxes NO sean ReadOnly
             if (dt.Columns.Contains("MTY_Access"))
             {
                 dt.Columns["MTY_Access"].ReadOnly = false;
@@ -113,7 +113,7 @@ namespace ModuleGPI.Data
                 dt.Columns["TIJ_Access"].ReadOnly = false;
             }
 
-            // ✅ Verificar tipos de columnas
+            //  Verificar tipos de columnas
             Debug.WriteLine("=== TIPOS DE COLUMNAS ===");
             Debug.WriteLine($"MTY_Access: {dt.Columns["MTY_Access"].DataType} - ReadOnly: {dt.Columns["MTY_Access"].ReadOnly}");
             Debug.WriteLine($"QRO_Access: {dt.Columns["QRO_Access"].DataType} - ReadOnly: {dt.Columns["QRO_Access"].ReadOnly}");
@@ -156,7 +156,7 @@ namespace ModuleGPI.Data
                 _daUsers.UpdateCommand.Parameters.Add("@USU_Status", SqlDbType.Int).SourceColumn = "USU_Status";
                 _daUsers.UpdateCommand.Parameters.Add("@USU_UserPLant", SqlDbType.Int).SourceColumn = "USU_UserPLant";
 
-                // ✅ Parámetros BIT para checkboxes
+                //  Parámetros BIT para checkboxes
                 _daUsers.UpdateCommand.Parameters.Add("@MTY_Access", SqlDbType.Bit).SourceColumn = "MTY_Access";
                 _daUsers.UpdateCommand.Parameters.Add("@QRO_Access", SqlDbType.Bit).SourceColumn = "QRO_Access";
                 _daUsers.UpdateCommand.Parameters.Add("@TIJ_Access", SqlDbType.Bit).SourceColumn = "TIJ_Access";

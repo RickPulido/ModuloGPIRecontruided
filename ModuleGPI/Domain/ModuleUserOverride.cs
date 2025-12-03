@@ -2,10 +2,9 @@
 
 namespace ModuleGPI.Domain
 {
-    /// <summary>
-    /// Override de visibilidad/ejecución por usuario y módulo.
-    /// -1 = Denegar, 0 = Heredado (usa rol mínimo), 1 = Permitir
-    /// </summary>
+    // Override de visibilidad/ejecución por usuario y módulo.
+    // -1 = Denegar, 0 = Heredado (usa rol mínimo), 1 = Permitir
+    
     public sealed class ModuleUserOverride
     {
         public string ButtonName { get; set; }   // nombre del botón (clave del módulo)

@@ -1,5 +1,5 @@
 ﻿using System.Windows.Forms;
-using ModuleGPI.Domain;  // ModuleDef es public
+using ModuleGPI.Domain; 
 
 namespace ModuleGPI.Services
 {

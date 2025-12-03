@@ -1,8 +1,6 @@
 ﻿namespace ModuleGPI.Domain
 {
-    /// <summary>
-    /// Define la configuración de un módulo ejecutable
-    /// </summary>
+   
     public sealed class ModuleDef
     {
         public string ButtonName { get; set; }
