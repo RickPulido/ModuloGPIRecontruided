@@ -33,7 +33,7 @@ namespace ModuleGPI.UI
                          ControlStyles.AllPaintingInWmPaint |
                          ControlStyles.UserPaint, true);
             this.Size = new Size(150, 150);
-            this.BackColor = Color.Transparent;
+            this.BackColor = Color.White;
 
             _timer = new Timer { Interval = 50 };
             _timer.Tick += (s, e) => { _angle = (_angle + 15) % 360; Invalidate(); };
