@@ -21,6 +21,12 @@ namespace ModuleGPI.Controls
 
         public ModuleButton()
         {
+            // ✅ CRÍTICO: Activar soporte para BackColor transparente ANTES de usarlo
+            this.SetStyle(ControlStyles.SupportsTransparentBackColor, true);
+            this.SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
+            this.SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+            this.SetStyle(ControlStyles.UserPaint, true);
+
             InitializeComponents();
         }
 
@@ -28,13 +34,15 @@ namespace ModuleGPI.Controls
         {
             this.Size = new Size(120, 120);
             this.Cursor = Cursors.Hand;
+
+            // ✅ AHORA SÍ podemos usar Color.Transparent
             this.BackColor = Color.Transparent;
-            this.DoubleBuffered = true;  
+            this.DoubleBuffered = true;
 
             // PictureBox para el icono
             picIcon = new PictureBox
             {
-                Size = new Size(64, 64),  
+                Size = new Size(64, 64),
                 Location = new Point((this.Width - 64) / 2, 15),
                 SizeMode = PictureBoxSizeMode.StretchImage,
                 BackColor = Color.Transparent
@@ -98,7 +106,7 @@ namespace ModuleGPI.Controls
 
                 if (extension == ".ico")
                 {
-                    using (var icon = new Icon(_iconPath, 64, 64))  
+                    using (var icon = new Icon(_iconPath, 64, 64))
                     {
                         picIcon.Image = icon.ToBitmap();
                     }
@@ -108,7 +116,7 @@ namespace ModuleGPI.Controls
                     var icon = Icon.ExtractAssociatedIcon(_iconPath);
                     if (icon != null)
                     {
-                        picIcon.Image = new Icon(icon, 64, 64).ToBitmap(); 
+                        picIcon.Image = new Icon(icon, 64, 64).ToBitmap();
                     }
                     else
                     {
@@ -129,8 +137,8 @@ namespace ModuleGPI.Controls
         private void ModuleButton_MouseEnter(object sender, EventArgs e)
         {
             _isHovered = true;
-            this.BackColor = Color.FromArgb(229, 243, 255);  // Azul claro
-            this.Invalidate();  // Forzar repintado
+            this.BackColor = Color.FromArgb(229, 243, 255);  // Azul claro hover
+            this.Invalidate();
         }
 
         private void ModuleButton_MouseLeave(object sender, EventArgs e)
@@ -140,7 +148,6 @@ namespace ModuleGPI.Controls
             this.Invalidate();
         }
 
-        //  Agregar borde redondeado al hover
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -150,9 +157,28 @@ namespace ModuleGPI.Controls
                 using (Pen pen = new Pen(Color.FromArgb(0, 120, 215), 2))
                 {
                     e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                    e.Graphics.DrawRectangle(pen, 1, 1, this.Width - 3, this.Height - 3);
+
+                    // Borde redondeado
+                    using (GraphicsPath path = GetRoundedRectangle(new Rectangle(1, 1, this.Width - 3, this.Height - 3), 8))
+                    {
+                        e.Graphics.DrawPath(pen, path);
+                    }
                 }
             }
+        }
+
+        private GraphicsPath GetRoundedRectangle(Rectangle rect, int radius)
+        {
+            GraphicsPath path = new GraphicsPath();
+            int diameter = radius * 2;
+
+            path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
+            path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
+            path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
+            path.CloseFigure();
+
+            return path;
         }
 
         protected override void Dispose(bool disposing)

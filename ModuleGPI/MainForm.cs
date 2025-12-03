@@ -214,7 +214,20 @@ namespace ModuleGPI
                 btnOpRefrescar.Click += (s, e) => RefreshModules();
 
             if (treeCategories != null)
-                treeCategories.AfterSelect += (s, e) => SwitchByCategory(e.Node?.Text);
+            {
+                treeCategories.AfterSelect += (s, e) =>
+                {
+                    // ✅ CRÍTICO: Manejar click en favoritos
+                    if (e.Node?.Parent == _favoritesNode && e.Node.Tag is string buttonName)
+                    {
+                        LaunchFavoriteModule(buttonName);
+                    }
+                    else
+                    {
+                        SwitchByCategory(e.Node?.Text);
+                    }
+                };
+            }
 
             if (dgvModulos != null)
             {
@@ -230,9 +243,6 @@ namespace ModuleGPI
                 dgvUsuarios.CurrentCellDirtyStateChanged += DgvUsuarios_CurrentCellDirtyStateChanged;
                 dgvUsuarios.CellEndEdit += DgvUsuarios_CellEndEdit;
                 dgvUsuarios.CellContentClick += DgvUsuarios_CellContentClick;
-
-                //dgvUsuarios.CellClick += DgvUsuarios_CellClick;
-
                 dgvUsuarios.DataError += (s, e) => e.ThrowException = false;
                 _uiHelpers.EnableDgvDoubleBuffer(dgvUsuarios);
             }
@@ -1871,6 +1881,7 @@ namespace ModuleGPI
 
             treeCategories.Nodes.Clear();
 
+            // ✅ Crear nodo de favoritos
             _favoritesNode = new TreeNode("⭐ Favoritos");
             treeCategories.Nodes.Add(_favoritesNode);
 
@@ -1883,6 +1894,9 @@ namespace ModuleGPI
                 treeCategories.Nodes.Add("Administración");
                 treeCategories.Nodes.Add("Configuración");
             }
+
+            // ✅ Cargar favoritos guardados
+            RefreshFavorites();
 
             treeCategories.ExpandAll();
         }
