@@ -108,15 +108,30 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\FavoritesManager.cs" />
     <Compile Include="Services\IModuleService.cs" />
     <Compile Include="Services\IRoleManager.cs" />
     <Compile Include="Services\ModuleButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Services\ModuleService.cs" />
+    <Compile Include="Services\ProcessTracker.cs" />
     <Compile Include="Services\RoleManager.cs" />
     <Compile Include="Session.cs" />
+    <Compile Include="UI\ConfirmationDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\DataGridViewFilterHelper.cs" />
+    <Compile Include="UI\FilterableDataGridView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="UI\IUIHelpers.cs" />
+    <Compile Include="UI\LoadingOverlay.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\LoadingSpinner.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="UI\UIHelpers.cs" />
     <EmbeddedResource Include="FormLogin.resx">
       <DependentUpon>FormLogin.cs</DependentUpon>

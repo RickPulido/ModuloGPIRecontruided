@@ -10,8 +10,13 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
+
 namespace ModuleGPI.Services
 {
+
+    private static readonly Dictionary<string, Process> _activeProcesses = new Dictionary<string, Process>();
+    private static readonly object _processLock = new object();
+
     public sealed class ModuleService : IModuleService
     {
         private readonly IDataAccess _db;
@@ -105,12 +110,23 @@ namespace ModuleGPI.Services
 
         public void LaunchModule(string buttonName, ModuleDef m, bool asAdmin, string[] allowedRoots, Action<string> setStatus)
         {
+            // Debounce
             if (DateTime.Now - _lastLaunch < TimeSpan.FromSeconds(1.5)) return;
             _lastLaunch = DateTime.Now;
 
             if (m == null || string.IsNullOrWhiteSpace(m.ExePath) || !File.Exists(m.ExePath))
             {
                 MessageBox.Show("No se encontró el ejecutable.");
+                return;
+            }
+
+            // ✅ NUEVO: Verificar si ya está ejecutándose
+            if (ProcessTracker.IsModuleRunning(buttonName))
+            {
+                MessageBox.Show($"El módulo '{m.Name}' ya está ejecutándose.\n\nNo se pueden abrir múltiples instancias.",
+                    "Módulo en Ejecución",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
                 return;
             }
 
@@ -130,9 +146,14 @@ namespace ModuleGPI.Services
                     UseShellExecute = true,
                     Verb = (asAdmin || m.RequiresElevation) ? "runas" : ""
                 };
+
                 var p = Process.Start(psi);
+
                 if (p != null)
                 {
+                    // ✅ NUEVO: Registrar proceso
+                    ProcessTracker.RegisterProcess(buttonName, p.Id);
+
                     setStatus?.Invoke((psi.Verb == "runas") ? $"Lanzado: {m.Name} (Admin)" : $"Lanzado: {m.Name}");
                 }
             }

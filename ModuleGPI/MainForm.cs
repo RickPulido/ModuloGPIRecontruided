@@ -28,6 +28,9 @@ namespace ModuleGPI
         private bool _adminCanEdit;
         private DataGridView dgvOverrides;
 
+        private FavoritesManager _favoritesManager;
+        private TreeNode _favoritesNode;
+
         private static readonly string[] ALLOWED_ROOTS = new string[]
         {
             @"\\USAZR3QITVFE001\Intuitive MTY\",
@@ -47,6 +50,9 @@ namespace ModuleGPI
             _roleManager = new RoleManager();
             _uiHelpers = new UIHelpers();
             _overrides = new OverridesStore();
+
+            _favoritesManager = new FavoritesManager();
+
 
             this.Load += MainForm_Load;
             this.Shown += MainForm_Shown;
@@ -181,6 +187,16 @@ namespace ModuleGPI
 
             if (cmuVerProp != null)
                 cmuVerProp.Click += (s, e) => ShowModulePropertiesFromContext();
+
+            if (cmuVerProp != null)
+                cmuVerProp.Click += (s, e) => ShowModulePropertiesFromContext();
+
+
+            var cmuFavorito = new ToolStripMenuItem("⭐ Agregar/Quitar de Favoritos");
+            cmuFavorito.Click += (s, e) => ToggleFavoriteFromContext();
+            cmuModulo.Items.Insert(0, cmuFavorito);  // Insertar al inicio
+            cmuModulo.Items.Insert(1, new ToolStripSeparator());  // Separador
+
         }
 
         private void SetupEventHandlers()
@@ -243,7 +259,19 @@ namespace ModuleGPI
 
 
 
+        private void ToggleFavoriteFromContext()
+        {
+            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
+            {
+                _favoritesManager.ToggleFavorite(ctrl.Name);
 
+                bool isFav = _favoritesManager.IsFavorite(ctrl.Name);
+
+                UpdateStatus(isFav ? $"'{m.Name}' agregado a favoritos" : $"'{m.Name}' removido de favoritos");
+
+                RefreshFavorites();
+            }
+        }
 
         private void DgvUsuarios_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
@@ -450,6 +478,57 @@ namespace ModuleGPI
         }
         #endregion
 
+
+        #region Favoritos
+        private void RefreshFavorites()
+        {
+            if (_favoritesNode == null) return;
+
+            _favoritesNode.Nodes.Clear();
+
+            var favorites = _favoritesManager.GetFavorites();
+
+            foreach (string buttonName in favorites)
+            {
+                // Buscar el módulo en los paneles
+                Control moduleControl = FindModuleControl(buttonName);
+
+                if (moduleControl?.Tag is ModuleDef module)
+                {
+                    var favNode = new TreeNode(module.Name) { Tag = buttonName };
+                    _favoritesNode.Nodes.Add(favNode);
+                }
+            }
+        }
+
+        private Control FindModuleControl(string buttonName)
+        {
+            foreach (Control ctrl in flpOperacion.Controls)
+            {
+                if (ctrl.Name == buttonName)
+                    return ctrl;
+            }
+
+            foreach (Control ctrl in flpConsultas.Controls)
+            {
+                if (ctrl.Name == buttonName)
+                    return ctrl;
+            }
+
+            return null;
+        }
+
+        private void LaunchFavoriteModule(string buttonName)
+        {
+            Control moduleControl = FindModuleControl(buttonName);
+
+            if (moduleControl?.Tag is ModuleDef module)
+            {
+                _moduleService.LaunchModule(buttonName, module, false, ALLOWED_ROOTS, UpdateStatus);
+            }
+        }
+        #endregion
+
         #region Tab Navigation
         private void TabMain_Selected(object sender, TabControlEventArgs e)
         {
@@ -477,11 +556,13 @@ namespace ModuleGPI
         #region Module Management
         private void LoadModules()
         {
+            LoadingSpinner spinner = null;
+
             try
             {
+                spinner = ShowLoadingSpinner("Cargando módulos...");
                 this.Cursor = Cursors.WaitCursor;
 
-               
                 var dt = _moduleService.LoadModules(null);
 
                 _moduleService.PaintButtons(dt, flpOperacion, flpConsultas, cmuModulo, _toolTips,
@@ -497,6 +578,7 @@ namespace ModuleGPI
             }
             finally
             {
+                HideLoadingSpinner(spinner);
                 this.Cursor = Cursors.Default;
             }
         }
@@ -1788,6 +1870,10 @@ namespace ModuleGPI
             if (treeCategories == null) return;
 
             treeCategories.Nodes.Clear();
+
+            _favoritesNode = new TreeNode("⭐ Favoritos");
+            treeCategories.Nodes.Add(_favoritesNode);
+
             treeCategories.Nodes.Add("Dashboard");
             treeCategories.Nodes.Add("Operación");
             treeCategories.Nodes.Add("Consultas");
@@ -1928,5 +2014,38 @@ namespace ModuleGPI
             }
         }
         #endregion
+
+        #region Loading Spinner
+        private LoadingSpinner ShowLoadingSpinner(string message = "Cargando...")
+        {
+            var spinner = new LoadingSpinner
+            {
+                LoadingText = message,
+                Location = new Point(
+                    (this.ClientSize.Width - 150) / 2,
+                    (this.ClientSize.Height - 150) / 2
+                ),
+                Size = new Size(150, 150)
+            };
+
+            this.Controls.Add(spinner);
+            spinner.BringToFront();
+            spinner.Start();
+
+            return spinner;
+        }
+
+        private void HideLoadingSpinner(LoadingSpinner spinner)
+        {
+            if (spinner != null)
+            {
+                spinner.Stop();
+                this.Controls.Remove(spinner);
+                spinner.Dispose();
+            }
+        }
+        #endregion
+
+
     }
 }
