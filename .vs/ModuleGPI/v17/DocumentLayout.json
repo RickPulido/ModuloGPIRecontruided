@@ -3,7 +3,7 @@
   "WorkspaceRootPath": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\services\\processtracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\services\\processtracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\services\\processtracker.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -19,7 +19,7 @@
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\ui\\filterabledatagridview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -78,8 +78,7 @@
               "RelativeToolTip": "ModuleGPI\\UI\\FilterableDataGridView.cs",
               "ViewState": "AgIAAIAAAAAAAAAAAAAqwJUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T16:49:24.429Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T16:49:24.429Z"
             },
             {
               "$type": "Document",
@@ -103,8 +102,7 @@
               "RelativeToolTip": "ModuleGPI\\MainForm.cs",
               "ViewState": "AgIAADoCAAAAAAAAAADwv0kCAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-01T18:25:41.509Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-01T18:25:41.509Z"
             },
             {
               "$type": "Document",
@@ -116,8 +114,7 @@
               "RelativeToolTip": "ModuleGPI\\Services\\FavoritesManager.cs",
               "ViewState": "AgIAAKcAAAAAAAAAAAAuwN4AAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T16:50:24.067Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T16:50:24.067Z"
             },
             {
               "$type": "Document",
@@ -127,7 +124,7 @@
               "RelativeDocumentMoniker": "ModuleGPI\\Services\\ProcessTracker.cs",
               "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\Services\\ProcessTracker.cs",
               "RelativeToolTip": "ModuleGPI\\Services\\ProcessTracker.cs",
-              "ViewState": "AgIAAFsAAAAAAAAAAAAAACIAAAAWAAAAAAAAAA==",
+              "ViewState": "AgIAAEwAAAAAAAAAAAAqwCIAAAAWAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-03T16:50:06.99Z",
               "EditorCaption": ""
@@ -142,8 +139,7 @@
               "RelativeToolTip": "ModuleGPI\\UI\\LoadingSpinner.cs",
               "ViewState": "AgIAABYAAAAAAAAAAAAgwCMAAAAoAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T16:49:49.626Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-03T16:49:49.626Z"
             },
             {
               "$type": "Document",
