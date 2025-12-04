@@ -32,12 +32,33 @@ namespace ModuleGPI
         private TreeNode _favoritesNode;
 
         private static readonly string[] ALLOWED_ROOTS = new string[]
-        {
-            @"\\USAZR3QITVFE001\Intuitive MTY\",
-            @"\\USAZR3PITVFE001\Intuitive MTY\",
-            @"\\srv\apps\",
-            @"C:\Program Files\CorpApps\"
-        };
+{
+    // ========================================
+    // MONTERREY (MTY) - Plant 1
+    // ========================================
+    @"\\USAZR3QITVFE001\Intuitive MTY\",
+    @"\\USAZR3PITVFE001\Intuitive MTY\",
+    
+    // ========================================
+    // QUERÉTARO (QRO) - Plant 2
+    // ========================================
+    @"\\USAZR3QITVFE001\Intuitive\",
+    @"\\USAZR3PITVFE001\Intuitive\",
+    
+    // ========================================
+    // TIJUANA (TIJ) - Plant 3
+    // ========================================
+    @"\\USAZR3QITVFE001\Intuitive TIJ\",
+    @"\\USAZR3PITVFE001\Intuitive TIJ\",
+    
+    // ========================================
+    // RUTAS COMPARTIDAS (Todas las plantas)
+    // ========================================
+    //@"\\srv\apps\",
+    //@"C:\Program Files\CorpApps\",
+    //@"\\USAZR3QITVFE001\Shared\",
+    //@"\\USAZR3PITVFE001\Shared\"
+};
         #endregion
 
         #region Constructor
