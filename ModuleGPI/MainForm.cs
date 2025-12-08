@@ -34,30 +34,19 @@ namespace ModuleGPI
         private static readonly string[] ALLOWED_ROOTS = new string[]
 {
     // ========================================
-    // MONTERREY (MTY) - Plant 1
+    // ✅ VALIDACIÓN POR SERVIDOR (Permisivo)
     // ========================================
-    @"\\USAZR3QITVFE001\Intuitive MTY\",
-    @"\\USAZR3PITVFE001\Intuitive MTY\",
+    // Esto permite cualquier ruta en estos servidores,
+    // independientemente de la carpeta (MTY, QRO, TIJ)
+    
+    @"\\USAZR3QITVFE001\",   // ⭐ Servidor 1 (todas las plantas)
+    @"\\USAZR3PITVFE001\",   // ⭐ Servidor 2 (todas las plantas)
     
     // ========================================
-    // QUERÉTARO (QRO) - Plant 2
+    // RUTAS LOCALES/COMPARTIDAS (Opcional)
     // ========================================
-    @"\\USAZR3QITVFE001\Intuitive\",
-    @"\\USAZR3PITVFE001\Intuitive\",
-    
-    // ========================================
-    // TIJUANA (TIJ) - Plant 3
-    // ========================================
-    @"\\USAZR3QITVFE001\Intuitive TIJ\",
-    @"\\USAZR3PITVFE001\Intuitive TIJ\",
-    
-    // ========================================
-    // RUTAS COMPARTIDAS (Todas las plantas)
-    // ========================================
-    //@"\\srv\apps\",
-    //@"C:\Program Files\CorpApps\",
-    //@"\\USAZR3QITVFE001\Shared\",
-    //@"\\USAZR3PITVFE001\Shared\"
+    @"\\srv\apps\",
+    @"C:\Program Files\CorpApps\"
 };
         #endregion
 
@@ -182,11 +171,11 @@ namespace ModuleGPI
             if (btnDeleteModule != null)
                 btnDeleteModule.Click += BtnDeleteModule_Click;
 
-            if (btnGuardarConfig != null)
-            {
-                btnGuardarConfig.Enabled = _adminCanEdit;
-                btnGuardarConfig.Click += (s, e) => SaveAllConfigChanges();
-            }
+            //if (btnGuardarConfig != null)
+            //{
+            //    btnGuardarConfig.Enabled = _adminCanEdit;
+            //    btnGuardarConfig.Click += (s, e) => SaveAllConfigChanges();
+            //}
 
             if (btnAdminGuardar != null)
             {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -107,7 +108,27 @@ namespace ModuleGPI.Controls
                     oldImage.Dispose();
                 }
 
-                if (string.IsNullOrEmpty(_iconPath) || !File.Exists(_iconPath))
+                // ⭐ VALIDACIÓN INICIAL
+                if (string.IsNullOrEmpty(_iconPath))
+                {
+                    picIcon.Image = DefaultIcon.ToBitmap();
+                    return;
+                }
+
+                // ⭐ CRÍTICO: Si es ruta de red y no existe rápido, usar icono por defecto
+                if (_iconPath.StartsWith(@"\\"))
+                {
+                    // Timeout de 2 segundos para rutas de red
+                    bool exists = CheckFileExistsWithTimeout(_iconPath, 2000);
+
+                    if (!exists)
+                    {
+                        Debug.WriteLine($"⚠️ Timeout o archivo no existe: {_iconPath}");
+                        picIcon.Image = DefaultIcon.ToBitmap();
+                        return;
+                    }
+                }
+                else if (!File.Exists(_iconPath))
                 {
                     picIcon.Image = DefaultIcon.ToBitmap();
                     return;
@@ -140,12 +161,36 @@ namespace ModuleGPI.Controls
                     picIcon.Image = DefaultIcon.ToBitmap();
                 }
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine($"❌ Error cargando icono: {ex.Message}");
                 picIcon.Image = DefaultIcon.ToBitmap();
             }
         }
 
+        // ⭐ MÉTODO HELPER: Verificar existencia con timeout
+        private bool CheckFileExistsWithTimeout(string path, int timeoutMs)
+        {
+            try
+            {
+                var task = System.Threading.Tasks.Task.Run(() => File.Exists(path));
+
+                if (task.Wait(timeoutMs))
+                {
+                    return task.Result;
+                }
+                else
+                {
+                    Debug.WriteLine($"⏱️ Timeout verificando: {path}");
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"❌ Error verificando archivo: {ex.Message}");
+                return false;
+            }
+        }
         private void OnMouseEnterHandler(object sender, EventArgs e)
         {
             if (!_isHovered)
