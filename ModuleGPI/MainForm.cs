@@ -19,6 +19,10 @@ namespace ModuleGPI
         private readonly IRoleManager _roleManager;
         private readonly IUIHelpers _uiHelpers;
 
+        //private Panel _filterPanelUsuarios;
+        //private Panel _filterPanelModulos;
+        //private Panel _filterPanelOverrides;
+
         private DataTable _dtModulesAdmin;
         private DataTable _dtModulesConfig;
         private DataTable _dtUsers;
@@ -29,6 +33,7 @@ namespace ModuleGPI
         private DataGridView dgvOverrides;
 
         private FavoritesManager _favoritesManager;
+        private bool _isLoadingFavorites = false;
         private TreeNode _favoritesNode;
 
         private static readonly string[] ALLOWED_ROOTS = new string[]
@@ -99,7 +104,13 @@ namespace ModuleGPI
                     LoadConfigData();
                 }
 
-                LoadCategories();
+                LoadFavorites();
+
+                if (treeFavoritos != null)
+                {
+                    treeFavoritos.SelectedNode = null;
+                }
+
                 WireModuleButtons();
 
                 UpdateStatus("Sistema listo");
@@ -223,20 +234,16 @@ namespace ModuleGPI
             if (btnOpRefrescar != null)
                 btnOpRefrescar.Click += (s, e) => RefreshModules();
 
-            if (treeCategories != null)
+            // AGREGAR en SetupEventHandlers() ANTES del evento AfterSelect:
+            if (treeFavoritos != null)
             {
-                treeCategories.AfterSelect += (s, e) =>
+                // ⭐ TEMPORAL: Log de todos los eventos del TreeView
+                treeFavoritos.BeforeSelect += (s, e) =>
                 {
-                    // ✅ CRÍTICO: Manejar click en favoritos
-                    if (e.Node?.Parent == _favoritesNode && e.Node.Tag is string buttonName)
-                    {
-                        LaunchFavoriteModule(buttonName);
-                    }
-                    else
-                    {
-                        SwitchByCategory(e.Node?.Text);
-                    }
+                    Debug.WriteLine($"🔍 BeforeSelect: Node={e.Node?.Text}, Action={e.Action}");
                 };
+
+                treeFavoritos.AfterSelect += TreeFavoritos_AfterSelect;
             }
 
             if (dgvModulos != null)
@@ -277,6 +284,35 @@ namespace ModuleGPI
             }
         }
 
+
+        private void TreeFavoritos_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            // ⭐ CRÍTICO: Ignorar eventos durante la carga
+            if (_isLoadingFavorites)
+            {
+                Debug.WriteLine("⚠️ Evento AfterSelect ignorado: Cargando favoritos");
+                return;
+            }
+
+            // ⭐ Solo procesar si el evento fue causado por el mouse o teclado
+            // (no por código programático)
+            if (e.Action != TreeViewAction.ByMouse && e.Action != TreeViewAction.ByKeyboard)
+            {
+                Debug.WriteLine($"⚠️ Evento AfterSelect ignorado: Action={e.Action}");
+                return;
+            }
+
+            // ⭐ Validar que el nodo tenga un módulo asociado
+            if (e.Node?.Tag is string buttonName)
+            {
+                Debug.WriteLine($"✅ Lanzando favorito desde TreeView: {buttonName}");
+                LaunchFavoriteModule(buttonName);
+            }
+            else
+            {
+                Debug.WriteLine("⚠️ Nodo seleccionado no tiene módulo asociado");
+            }
+        }
 
 
         private void ToggleFavoriteFromContext()
@@ -502,6 +538,7 @@ namespace ModuleGPI
         #region Favoritos
         private void RefreshFavorites()
         {
+            LoadFavorites();
             if (_favoritesNode == null) return;
 
             _favoritesNode.Nodes.Clear();
@@ -999,6 +1036,19 @@ namespace ModuleGPI
                 ConfigureUsersGrid();
 
 
+                // ✅ Envolver dgvUsuarios en BindingSource
+                // var bsUsers = new BindingSource { DataSource = _dtUsers };
+                dgvModulos.DataSource = _dtModulesAdmin;  // Asignación directa
+                dgvModulos.ReadOnly = true;
+                ConfigureModulesAdminGrid();
+
+                // ✅ Agregar filtro a dgvUsuarios
+                //if (_filterPanelUsuarios == null)
+                //{
+                //    _filterPanelUsuarios = DataGridViewFilterHelper.AddFilterRow(dgvUsuarios);
+                //}
+
+
                 if (btnAdminGuardar != null)
                 {
                     btnAdminGuardar.Enabled = _adminCanEdit;
@@ -1036,9 +1086,9 @@ namespace ModuleGPI
 
             try
             {
-                var visibleColumns = new[] { "ButtonName", "Name", "Category", "RolesMinTypeAut" };
+                // ✅ SOLO MOSTRAR: Name, Category, RolesMinTypeAut
+                var visibleColumns = new[] { "Name", "Category", "RolesMinTypeAut" };
 
-                // Paso 1: Solo configurar visibilidad y textos (SEGURO)
                 foreach (DataGridViewColumn col in dgvModulos.Columns)
                 {
                     bool show = visibleColumns.Contains(col.DataPropertyName);
@@ -1048,11 +1098,8 @@ namespace ModuleGPI
                     {
                         switch (col.DataPropertyName)
                         {
-                            case "ButtonName":
-                                col.HeaderText = "Botón";
-                                break;
                             case "Name":
-                                col.HeaderText = "Módulo";
+                                col.HeaderText = "Nombre Módulo";
                                 break;
                             case "Category":
                                 col.HeaderText = "Categoría";
@@ -1064,14 +1111,12 @@ namespace ModuleGPI
                     }
                 }
 
-                // Paso 2: Configurar anchos de forma diferida (SEGURO)
                 if (dgvModulos.IsHandleCreated && dgvModulos.Visible)
                 {
                     AjustarAnchosModulosAdmin();
                 }
                 else
                 {
-                    // Esperar a que el control esté completamente inicializado
                     dgvModulos.HandleCreated += (s, e) =>
                         dgvModulos.BeginInvoke(new Action(AjustarAnchosModulosAdmin));
 
@@ -1096,15 +1141,10 @@ namespace ModuleGPI
             {
                 dgvModulos.SuspendLayout();
 
-                if (dgvModulos.Columns["ButtonName"] != null)
-                {
-                    dgvModulos.Columns["ButtonName"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvModulos.Columns["ButtonName"].Width = 130;
-                }
-
                 if (dgvModulos.Columns["Name"] != null)
                 {
                     dgvModulos.Columns["Name"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+                    dgvModulos.Columns["Name"].MinimumWidth = 150;
                 }
 
                 if (dgvModulos.Columns["Category"] != null)
@@ -1114,16 +1154,16 @@ namespace ModuleGPI
                 }
 
                 if (dgvModulos.Columns["RolesMinTypeAut"] != null)
-                {   
+                {
                     dgvModulos.Columns["RolesMinTypeAut"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvModulos.Columns["RolesMinTypeAut"].Width = 90;
+                    dgvModulos.Columns["RolesMinTypeAut"].Width = 100;
                 }
 
                 dgvModulos.ResumeLayout();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error ajustando anchos de columnas: {ex.Message}");
+                Debug.WriteLine($"Error ajustando anchos: {ex.Message}");
             }
         }
 
@@ -1637,8 +1677,15 @@ namespace ModuleGPI
                     _dtOverridesView.Rows.Add(empId, userName, _roleManager.GetRoleName(userRole), ov);
                 }
 
-                dgvOverrides.DataSource = null;
-                dgvOverrides.DataSource = _dtOverridesView;
+                // ✅ Usar BindingSource para filtrado
+                var bsOverrides = new BindingSource { DataSource = _dtOverridesView };
+                dgvOverrides.DataSource = bsOverrides;
+
+                // ✅ Agregar filtro
+                //if (_filterPanelOverrides == null)
+                //{
+                //    _filterPanelOverrides = DataGridViewFilterHelper.AddFilterRow(dgvOverrides);
+                //}
 
                 if (dgvOverrides.IsHandleCreated)
                 {
@@ -1885,30 +1932,61 @@ namespace ModuleGPI
             }
         }
 
-        private void LoadCategories()
+        private void LoadFavorites()
         {
-            if (treeCategories == null) return;
+            if (treeFavoritos == null) return;
 
-            treeCategories.Nodes.Clear();
+            // ⭐ ACTIVAR BANDERA: Estamos cargando
+            _isLoadingFavorites = true;
 
-            // ✅ Crear nodo de favoritos
-            _favoritesNode = new TreeNode("⭐ Favoritos");
-            treeCategories.Nodes.Add(_favoritesNode);
-
-            treeCategories.Nodes.Add("Dashboard");
-            treeCategories.Nodes.Add("Operación");
-            treeCategories.Nodes.Add("Consultas");
-
-            if (Session.TypeAut >= 4)
+            try
             {
-                treeCategories.Nodes.Add("Administración");
-                treeCategories.Nodes.Add("Configuración");
+                treeFavoritos.BeginUpdate();  // ⭐ Suspender actualizaciones visuales
+                treeFavoritos.Nodes.Clear();
+
+                var favorites = _favoritesManager.GetFavorites();
+
+                if (favorites.Count() == 0)
+                {
+                    // Mostrar mensaje cuando no hay favoritos
+                    var emptyNode = new TreeNode("No hay favoritos aún")
+                    {
+                        ForeColor = Color.Gray,
+                        NodeFont = new Font("Segoe UI", 8.5F, FontStyle.Italic),
+                        Tag = null  // ⭐ Sin tag = no es clickeable
+                    };
+                    treeFavoritos.Nodes.Add(emptyNode);
+                }
+                else
+                {
+                    foreach (string buttonName in favorites)
+                    {
+                        // Buscar el módulo en los paneles
+                        Control moduleControl = FindModuleControl(buttonName);
+
+                        if (moduleControl?.Tag is ModuleDef module)
+                        {
+                            // Crear nodo con icono de estrella y nombre del módulo
+                            var favNode = new TreeNode($"⭐ {module.Name}")
+                            {
+                                Tag = buttonName,
+                                ToolTipText = module.ExePath
+                            };
+
+                            treeFavoritos.Nodes.Add(favNode);
+                        }
+                    }
+
+                    treeFavoritos.ExpandAll();
+                }
+
+                treeFavoritos.EndUpdate();  // ⭐ Reanudar actualizaciones visuales
             }
-
-            // ✅ Cargar favoritos guardados
-            RefreshFavorites();
-
-            treeCategories.ExpandAll();
+            finally
+            {
+                // ⭐ DESACTIVAR BANDERA: Carga completa
+                _isLoadingFavorites = false;
+            }
         }
 
         private void SwitchByCategory(string node)

@@ -56,7 +56,8 @@ namespace ModuleGPI.Services
                     Name = btnName,
                     ButtonText = def.Name,
                     IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,
-                    Size = new System.Drawing.Size(120, 120),
+                    Plant = def.Plant,  // ⭐ AGREGAR ESTA LÍNEA
+                    Size = new System.Drawing.Size(120, 140),  // ⭐ Altura aumentada de 120 a 140
                     Margin = new Padding(10),
                     Tag = def,
                     ContextMenuStrip = cm

@@ -23,7 +23,7 @@ namespace ModuleGPI
         private TextBox txtName;
         private TextBox txtExePath;
         private TextBox txtWorkingDir;
-      //  private TextBox txtArguments;
+        //  private TextBox txtArguments;
         private ComboBox cboCategory;
         private ComboBox cboRoleMin;
         private NumericUpDown nudPlant;
@@ -36,6 +36,10 @@ namespace ModuleGPI
         private GroupBox grpBasic;
         private GroupBox grpPaths;
         private GroupBox grpPermissions;
+
+        private Label lblPlantIndicator;
+
+
         #endregion
 
         #region Properties
@@ -54,7 +58,7 @@ namespace ModuleGPI
                 Plant = 1
             };
 
-           
+
 
             InitializeComponent();
             LoadModuleData();
@@ -140,7 +144,7 @@ namespace ModuleGPI
             {
                 Text = "Rutas y Directorios",
                 Location = new System.Drawing.Point(12, 140),
-                Size = new System.Drawing.Size(610, 210)  
+                Size = new System.Drawing.Size(610, 210)
             };
 
             // Ejecutable
@@ -280,7 +284,7 @@ namespace ModuleGPI
             grpPermissions = new GroupBox
             {
                 Text = "Permisos y Configuración",
-                Location = new System.Drawing.Point(12, 360),  
+                Location = new System.Drawing.Point(12, 360),
                 Size = new System.Drawing.Size(610, 120)
             };
 
@@ -326,6 +330,21 @@ namespace ModuleGPI
                 Value = 1
             };
 
+            lblPlantIndicator = new Label
+            {
+                Location = new System.Drawing.Point(230, 55),
+                Size = new System.Drawing.Size(80, 23),
+                TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                BackColor = Color.FromArgb(230, 245, 255),
+                ForeColor = Color.FromArgb(0, 102, 204),
+                BorderStyle = BorderStyle.FixedSingle,
+                Text = "MTY"
+            };
+
+            nudPlant.ValueChanged += NudPlant_ValueChanged;
+
+
             chkRequiresElevation = new CheckBox
             {
                 Text = "Requiere elevación de privilegios (Ejecutar como Administrador)",
@@ -338,6 +357,7 @@ namespace ModuleGPI
             {
         lblRoleMin, cboRoleMin,
         lblPlant, nudPlant,
+        lblPlantIndicator,
         chkRequiresElevation
             });
 
@@ -345,7 +365,7 @@ namespace ModuleGPI
             btnSave = new Button
             {
                 Text = _isNewModule ? "Crear" : "Guardar",
-                Location = new System.Drawing.Point(466, 500),  
+                Location = new System.Drawing.Point(466, 500),
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.OK
             };
@@ -354,7 +374,7 @@ namespace ModuleGPI
             btnCancel = new Button
             {
                 Text = "Cancelar",
-                Location = new System.Drawing.Point(547, 500),  
+                Location = new System.Drawing.Point(547, 500),
                 Size = new System.Drawing.Size(75, 30),
                 DialogResult = DialogResult.Cancel
             };
@@ -393,13 +413,10 @@ namespace ModuleGPI
             txtName.Text = _module.Name;
             txtExePath.Text = _module.ExePath;
             txtWorkingDir.Text = _module.WorkingDir;
-            txtIconPath.Text = _module.IconPath ?? ""; 
-           // txtArguments.Text = _module.Arguments ?? ""; 
+            txtIconPath.Text = _module.IconPath ?? "";
 
-            // Seleccionar categoría
             cboCategory.SelectedItem = _module.Category ?? "Operación";
 
-            // Seleccionar rol mínimo
             for (int i = 0; i < cboRoleMin.Items.Count; i++)
             {
                 dynamic item = cboRoleMin.Items[i];
@@ -413,7 +430,9 @@ namespace ModuleGPI
             nudPlant.Value = _module.Plant > 0 ? _module.Plant : 1;
             chkRequiresElevation.Checked = _module.RequiresElevation;
 
-            // Cargar preview del icono
+            // ⭐ Actualizar indicador de planta
+            UpdatePlantIndicator();
+
             if (!string.IsNullOrEmpty(_module.IconPath))
             {
                 LoadIconPreview(_module.IconPath);
@@ -659,8 +678,8 @@ namespace ModuleGPI
             _module.Name = txtName.Text.Trim();
             _module.ExePath = txtExePath.Text.Trim();
             _module.WorkingDir = txtWorkingDir.Text.Trim();
-            _module.IconPath = txtIconPath.Text.Trim(); 
-           // _module.Arguments = txtArguments.Text.Trim(); 
+            _module.IconPath = txtIconPath.Text.Trim();
+            // _module.Arguments = txtArguments.Text.Trim(); 
 
             _module.Category = cboCategory.SelectedItem?.ToString() ?? "Operación";
 
@@ -750,6 +769,45 @@ namespace ModuleGPI
             }
         }
 
+        #endregion
+
+
+        #region Plant Indicator
+        private void NudPlant_ValueChanged(object sender, EventArgs e)
+        {
+            UpdatePlantIndicator();
+        }
+
+        private void UpdatePlantIndicator()
+        {
+            if (lblPlantIndicator == null) return;
+
+            int plant = (int)nudPlant.Value;
+
+            switch (plant)
+            {
+                case 1:
+                    lblPlantIndicator.Text = "MTY";
+                    lblPlantIndicator.BackColor = Color.FromArgb(230, 245, 255);
+                    lblPlantIndicator.ForeColor = Color.FromArgb(0, 102, 204);
+                    break;
+                case 2:
+                    lblPlantIndicator.Text = "QRO";
+                    lblPlantIndicator.BackColor = Color.FromArgb(255, 240, 230);
+                    lblPlantIndicator.ForeColor = Color.FromArgb(204, 102, 0);
+                    break;
+                case 3:
+                    lblPlantIndicator.Text = "TIJ";
+                    lblPlantIndicator.BackColor = Color.FromArgb(240, 255, 230);
+                    lblPlantIndicator.ForeColor = Color.FromArgb(51, 153, 51);
+                    break;
+                default:
+                    lblPlantIndicator.Text = "???";
+                    lblPlantIndicator.BackColor = Color.FromArgb(240, 240, 240);
+                    lblPlantIndicator.ForeColor = Color.Gray;
+                    break;
+            }
+        }
         #endregion
 
     }

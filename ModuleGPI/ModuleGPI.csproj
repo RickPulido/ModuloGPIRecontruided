@@ -118,6 +118,7 @@
     <Compile Include="Services\ProcessTracker.cs" />
     <Compile Include="Services\RoleManager.cs" />
     <Compile Include="Session.cs" />
+    <Compile Include="UI\DataGridViewFilterHelper.cs" />
     <Compile Include="UI\FilterableDataGridView.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -11,6 +11,10 @@ namespace ModuleGPI.Controls
     {
         private PictureBox picIcon;
         private Label lblText;
+
+        private Label lblPlant;  // ⭐ NUEVO: Etiqueta de planta
+        private int _plant = 0;  // ⭐ NUEVO: Almacenar planta
+
         private string _iconPath;
         private static readonly Icon DefaultIcon;
         private bool _isHovered = false;
@@ -35,7 +39,7 @@ namespace ModuleGPI.Controls
 
         private void InitializeComponents()
         {
-            this.Size = new Size(120, 120);
+            this.Size = new Size(120, 140);
             this.Cursor = Cursors.Hand;
             this.DoubleBuffered = true;
             this.Margin = new Padding(8);
@@ -53,7 +57,7 @@ namespace ModuleGPI.Controls
 
             lblText = new Label
             {
-                Size = new Size(this.Width - 8, 45),
+                Size = new Size(this.Width - 8, 40),
                 Location = new Point(4, 65),
                 TextAlign = ContentAlignment.TopCenter,
                 Font = new Font("Segoe UI", 8.5F, FontStyle.Regular),
@@ -63,8 +67,24 @@ namespace ModuleGPI.Controls
                 MaximumSize = new Size(this.Width - 8, 45)
             };
 
+
+            lblPlant = new Label
+            {
+                Size = new Size(60, 20),
+                Location = new Point((this.Width - 60) / 2, 110),  // Centrado horizontalmente
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
+                BackColor = Color.Transparent,
+                ForeColor = Color.Gray,
+                Text = "",
+                Visible = false,  // Oculto por defecto
+                BorderStyle = BorderStyle.None
+            };
+
+
             this.Controls.Add(picIcon);
             this.Controls.Add(lblText);
+            this.Controls.Add(lblPlant);
 
             // Eventos hover
             this.MouseEnter += OnMouseEnterHandler;
@@ -73,12 +93,18 @@ namespace ModuleGPI.Controls
             picIcon.MouseLeave += OnMouseLeaveHandler;
             lblText.MouseEnter += OnMouseEnterHandler;
             lblText.MouseLeave += OnMouseLeaveHandler;
+            lblPlant.MouseEnter += OnMouseEnterHandler;  // ⭐ Agregar hover
+            lblPlant.MouseLeave += OnMouseLeaveHandler;  // ⭐ Agregar hover
 
             // Propagar click
             picIcon.Click += (s, e) => this.OnClick(e);
             lblText.Click += (s, e) => this.OnClick(e);
+            lblPlant.Click += (s, e) => this.OnClick(e);  // ⭐ Propagar click
+
             picIcon.MouseDown += (s, e) => this.OnMouseDown(e);
             lblText.MouseDown += (s, e) => this.OnMouseDown(e);
+            lblPlant.MouseDown += (s, e) => this.OnMouseDown(e);  // ⭐ Propagar mousedown
+
         }
 
         public string ButtonText
@@ -94,6 +120,17 @@ namespace ModuleGPI.Controls
             {
                 _iconPath = value;
                 LoadIcon();
+            }
+        }
+
+        // ⭐ NUEVA PROPIEDAD: Planta
+        public int Plant
+        {
+            get => _plant;
+            set
+            {
+                _plant = value;
+                UpdatePlantLabel();
             }
         }
 
@@ -168,6 +205,51 @@ namespace ModuleGPI.Controls
             }
         }
 
+
+
+        /// <summary>
+        /// Actualiza la etiqueta de planta según el valor configurado
+        /// </summary>
+        private void UpdatePlantLabel()
+        {
+            if (lblPlant == null) return;
+
+            // Si la planta es 0, ocultar la etiqueta
+            if (_plant == 0)
+            {
+                lblPlant.Visible = false;
+                return;
+            }
+
+            lblPlant.Visible = true;
+
+            switch (_plant)
+            {
+                case 1: // MTY
+                    lblPlant.Text = "MTY";
+                    lblPlant.BackColor = Color.FromArgb(230, 245, 255);
+                    lblPlant.ForeColor = Color.FromArgb(0, 102, 204);
+                    break;
+
+                case 2: // QRO
+                    lblPlant.Text = "QRO";
+                    lblPlant.BackColor = Color.FromArgb(255, 240, 230);
+                    lblPlant.ForeColor = Color.FromArgb(204, 102, 0);
+                    break;
+
+                case 3: // TIJ
+                    lblPlant.Text = "TIJ";
+                    lblPlant.BackColor = Color.FromArgb(240, 255, 230);
+                    lblPlant.ForeColor = Color.FromArgb(51, 153, 51);
+                    break;
+
+                default:
+                    lblPlant.Text = "???";
+                    lblPlant.BackColor = Color.FromArgb(240, 240, 240);
+                    lblPlant.ForeColor = Color.Gray;
+                    break;
+            }
+        }
         // ⭐ MÉTODO HELPER: Verificar existencia con timeout
         private bool CheckFileExistsWithTimeout(string path, int timeoutMs)
         {
@@ -199,6 +281,7 @@ namespace ModuleGPI.Controls
                 this.BackColor = Color.FromArgb(229, 243, 255);
                 picIcon.BackColor = Color.FromArgb(229, 243, 255);
                 lblText.BackColor = Color.FromArgb(229, 243, 255);
+                // ⭐ NO cambiar lblPlant.BackColor (mantiene color de planta)
                 this.Invalidate();
             }
         }
@@ -212,6 +295,8 @@ namespace ModuleGPI.Controls
                 this.BackColor = Color.White;
                 picIcon.BackColor = Color.White;
                 lblText.BackColor = Color.White;
+                // ⭐ Restaurar color de planta
+                UpdatePlantLabel();
                 this.Invalidate();
             }
         }

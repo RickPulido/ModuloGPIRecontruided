@@ -32,8 +32,8 @@ namespace ModuleGPI
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.menuMain = new System.Windows.Forms.MenuStrip();
             this.mnuArchivo = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuArchivo_Salir = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,9 +53,9 @@ namespace ModuleGPI
             this.tsbCerrarSesion = new System.Windows.Forms.ToolStripButton();
             this.splitMain = new System.Windows.Forms.SplitContainer();
             this.pnlLeft = new System.Windows.Forms.Panel();
-            this.treeCategories = new System.Windows.Forms.TreeView();
+            this.treeFavoritos = new System.Windows.Forms.TreeView();
             this.txtFiltroCategoria = new System.Windows.Forms.TextBox();
-            this.lblCategorias = new System.Windows.Forms.Label();
+            this.lblFavoritos = new System.Windows.Forms.Label();
             this.tabMain = new System.Windows.Forms.TabControl();
             this.tabDashboard = new System.Windows.Forms.TabPage();
             this.tlpDash = new System.Windows.Forms.TableLayoutPanel();
@@ -90,11 +90,11 @@ namespace ModuleGPI
             this.tabConfig = new System.Windows.Forms.TabPage();
             this.btnDeleteModule = new System.Windows.Forms.Button();
             this.btnSaveModule = new System.Windows.Forms.Button();
-            this.btnNewModule = new System.Windows.Forms.Button();
             this.grpGeneral = new System.Windows.Forms.GroupBox();
             this.dgvModulesConfig = new System.Windows.Forms.DataGridView();
             this.grpAcerca = new System.Windows.Forms.GroupBox();
             this.lblVersion = new System.Windows.Forms.Label();
+            this.btnNewModule = new System.Windows.Forms.Button();
             this.cmuModulo = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmuAbrir = new System.Windows.Forms.ToolStripMenuItem();
             this.cmuAbrirAdmin = new System.Windows.Forms.ToolStripMenuItem();
@@ -288,22 +288,22 @@ namespace ModuleGPI
             // 
             // pnlLeft
             // 
-            this.pnlLeft.Controls.Add(this.treeCategories);
+            this.pnlLeft.Controls.Add(this.treeFavoritos);
             this.pnlLeft.Controls.Add(this.txtFiltroCategoria);
-            this.pnlLeft.Controls.Add(this.lblCategorias);
+            this.pnlLeft.Controls.Add(this.lblFavoritos);
             this.pnlLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlLeft.Name = "pnlLeft";
             this.pnlLeft.Size = new System.Drawing.Size(150, 524);
             this.pnlLeft.TabIndex = 0;
             // 
-            // treeCategories
+            // treeFavoritos
             // 
-            this.treeCategories.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeCategories.Location = new System.Drawing.Point(0, 44);
-            this.treeCategories.Name = "treeCategories";
-            this.treeCategories.Size = new System.Drawing.Size(150, 480);
-            this.treeCategories.TabIndex = 0;
+            this.treeFavoritos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.treeFavoritos.Location = new System.Drawing.Point(0, 44);
+            this.treeFavoritos.Name = "treeFavoritos";
+            this.treeFavoritos.Size = new System.Drawing.Size(150, 480);
+            this.treeFavoritos.TabIndex = 0;
             // 
             // txtFiltroCategoria
             // 
@@ -314,15 +314,15 @@ namespace ModuleGPI
             this.txtFiltroCategoria.TabIndex = 1;
             this.txtFiltroCategoria.Tag = "Filtrar categorías…";
             // 
-            // lblCategorias
+            // lblFavoritos
             // 
-            this.lblCategorias.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblCategorias.Location = new System.Drawing.Point(0, 0);
-            this.lblCategorias.Name = "lblCategorias";
-            this.lblCategorias.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
-            this.lblCategorias.Size = new System.Drawing.Size(150, 24);
-            this.lblCategorias.TabIndex = 2;
-            this.lblCategorias.Text = "Categorías";
+            this.lblFavoritos.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblFavoritos.Location = new System.Drawing.Point(0, 0);
+            this.lblFavoritos.Name = "lblFavoritos";
+            this.lblFavoritos.Padding = new System.Windows.Forms.Padding(6, 6, 0, 0);
+            this.lblFavoritos.Size = new System.Drawing.Size(150, 24);
+            this.lblFavoritos.TabIndex = 2;
+            this.lblFavoritos.Text = "Favoritos";
             // 
             // tabMain
             // 
@@ -564,7 +564,7 @@ namespace ModuleGPI
             this.splitAdmin.Panel2.Controls.Add(this.rightAdmin);
             this.splitAdmin.Panel2MinSize = 260;
             this.splitAdmin.Size = new System.Drawing.Size(840, 498);
-            this.splitAdmin.SplitterDistance = 564;
+            this.splitAdmin.SplitterDistance = 563;
             this.splitAdmin.SplitterWidth = 5;
             this.splitAdmin.TabIndex = 0;
             // 
@@ -574,7 +574,7 @@ namespace ModuleGPI
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
             this.leftAdmin.Name = "leftAdmin";
-            this.leftAdmin.Size = new System.Drawing.Size(564, 498);
+            this.leftAdmin.Size = new System.Drawing.Size(563, 498);
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
@@ -585,7 +585,7 @@ namespace ModuleGPI
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
             this.grpRoles.Name = "grpRoles";
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8);
-            this.grpRoles.Size = new System.Drawing.Size(564, 498);
+            this.grpRoles.Size = new System.Drawing.Size(563, 498);
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
@@ -599,7 +599,7 @@ namespace ModuleGPI
             this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(0);
             this.barFiltroPlanta.Name = "barFiltroPlanta";
             this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.barFiltroPlanta.Size = new System.Drawing.Size(548, 40);
+            this.barFiltroPlanta.Size = new System.Drawing.Size(547, 40);
             this.barFiltroPlanta.TabIndex = 0;
             this.barFiltroPlanta.WrapContents = false;
             // 
@@ -627,8 +627,8 @@ namespace ModuleGPI
             this.dgvUsuarios.AllowUserToAddRows = false;
             this.dgvUsuarios.AllowUserToDeleteRows = false;
             this.dgvUsuarios.AllowUserToResizeRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
-            this.dgvUsuarios.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
+            this.dgvUsuarios.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvUsuarios.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvUsuarios.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvUsuarios.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -638,7 +638,7 @@ namespace ModuleGPI
             this.dgvUsuarios.Name = "dgvUsuarios";
             this.dgvUsuarios.RowHeadersVisible = false;
             this.dgvUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUsuarios.Size = new System.Drawing.Size(548, 469);
+            this.dgvUsuarios.Size = new System.Drawing.Size(547, 469);
             this.dgvUsuarios.TabIndex = 1;
             // 
             // rightAdmin
@@ -647,7 +647,7 @@ namespace ModuleGPI
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
-            this.rightAdmin.Size = new System.Drawing.Size(271, 498);
+            this.rightAdmin.Size = new System.Drawing.Size(272, 498);
             this.rightAdmin.TabIndex = 0;
             // 
             // dgvModulos
@@ -655,8 +655,8 @@ namespace ModuleGPI
             this.dgvModulos.AllowUserToAddRows = false;
             this.dgvModulos.AllowUserToDeleteRows = false;
             this.dgvModulos.AllowUserToResizeRows = false;
-            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
-            this.dgvModulos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
+            this.dgvModulos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvModulos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvModulos.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvModulos.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -667,7 +667,7 @@ namespace ModuleGPI
             this.dgvModulos.ReadOnly = true;
             this.dgvModulos.RowHeadersVisible = false;
             this.dgvModulos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvModulos.Size = new System.Drawing.Size(271, 498);
+            this.dgvModulos.Size = new System.Drawing.Size(272, 498);
             this.dgvModulos.TabIndex = 0;
             // 
             // tabConfig
@@ -689,7 +689,7 @@ namespace ModuleGPI
             this.btnDeleteModule.Name = "btnDeleteModule";
             this.btnDeleteModule.Size = new System.Drawing.Size(100, 30);
             this.btnDeleteModule.TabIndex = 4;
-            this.btnDeleteModule.Text = "Delete";
+            this.btnDeleteModule.Text = "Eliminar!";
             this.btnDeleteModule.UseVisualStyleBackColor = true;
             // 
             // btnSaveModule
@@ -698,17 +698,8 @@ namespace ModuleGPI
             this.btnSaveModule.Name = "btnSaveModule";
             this.btnSaveModule.Size = new System.Drawing.Size(100, 30);
             this.btnSaveModule.TabIndex = 3;
-            this.btnSaveModule.Text = "Save Mod";
+            this.btnSaveModule.Text = "Editar Modulo";
             this.btnSaveModule.UseVisualStyleBackColor = true;
-            // 
-            // btnNewModule
-            // 
-            this.btnNewModule.Location = new System.Drawing.Point(50, 262);
-            this.btnNewModule.Name = "btnNewModule";
-            this.btnNewModule.Size = new System.Drawing.Size(100, 30);
-            this.btnNewModule.TabIndex = 2;
-            this.btnNewModule.Text = "New Module";
-            this.btnNewModule.UseVisualStyleBackColor = true;
             // 
             // grpGeneral
             // 
@@ -751,6 +742,15 @@ namespace ModuleGPI
             this.lblVersion.Size = new System.Drawing.Size(824, 21);
             this.lblVersion.TabIndex = 0;
             this.lblVersion.Text = "Versión: 1.0.0";
+            // 
+            // btnNewModule
+            // 
+            this.btnNewModule.Location = new System.Drawing.Point(50, 262);
+            this.btnNewModule.Name = "btnNewModule";
+            this.btnNewModule.Size = new System.Drawing.Size(100, 30);
+            this.btnNewModule.TabIndex = 2;
+            this.btnNewModule.Text = "Nuevo Modulo";
+            this.btnNewModule.UseVisualStyleBackColor = true;
             // 
             // cmuModulo
             // 
@@ -931,9 +931,9 @@ namespace ModuleGPI
 
         private SplitContainer splitMain;
         private Panel pnlLeft;
-        private Label lblCategorias;
+        private Label lblFavoritos;
         private TextBox txtFiltroCategoria;
-        private TreeView treeCategories;
+        private TreeView treeFavoritos;
 
         private TabControl tabMain;
         private TabPage tabDashboard;
