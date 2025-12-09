@@ -1713,7 +1713,6 @@ namespace ModuleGPI
             {
                 dgvOverrides.SuspendLayout();
 
-                // Configurar EmpId
                 var empIdCol = dgvOverrides.Columns["EmpId"];
                 if (empIdCol != null)
                 {

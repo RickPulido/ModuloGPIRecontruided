@@ -3,27 +3,27 @@
   "WorkspaceRootPath": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\ui\\datagridviewfilterhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\ui\\datagridviewfilterhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\services\\moduleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\services\\moduleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\services\\moduleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\services\\modulebutton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\services\\modulebutton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\services\\modulebutton.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\ui\\datagridviewfilterhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\ui\\datagridviewfilterhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|c:\\users\\edgar.pulido\\source\\repos\\modulegpi\\modulegpi\\domain\\moduleeditform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\modulegpi\\domain\\moduleeditform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{385A821F-005C-47F0-A910-6958B2FF6C9B}|ModuleGPI\\ModuleGPI.csproj|solutionrelative:modulegpi\\domain\\moduleeditform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -34,7 +34,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 10,
+          "SelectedChildIndex": 9,
           "Children": [
             {
               "$type": "Bookmark",
@@ -58,7 +58,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "ModuleService.cs",
               "DocumentMoniker": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\Services\\ModuleService.cs",
               "RelativeDocumentMoniker": "ModuleGPI\\Services\\ModuleService.cs",
@@ -66,12 +66,11 @@
               "RelativeToolTip": "ModuleGPI\\Services\\ModuleService.cs",
               "ViewState": "AgIAADUAAAAAAAAAAAAAAD8AAAASAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-08T17:20:03.745Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-08T17:20:03.745Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "ModuleButton.cs",
               "DocumentMoniker": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\Services\\ModuleButton.cs",
               "RelativeDocumentMoniker": "ModuleGPI\\Services\\ModuleButton.cs",
@@ -79,21 +78,19 @@
               "RelativeToolTip": "ModuleGPI\\Services\\ModuleButton.cs",
               "ViewState": "AgIAABoAAAAAAAAAAAAgwCQAAAAjAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-08T17:15:57.795Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-08T17:15:57.795Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "DataGridViewFilterHelper.cs",
               "DocumentMoniker": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\UI\\DataGridViewFilterHelper.cs",
               "RelativeDocumentMoniker": "ModuleGPI\\UI\\DataGridViewFilterHelper.cs",
               "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\UI\\DataGridViewFilterHelper.cs",
               "RelativeToolTip": "ModuleGPI\\UI\\DataGridViewFilterHelper.cs",
-              "ViewState": "AgIAAG4AAAAAAAAAAAAuwI4AAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAH8AAAAZAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-08T15:53:37.354Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-08T15:53:37.354Z"
             },
             {
               "$type": "Document",
@@ -105,33 +102,31 @@
               "RelativeToolTip": "ModuleGPI\\Domain\\Moduleeditform.cs",
               "ViewState": "AgIAAJcBAAAAAAAAAAAewLcBAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-08T15:46:39.257Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-08T15:46:39.257Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
               "Title": "MainForm.cs",
               "DocumentMoniker": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs",
               "RelativeDocumentMoniker": "ModuleGPI\\MainForm.cs",
-              "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs*",
-              "RelativeToolTip": "ModuleGPI\\MainForm.cs*",
-              "ViewState": "AgIAAGsGAAAAAAAAAAAMwJcGAAATAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs",
+              "RelativeToolTip": "ModuleGPI\\MainForm.cs",
+              "ViewState": "AgIAAKYDAAAAAAAAAAAqwKwDAABNAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-08T15:13:29.926Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "MainForm.cs [Dise\u00F1o]",
               "DocumentMoniker": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs",
               "RelativeDocumentMoniker": "ModuleGPI\\MainForm.cs",
-              "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs [Dise\u00F1o]*",
-              "RelativeToolTip": "ModuleGPI\\MainForm.cs [Dise\u00F1o]*",
+              "ToolTip": "C:\\Users\\Edgar.Pulido\\source\\repos\\ModuleGPI\\ModuleGPI\\MainForm.cs [Dise\u00F1o]",
+              "RelativeToolTip": "ModuleGPI\\MainForm.cs [Dise\u00F1o]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-03T16:09:08.896Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2025-12-03T16:09:08.896Z"
             }
           ]
         }
