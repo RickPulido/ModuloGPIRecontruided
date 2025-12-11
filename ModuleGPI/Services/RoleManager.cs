@@ -28,27 +28,20 @@ namespace ModuleGPI.Services
         {
             if (tabMain == null) return;
 
-            // Buscar tabs por nombre (como en el código legacy)
             var tabDashboard = tabMain.TabPages.Cast<TabPage>().FirstOrDefault(t => t.Name == "tabDashboard");
-            var tabOperacion = tabMain.TabPages.Cast<TabPage>().FirstOrDefault(t => t.Name == "tabOperacion");
-            var tabConsultas = tabMain.TabPages.Cast<TabPage>().FirstOrDefault(t => t.Name == "tabConsultas");
+            var tabModulos = tabMain.TabPages.Cast<TabPage>().FirstOrDefault(t => t.Name == "tabModulos");
 
             // Dashboard siempre visible
             if (tabDashboard != null)
                 tabDashboard.Visible = true;
 
-            // Consultas visible para Viewer (1) y superiores
-            if (tabConsultas != null)
-                tabConsultas.Visible = typeAut >= 1;
-
-            // Operación visible para Operator (2) y superiores
-            if (tabOperacion != null)
-                tabOperacion.Visible = typeAut >= 2;
+            // ✅ Módulos visible para todos (Viewer y superiores)
+            if (tabModulos != null)
+                tabModulos.Visible = typeAut >= 1;
 
             // Admin y Config solo para AdminDept (4) y superiores
             if (typeAut < 4)
             {
-                // Remover tabs de admin si existen
                 if (tabAdmin != null && tabMain.TabPages.Contains(tabAdmin))
                     tabMain.TabPages.Remove(tabAdmin);
                 if (tabConfig != null && tabMain.TabPages.Contains(tabConfig))
@@ -56,7 +49,6 @@ namespace ModuleGPI.Services
             }
             else
             {
-                // Agregar tabs de admin si no existen
                 if (tabAdmin != null && !tabMain.TabPages.Contains(tabAdmin))
                     tabMain.TabPages.Add(tabAdmin);
                 if (tabConfig != null && !tabMain.TabPages.Contains(tabConfig))

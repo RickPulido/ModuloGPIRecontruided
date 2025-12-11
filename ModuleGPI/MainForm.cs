@@ -65,9 +65,7 @@ namespace ModuleGPI
             _roleManager = new RoleManager();
             _uiHelpers = new UIHelpers();
             _overrides = new OverridesStore();
-
             _favoritesManager = new FavoritesManager();
-
 
             this.Load += MainForm_Load;
             this.Shown += MainForm_Shown;
@@ -85,20 +83,18 @@ namespace ModuleGPI
         {
             try
             {
-                _uiHelpers.PositionHeaderSearchBoxes(pnlOpHeader, btnOpRefrescar, txtOpSearch, pnlConsHeader, txtConsSearch);
+                // ✅ YA NO necesita PositionHeaderSearchBoxes
+                // _uiHelpers.PositionHeaderSearchBoxes(...);
 
-                //  Actualizar status bar con datos de sesión
                 UpdateStatusBar();
 
-                //  Aplicar visibilidad según rol
+                // ✅ Aplicar visibilidad (Admin y Config siguen igual)
                 _roleManager.ApplyVisibility(tabMain, tabAdmin, tabConfig, Session.TypeAut);
                 _adminCanEdit = Session.TypeAut >= 5;
 
-                // Cargar datos iniciales
                 LoadOverrides();
                 LoadModules();
 
-                // Cargar datos admin si tiene permisos
                 if (Session.TypeAut >= 4)
                 {
                     LoadConfigData();
@@ -124,12 +120,12 @@ namespace ModuleGPI
 
         private void MainForm_Shown(object sender, EventArgs e)
         {
-            if (txtOpSearch != null) txtOpSearch.Focus();
+           // if (txtOpSearch != null) txtOpSearch.Focus();
         }
 
         private void MainForm_Resize(object sender, EventArgs e)
         {
-            _uiHelpers.PositionHeaderSearchBoxes(pnlOpHeader, btnOpRefrescar, txtOpSearch, pnlConsHeader, txtConsSearch);
+           // _uiHelpers.PositionHeaderSearchBoxes(pnlOpHeader, btnOpRefrescar, txtOpSearch, pnlConsHeader, txtConsSearch);
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -146,32 +142,35 @@ namespace ModuleGPI
         #region Setup Methods
         private void ConnectAllButtonEvents()
         {
-            if (mnuArchivo_Salir != null)
-                mnuArchivo_Salir.Click += (s, e) => Application.Exit();
+            if (btnCerrarSesion != null)
+                btnCerrarSesion.Click += (s, e) => Logout();
 
-            if (mnuVer_Refrescar != null)
-                mnuVer_Refrescar.Click += (s, e) => RefreshAll();
+            //if (mnuArchivo_Salir != null)
+            //    mnuArchivo_Salir.Click += (s, e) => Application.Exit();
 
-            if (mnuHerramientas_Config != null)
-                mnuHerramientas_Config.Click += (s, e) => ShowConfigTab();
+            //if (mnuVer_Refrescar != null)
+            //    mnuVer_Refrescar.Click += (s, e) => RefreshAll();
 
-            if (mnuAyuda_Acerca != null)
-                mnuAyuda_Acerca.Click += (s, e) => ShowAboutDialog();
+            //if (mnuHerramientas_Config != null)
+            //    mnuHerramientas_Config.Click += (s, e) => ShowConfigTab();
 
-            if (tsbRefrescar != null)
-                tsbRefrescar.Click += (s, e) => RefreshAll();
+            //if (mnuAyuda_Acerca != null)
+            //    mnuAyuda_Acerca.Click += (s, e) => ShowAboutDialog();
 
-            if (tsbBuscar != null)
-                tsbBuscar.Click += (s, e) => PerformGlobalSearch();
+            //if (tsbRefrescar != null)
+            //    tsbRefrescar.Click += (s, e) => RefreshAll();
 
-            if (tstBuscar != null)
-                tstBuscar.KeyPress += (s, e) => { if (e.KeyChar == (char)Keys.Enter) PerformGlobalSearch(); };
+            //if (tsbBuscar != null)
+            //    tsbBuscar.Click += (s, e) => PerformGlobalSearch();
 
-            if (tsbConfig != null)
-                tsbConfig.Click += (s, e) => ShowConfigTab();
+            //if (tstBuscar != null)
+            //    tstBuscar.KeyPress += (s, e) => { if (e.KeyChar == (char)Keys.Enter) PerformGlobalSearch(); };
 
-            if (tsbCerrarSesion != null)
-                tsbCerrarSesion.Click += (s, e) => Logout();
+            //if (tsbConfig != null)
+            //    tsbConfig.Click += (s, e) => ShowConfigTab();
+
+            //if (tsbCerrarSesion != null)
+            //    tsbCerrarSesion.Click += (s, e) => Logout();
 
             if (btnNewModule != null)
                 btnNewModule.Click += BtnNewModule_Click;
@@ -225,14 +224,22 @@ namespace ModuleGPI
             if (tabMain != null)
                 tabMain.Selected += TabMain_Selected;
 
-            if (txtOpSearch != null)
-                txtOpSearch.TextChanged += (s, e) => ApplySearch(txtOpSearch.Text, flpOperacion);
+            //if (txtOpSearch != null)
+            //    txtOpSearch.TextChanged += (s, e) => ApplySearch(txtOpSearch.Text, flpOperacion);
 
-            if (txtConsSearch != null)
-                txtConsSearch.TextChanged += (s, e) => ApplySearch(txtConsSearch.Text, flpConsultas);
+            //if (txtConsSearch != null)
+            //    txtConsSearch.TextChanged += (s, e) => ApplySearch(txtConsSearch.Text, flpConsultas);
 
-            if (btnOpRefrescar != null)
-                btnOpRefrescar.Click += (s, e) => RefreshModules();
+            //if (btnOpRefrescar != null)
+            //    btnOpRefrescar.Click += (s, e) => RefreshModules();
+
+            // ✅ NUEVO: Solo un textbox de búsqueda
+            if (txtModulosSearch != null)
+                txtModulosSearch.TextChanged += (s, e) => ApplySearch(txtModulosSearch.Text, flpModulos);
+
+            // ✅ NUEVO: Solo un botón refrescar
+            if (btnModulosRefrescar != null)
+                btnModulosRefrescar.Click += (s, e) => RefreshModules();
 
             // AGREGAR en SetupEventHandlers() ANTES del evento AfterSelect:
             if (treeFavoritos != null)
@@ -560,13 +567,8 @@ namespace ModuleGPI
 
         private Control FindModuleControl(string buttonName)
         {
-            foreach (Control ctrl in flpOperacion.Controls)
-            {
-                if (ctrl.Name == buttonName)
-                    return ctrl;
-            }
-
-            foreach (Control ctrl in flpConsultas.Controls)
+            // ✅ SIMPLIFICADO: Solo buscar en un panel
+            foreach (Control ctrl in flpModulos.Controls)
             {
                 if (ctrl.Name == buttonName)
                     return ctrl;
@@ -622,16 +624,28 @@ namespace ModuleGPI
 
                 var dt = _moduleService.LoadModules(null);
 
-                _moduleService.PaintButtons(dt, flpOperacion, flpConsultas, cmuModulo, _toolTips,
-                    (btnName, module) => _roleManager.CanSeeModule(btnName, module, Session.TypeAut,
-                        Session.EmpId ?? Session.LogonName, _overrides));
+                // ✅ SIMPLIFICADO: Solo un panel (flpModulos)
+                _moduleService.PaintButtons(
+                    dt,
+                    flpModulos,      // ✅ Panel único
+                    null,            // ✅ Ya no hay segundo panel
+                    cmuModulo,
+                    _toolTips,
+                    (btnName, module) => _roleManager.CanSeeModule(
+                        btnName,
+                        module,
+                        Session.TypeAut,
+                        Session.EmpId ?? Session.LogonName,
+                        _overrides
+                    )
+                );
 
                 UpdateStatus($"Módulos cargados: {dt.Rows.Count}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar módulos: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Error al cargar módulos: {ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -643,15 +657,27 @@ namespace ModuleGPI
         private void RefreshModules()
         {
             LoadOverrides();
-            _moduleService.RefreshVisibility(flpOperacion, flpConsultas,
-                (btnName, module) => _roleManager.CanSeeModule(btnName, module, Session.TypeAut,
-                    Session.EmpId ?? Session.LogonName, _overrides));
+
+            // ✅ SIMPLIFICADO: Solo un panel
+            _moduleService.RefreshVisibility(
+                flpModulos,     // ✅ Panel único
+                null,           // ✅ Ya no hay segundo panel
+                (btnName, module) => _roleManager.CanSeeModule(
+                    btnName,
+                    module,
+                    Session.TypeAut,
+                    Session.EmpId ?? Session.LogonName,
+                    _overrides
+                )
+            );
+
             UpdateStatus("Módulos actualizados");
         }
 
         private void WireModuleButtons()
         {
-            _moduleService.WireButtons(flpOperacion, flpConsultas, ModuleButton_Click);
+            // ✅ SIMPLIFICADO: Solo un panel
+            _moduleService.WireButtons(flpModulos, null, ModuleButton_Click);
         }
 
         private void ModuleButton_Click(object sender, EventArgs e)
@@ -1997,11 +2023,10 @@ namespace ModuleGPI
                 case "Dashboard":
                     if (tabDashboard != null) tabMain.SelectedTab = tabDashboard;
                     break;
-                case "Operación":
-                    if (tabOperacion?.Visible == true) tabMain.SelectedTab = tabOperacion;
-                    break;
-                case "Consultas":
-                    if (tabConsultas?.Visible == true) tabMain.SelectedTab = tabConsultas;
+                case "Módulos GPI":  // ✅ ACTUALIZADO
+                case "Operación":     // ✅ Legacy - redirigir al tab unificado
+                case "Consultas":     // ✅ Legacy - redirigir al tab unificado
+                    if (tabModulos?.Visible == true) tabMain.SelectedTab = tabModulos;
                     break;
                 case "Administración":
                     if (tabAdmin?.Visible == true) tabMain.SelectedTab = tabAdmin;
@@ -2035,30 +2060,30 @@ namespace ModuleGPI
             }
         }
 
-        private void PerformGlobalSearch()
-        {
-            string searchText = tstBuscar?.Text ?? "";
+        //private void PerformGlobalSearch()
+        //{
+        //    string searchText = tstBuscar?.Text ?? "";
 
-            if (string.IsNullOrWhiteSpace(searchText))
-            {
-                MessageBox.Show("Ingrese un término de búsqueda.",
-                    "Búsqueda", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
+        //    if (string.IsNullOrWhiteSpace(searchText))
+        //    {
+        //        MessageBox.Show("Ingrese un término de búsqueda.",
+        //            "Búsqueda", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //        return;
+        //    }
 
-            ApplySearch(searchText, flpOperacion);
-            ApplySearch(searchText, flpConsultas);
+        //    ApplySearch(searchText, flpOperacion);
+        //    ApplySearch(searchText, flpConsultas);
 
-            int opCount = flpOperacion.Controls.OfType<Button>().Count(b => b.Visible);
-            int consCount = flpConsultas.Controls.OfType<Button>().Count(b => b.Visible);
+        //    int opCount = flpOperacion.Controls.OfType<Button>().Count(b => b.Visible);
+        //    int consCount = flpConsultas.Controls.OfType<Button>().Count(b => b.Visible);
 
-            if (opCount > 0)
-                tabMain.SelectedTab = tabOperacion;
-            else if (consCount > 0)
-                tabMain.SelectedTab = tabConsultas;
+        //    if (opCount > 0)
+        //        tabMain.SelectedTab = tabOperacion;
+        //    else if (consCount > 0)
+        //        tabMain.SelectedTab = tabConsultas;
 
-            UpdateStatus($"Búsqueda: {opCount + consCount} módulos encontrados");
-        }
+        //    UpdateStatus($"Búsqueda: {opCount + consCount} módulos encontrados");
+        //}
 
         private void RefreshAll()
         {

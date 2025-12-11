@@ -34,23 +34,6 @@ namespace ModuleGPI
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.menuMain = new System.Windows.Forms.MenuStrip();
-            this.mnuArchivo = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuArchivo_Salir = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuVer = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuVer_Refrescar = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuHerramientas = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuHerramientas_Config = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuAyuda = new System.Windows.Forms.ToolStripMenuItem();
-            this.mnuAyuda_Acerca = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolMain = new System.Windows.Forms.ToolStrip();
-            this.tsbRefrescar = new System.Windows.Forms.ToolStripButton();
-            this.tss1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tstBuscar = new System.Windows.Forms.ToolStripTextBox();
-            this.tsbBuscar = new System.Windows.Forms.ToolStripButton();
-            this.tss2 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbConfig = new System.Windows.Forms.ToolStripButton();
-            this.tsbCerrarSesion = new System.Windows.Forms.ToolStripButton();
             this.splitMain = new System.Windows.Forms.SplitContainer();
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.treeFavoritos = new System.Windows.Forms.TreeView();
@@ -61,19 +44,12 @@ namespace ModuleGPI
             this.tlpDash = new System.Windows.Forms.TableLayoutPanel();
             this.flpKPIs = new System.Windows.Forms.FlowLayoutPanel();
             this.dgvLaunchLog = new System.Windows.Forms.DataGridView();
-            this.tabOperacion = new System.Windows.Forms.TabPage();
-            this.flpOperacion = new System.Windows.Forms.FlowLayoutPanel();
-            this.pnlOpHeader = new System.Windows.Forms.Panel();
-            this.lblOpTitulo = new System.Windows.Forms.Label();
-            this.txtOpSearch = new System.Windows.Forms.TextBox();
-            this.btnOpRefrescar = new System.Windows.Forms.Button();
-            this.tabConsultas = new System.Windows.Forms.TabPage();
-            this.flpConsultas = new System.Windows.Forms.FlowLayoutPanel();
-            this.btnMod_Cons_Reportes = new System.Windows.Forms.Button();
-            this.btnMod_Cons_KPIs = new System.Windows.Forms.Button();
-            this.pnlConsHeader = new System.Windows.Forms.Panel();
-            this.lblConsTitulo = new System.Windows.Forms.Label();
-            this.txtConsSearch = new System.Windows.Forms.TextBox();
+            this.tabModulos = new System.Windows.Forms.TabPage();
+            this.flpModulos = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlModulosHeader = new System.Windows.Forms.Panel();
+            this.lblModulosTitulo = new System.Windows.Forms.Label();
+            this.txtModulosSearch = new System.Windows.Forms.TextBox();
+            this.btnModulosRefrescar = new System.Windows.Forms.Button();
             this.tabAdmin = new System.Windows.Forms.TabPage();
             this.pnlAdminButtons = new System.Windows.Forms.Panel();
             this.btnAdminGuardar = new System.Windows.Forms.Button();
@@ -107,8 +83,9 @@ namespace ModuleGPI
             this.tsslSpring = new System.Windows.Forms.ToolStripStatusLabel();
             this.tsslEstado = new System.Windows.Forms.ToolStripStatusLabel();
             this.root = new System.Windows.Forms.TableLayoutPanel();
-            this.menuMain.SuspendLayout();
-            this.toolMain.SuspendLayout();
+            this.pnlTopBar = new System.Windows.Forms.Panel();
+            this.btnCerrarSesion = new System.Windows.Forms.Button();
+            this.lblTitulo = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitMain)).BeginInit();
             this.splitMain.Panel1.SuspendLayout();
             this.splitMain.Panel2.SuspendLayout();
@@ -118,11 +95,8 @@ namespace ModuleGPI
             this.tabDashboard.SuspendLayout();
             this.tlpDash.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).BeginInit();
-            this.tabOperacion.SuspendLayout();
-            this.pnlOpHeader.SuspendLayout();
-            this.tabConsultas.SuspendLayout();
-            this.flpConsultas.SuspendLayout();
-            this.pnlConsHeader.SuspendLayout();
+            this.tabModulos.SuspendLayout();
+            this.pnlModulosHeader.SuspendLayout();
             this.tabAdmin.SuspendLayout();
             this.pnlAdminButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitAdmin)).BeginInit();
@@ -142,137 +116,14 @@ namespace ModuleGPI
             this.cmuModulo.SuspendLayout();
             this.statusMain.SuspendLayout();
             this.root.SuspendLayout();
+            this.pnlTopBar.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // menuMain
-            // 
-            this.menuMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuArchivo,
-            this.mnuVer,
-            this.mnuHerramientas,
-            this.mnuAyuda});
-            this.menuMain.Location = new System.Drawing.Point(0, 0);
-            this.menuMain.Name = "menuMain";
-            this.menuMain.Size = new System.Drawing.Size(1008, 24);
-            this.menuMain.TabIndex = 0;
-            // 
-            // mnuArchivo
-            // 
-            this.mnuArchivo.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuArchivo_Salir});
-            this.mnuArchivo.Name = "mnuArchivo";
-            this.mnuArchivo.Size = new System.Drawing.Size(60, 20);
-            this.mnuArchivo.Text = "Archivo";
-            // 
-            // mnuArchivo_Salir
-            // 
-            this.mnuArchivo_Salir.Name = "mnuArchivo_Salir";
-            this.mnuArchivo_Salir.Size = new System.Drawing.Size(96, 22);
-            this.mnuArchivo_Salir.Text = "Salir";
-            // 
-            // mnuVer
-            // 
-            this.mnuVer.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuVer_Refrescar});
-            this.mnuVer.Name = "mnuVer";
-            this.mnuVer.Size = new System.Drawing.Size(35, 20);
-            this.mnuVer.Text = "Ver";
-            // 
-            // mnuVer_Refrescar
-            // 
-            this.mnuVer_Refrescar.Name = "mnuVer_Refrescar";
-            this.mnuVer_Refrescar.Size = new System.Drawing.Size(122, 22);
-            this.mnuVer_Refrescar.Text = "Refrescar";
-            // 
-            // mnuHerramientas
-            // 
-            this.mnuHerramientas.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuHerramientas_Config});
-            this.mnuHerramientas.Name = "mnuHerramientas";
-            this.mnuHerramientas.Size = new System.Drawing.Size(90, 20);
-            this.mnuHerramientas.Text = "Herramientas";
-            // 
-            // mnuHerramientas_Config
-            // 
-            this.mnuHerramientas_Config.Name = "mnuHerramientas_Config";
-            this.mnuHerramientas_Config.Size = new System.Drawing.Size(150, 22);
-            this.mnuHerramientas_Config.Text = "Configuración";
-            // 
-            // mnuAyuda
-            // 
-            this.mnuAyuda.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mnuAyuda_Acerca});
-            this.mnuAyuda.Name = "mnuAyuda";
-            this.mnuAyuda.Size = new System.Drawing.Size(53, 20);
-            this.mnuAyuda.Text = "Ayuda";
-            // 
-            // mnuAyuda_Acerca
-            // 
-            this.mnuAyuda_Acerca.Name = "mnuAyuda_Acerca";
-            this.mnuAyuda_Acerca.Size = new System.Drawing.Size(135, 22);
-            this.mnuAyuda_Acerca.Text = "Acerca de…";
-            // 
-            // toolMain
-            // 
-            this.toolMain.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.tsbRefrescar,
-            this.tss1,
-            this.tstBuscar,
-            this.tsbBuscar,
-            this.tss2,
-            this.tsbConfig,
-            this.tsbCerrarSesion});
-            this.toolMain.Location = new System.Drawing.Point(0, 24);
-            this.toolMain.Name = "toolMain";
-            this.toolMain.Size = new System.Drawing.Size(1008, 25);
-            this.toolMain.TabIndex = 1;
-            // 
-            // tsbRefrescar
-            // 
-            this.tsbRefrescar.Name = "tsbRefrescar";
-            this.tsbRefrescar.Size = new System.Drawing.Size(59, 22);
-            this.tsbRefrescar.Text = "Refrescar";
-            // 
-            // tss1
-            // 
-            this.tss1.Name = "tss1";
-            this.tss1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tstBuscar
-            // 
-            this.tstBuscar.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.tstBuscar.Name = "tstBuscar";
-            this.tstBuscar.Size = new System.Drawing.Size(220, 25);
-            this.tstBuscar.ToolTipText = "Buscar módulo…";
-            // 
-            // tsbBuscar
-            // 
-            this.tsbBuscar.Name = "tsbBuscar";
-            this.tsbBuscar.Size = new System.Drawing.Size(46, 22);
-            this.tsbBuscar.Text = "Buscar";
-            // 
-            // tss2
-            // 
-            this.tss2.Name = "tss2";
-            this.tss2.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tsbConfig
-            // 
-            this.tsbConfig.Name = "tsbConfig";
-            this.tsbConfig.Size = new System.Drawing.Size(47, 22);
-            this.tsbConfig.Text = "Config";
-            // 
-            // tsbCerrarSesion
-            // 
-            this.tsbCerrarSesion.Name = "tsbCerrarSesion";
-            this.tsbCerrarSesion.Size = new System.Drawing.Size(79, 22);
-            this.tsbCerrarSesion.Text = "Cerrar sesión";
             // 
             // splitMain
             // 
             this.splitMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitMain.Location = new System.Drawing.Point(3, 52);
+            this.splitMain.Location = new System.Drawing.Point(3, 53);
             this.splitMain.Name = "splitMain";
             // 
             // splitMain.Panel1
@@ -282,7 +133,7 @@ namespace ModuleGPI
             // splitMain.Panel2
             // 
             this.splitMain.Panel2.Controls.Add(this.tabMain);
-            this.splitMain.Size = new System.Drawing.Size(1002, 524);
+            this.splitMain.Size = new System.Drawing.Size(1002, 523);
             this.splitMain.SplitterDistance = 150;
             this.splitMain.TabIndex = 2;
             // 
@@ -294,7 +145,7 @@ namespace ModuleGPI
             this.pnlLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlLeft.Name = "pnlLeft";
-            this.pnlLeft.Size = new System.Drawing.Size(150, 524);
+            this.pnlLeft.Size = new System.Drawing.Size(150, 523);
             this.pnlLeft.TabIndex = 0;
             // 
             // treeFavoritos
@@ -302,7 +153,7 @@ namespace ModuleGPI
             this.treeFavoritos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.treeFavoritos.Location = new System.Drawing.Point(0, 44);
             this.treeFavoritos.Name = "treeFavoritos";
-            this.treeFavoritos.Size = new System.Drawing.Size(150, 480);
+            this.treeFavoritos.Size = new System.Drawing.Size(150, 479);
             this.treeFavoritos.TabIndex = 0;
             // 
             // txtFiltroCategoria
@@ -327,15 +178,14 @@ namespace ModuleGPI
             // tabMain
             // 
             this.tabMain.Controls.Add(this.tabDashboard);
-            this.tabMain.Controls.Add(this.tabOperacion);
-            this.tabMain.Controls.Add(this.tabConsultas);
+            this.tabMain.Controls.Add(this.tabModulos);
             this.tabMain.Controls.Add(this.tabAdmin);
             this.tabMain.Controls.Add(this.tabConfig);
             this.tabMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabMain.Location = new System.Drawing.Point(0, 0);
             this.tabMain.Name = "tabMain";
             this.tabMain.SelectedIndex = 0;
-            this.tabMain.Size = new System.Drawing.Size(848, 524);
+            this.tabMain.Size = new System.Drawing.Size(848, 523);
             this.tabMain.TabIndex = 0;
             // 
             // tabDashboard
@@ -343,7 +193,7 @@ namespace ModuleGPI
             this.tabDashboard.Controls.Add(this.tlpDash);
             this.tabDashboard.Location = new System.Drawing.Point(4, 22);
             this.tabDashboard.Name = "tabDashboard";
-            this.tabDashboard.Size = new System.Drawing.Size(840, 498);
+            this.tabDashboard.Size = new System.Drawing.Size(840, 497);
             this.tabDashboard.TabIndex = 0;
             this.tabDashboard.Text = "Dashboard";
             // 
@@ -359,7 +209,7 @@ namespace ModuleGPI
             this.tlpDash.RowCount = 2;
             this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpDash.Size = new System.Drawing.Size(840, 498);
+            this.tlpDash.Size = new System.Drawing.Size(840, 497);
             this.tlpDash.TabIndex = 0;
             // 
             // flpKPIs
@@ -380,134 +230,67 @@ namespace ModuleGPI
             this.dgvLaunchLog.Location = new System.Drawing.Point(3, 123);
             this.dgvLaunchLog.Name = "dgvLaunchLog";
             this.dgvLaunchLog.ReadOnly = true;
-            this.dgvLaunchLog.Size = new System.Drawing.Size(834, 372);
+            this.dgvLaunchLog.Size = new System.Drawing.Size(834, 371);
             this.dgvLaunchLog.TabIndex = 1;
             // 
-            // tabOperacion
+            // tabModulos
             // 
-            this.tabOperacion.Controls.Add(this.flpOperacion);
-            this.tabOperacion.Controls.Add(this.pnlOpHeader);
-            this.tabOperacion.Location = new System.Drawing.Point(4, 22);
-            this.tabOperacion.Name = "tabOperacion";
-            this.tabOperacion.Size = new System.Drawing.Size(840, 498);
-            this.tabOperacion.TabIndex = 1;
-            this.tabOperacion.Text = "Operación";
+            this.tabModulos.Controls.Add(this.flpModulos);
+            this.tabModulos.Controls.Add(this.pnlModulosHeader);
+            this.tabModulos.Location = new System.Drawing.Point(4, 22);
+            this.tabModulos.Name = "tabModulos";
+            this.tabModulos.Size = new System.Drawing.Size(840, 497);
+            this.tabModulos.TabIndex = 1;
+            this.tabModulos.Text = "Módulos GPI";
             // 
-            // flpOperacion
+            // flpModulos
             // 
-            this.flpOperacion.AutoScroll = true;
-            this.flpOperacion.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpOperacion.Location = new System.Drawing.Point(0, 48);
-            this.flpOperacion.Name = "flpOperacion";
-            this.flpOperacion.Padding = new System.Windows.Forms.Padding(8);
-            this.flpOperacion.Size = new System.Drawing.Size(840, 450);
-            this.flpOperacion.TabIndex = 0;
+            this.flpModulos.AutoScroll = true;
+            this.flpModulos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpModulos.Location = new System.Drawing.Point(0, 48);
+            this.flpModulos.Name = "flpModulos";
+            this.flpModulos.Padding = new System.Windows.Forms.Padding(8);
+            this.flpModulos.Size = new System.Drawing.Size(840, 449);
+            this.flpModulos.TabIndex = 0;
             // 
-            // pnlOpHeader
+            // pnlModulosHeader
             // 
-            this.pnlOpHeader.Controls.Add(this.lblOpTitulo);
-            this.pnlOpHeader.Controls.Add(this.txtOpSearch);
-            this.pnlOpHeader.Controls.Add(this.btnOpRefrescar);
-            this.pnlOpHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlOpHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlOpHeader.Name = "pnlOpHeader";
-            this.pnlOpHeader.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlOpHeader.Size = new System.Drawing.Size(840, 48);
-            this.pnlOpHeader.TabIndex = 1;
+            this.pnlModulosHeader.Controls.Add(this.lblModulosTitulo);
+            this.pnlModulosHeader.Controls.Add(this.txtModulosSearch);
+            this.pnlModulosHeader.Controls.Add(this.btnModulosRefrescar);
+            this.pnlModulosHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlModulosHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlModulosHeader.Name = "pnlModulosHeader";
+            this.pnlModulosHeader.Padding = new System.Windows.Forms.Padding(8);
+            this.pnlModulosHeader.Size = new System.Drawing.Size(840, 48);
+            this.pnlModulosHeader.TabIndex = 1;
             // 
-            // lblOpTitulo
+            // lblModulosTitulo
             // 
-            this.lblOpTitulo.AutoSize = true;
-            this.lblOpTitulo.Location = new System.Drawing.Point(8, 14);
-            this.lblOpTitulo.Name = "lblOpTitulo";
-            this.lblOpTitulo.Size = new System.Drawing.Size(114, 13);
-            this.lblOpTitulo.TabIndex = 0;
-            this.lblOpTitulo.Text = "Módulos de Operación";
+            this.lblModulosTitulo.AutoSize = true;
+            this.lblModulosTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblModulosTitulo.Location = new System.Drawing.Point(8, 14);
+            this.lblModulosTitulo.Name = "lblModulosTitulo";
+            this.lblModulosTitulo.Size = new System.Drawing.Size(94, 19);
+            this.lblModulosTitulo.TabIndex = 0;
+            this.lblModulosTitulo.Text = "Módulos GPI";
             // 
-            // txtOpSearch
+            // txtModulosSearch
             // 
-            this.txtOpSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOpSearch.Location = new System.Drawing.Point(498, 12);
-            this.txtOpSearch.Name = "txtOpSearch";
-            this.txtOpSearch.Size = new System.Drawing.Size(220, 20);
-            this.txtOpSearch.TabIndex = 1;
+            this.txtModulosSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtModulosSearch.Location = new System.Drawing.Point(498, 12);
+            this.txtModulosSearch.Name = "txtModulosSearch";
+            this.txtModulosSearch.Size = new System.Drawing.Size(220, 20);
+            this.txtModulosSearch.TabIndex = 1;
             // 
-            // btnOpRefrescar
+            // btnModulosRefrescar
             // 
-            this.btnOpRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOpRefrescar.Location = new System.Drawing.Point(726, 11);
-            this.btnOpRefrescar.Name = "btnOpRefrescar";
-            this.btnOpRefrescar.Size = new System.Drawing.Size(100, 23);
-            this.btnOpRefrescar.TabIndex = 2;
-            this.btnOpRefrescar.Text = "Refrescar";
-            // 
-            // tabConsultas
-            // 
-            this.tabConsultas.Controls.Add(this.flpConsultas);
-            this.tabConsultas.Controls.Add(this.pnlConsHeader);
-            this.tabConsultas.Location = new System.Drawing.Point(4, 22);
-            this.tabConsultas.Name = "tabConsultas";
-            this.tabConsultas.Size = new System.Drawing.Size(840, 498);
-            this.tabConsultas.TabIndex = 2;
-            this.tabConsultas.Text = "Consultas";
-            // 
-            // flpConsultas
-            // 
-            this.flpConsultas.AutoScroll = true;
-            this.flpConsultas.Controls.Add(this.btnMod_Cons_Reportes);
-            this.flpConsultas.Controls.Add(this.btnMod_Cons_KPIs);
-            this.flpConsultas.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpConsultas.Location = new System.Drawing.Point(0, 48);
-            this.flpConsultas.Name = "flpConsultas";
-            this.flpConsultas.Padding = new System.Windows.Forms.Padding(8);
-            this.flpConsultas.Size = new System.Drawing.Size(840, 450);
-            this.flpConsultas.TabIndex = 0;
-            // 
-            // btnMod_Cons_Reportes
-            // 
-            this.btnMod_Cons_Reportes.Location = new System.Drawing.Point(16, 16);
-            this.btnMod_Cons_Reportes.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Cons_Reportes.Name = "btnMod_Cons_Reportes";
-            this.btnMod_Cons_Reportes.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Cons_Reportes.TabIndex = 0;
-            this.btnMod_Cons_Reportes.Text = "Reportes";
-            // 
-            // btnMod_Cons_KPIs
-            // 
-            this.btnMod_Cons_KPIs.Location = new System.Drawing.Point(232, 16);
-            this.btnMod_Cons_KPIs.Margin = new System.Windows.Forms.Padding(8);
-            this.btnMod_Cons_KPIs.Name = "btnMod_Cons_KPIs";
-            this.btnMod_Cons_KPIs.Size = new System.Drawing.Size(200, 48);
-            this.btnMod_Cons_KPIs.TabIndex = 1;
-            this.btnMod_Cons_KPIs.Text = "KPIs";
-            // 
-            // pnlConsHeader
-            // 
-            this.pnlConsHeader.Controls.Add(this.lblConsTitulo);
-            this.pnlConsHeader.Controls.Add(this.txtConsSearch);
-            this.pnlConsHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlConsHeader.Location = new System.Drawing.Point(0, 0);
-            this.pnlConsHeader.Name = "pnlConsHeader";
-            this.pnlConsHeader.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlConsHeader.Size = new System.Drawing.Size(840, 48);
-            this.pnlConsHeader.TabIndex = 1;
-            // 
-            // lblConsTitulo
-            // 
-            this.lblConsTitulo.AutoSize = true;
-            this.lblConsTitulo.Location = new System.Drawing.Point(8, 14);
-            this.lblConsTitulo.Name = "lblConsTitulo";
-            this.lblConsTitulo.Size = new System.Drawing.Size(106, 13);
-            this.lblConsTitulo.TabIndex = 0;
-            this.lblConsTitulo.Text = "Módulos de Consulta";
-            // 
-            // txtConsSearch
-            // 
-            this.txtConsSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtConsSearch.Location = new System.Drawing.Point(612, 12);
-            this.txtConsSearch.Name = "txtConsSearch";
-            this.txtConsSearch.Size = new System.Drawing.Size(220, 20);
-            this.txtConsSearch.TabIndex = 1;
+            this.btnModulosRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnModulosRefrescar.Location = new System.Drawing.Point(726, 11);
+            this.btnModulosRefrescar.Name = "btnModulosRefrescar";
+            this.btnModulosRefrescar.Size = new System.Drawing.Size(100, 23);
+            this.btnModulosRefrescar.TabIndex = 2;
+            this.btnModulosRefrescar.Text = "Refrescar";
             // 
             // tabAdmin
             // 
@@ -515,7 +298,7 @@ namespace ModuleGPI
             this.tabAdmin.Controls.Add(this.splitAdmin);
             this.tabAdmin.Location = new System.Drawing.Point(4, 22);
             this.tabAdmin.Name = "tabAdmin";
-            this.tabAdmin.Size = new System.Drawing.Size(840, 498);
+            this.tabAdmin.Size = new System.Drawing.Size(840, 497);
             this.tabAdmin.TabIndex = 3;
             this.tabAdmin.Text = "Administración";
             // 
@@ -524,7 +307,7 @@ namespace ModuleGPI
             this.pnlAdminButtons.Controls.Add(this.btnAdminGuardar);
             this.pnlAdminButtons.Controls.Add(this.btnAdminRefrescar);
             this.pnlAdminButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlAdminButtons.Location = new System.Drawing.Point(0, 454);
+            this.pnlAdminButtons.Location = new System.Drawing.Point(0, 453);
             this.pnlAdminButtons.Name = "pnlAdminButtons";
             this.pnlAdminButtons.Padding = new System.Windows.Forms.Padding(8);
             this.pnlAdminButtons.Size = new System.Drawing.Size(840, 44);
@@ -563,8 +346,8 @@ namespace ModuleGPI
             // 
             this.splitAdmin.Panel2.Controls.Add(this.rightAdmin);
             this.splitAdmin.Panel2MinSize = 260;
-            this.splitAdmin.Size = new System.Drawing.Size(840, 498);
-            this.splitAdmin.SplitterDistance = 563;
+            this.splitAdmin.Size = new System.Drawing.Size(840, 497);
+            this.splitAdmin.SplitterDistance = 562;
             this.splitAdmin.SplitterWidth = 5;
             this.splitAdmin.TabIndex = 0;
             // 
@@ -574,7 +357,7 @@ namespace ModuleGPI
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
             this.leftAdmin.Name = "leftAdmin";
-            this.leftAdmin.Size = new System.Drawing.Size(563, 498);
+            this.leftAdmin.Size = new System.Drawing.Size(562, 497);
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
@@ -585,7 +368,7 @@ namespace ModuleGPI
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
             this.grpRoles.Name = "grpRoles";
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8);
-            this.grpRoles.Size = new System.Drawing.Size(563, 498);
+            this.grpRoles.Size = new System.Drawing.Size(562, 497);
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
@@ -599,7 +382,7 @@ namespace ModuleGPI
             this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(0);
             this.barFiltroPlanta.Name = "barFiltroPlanta";
             this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.barFiltroPlanta.Size = new System.Drawing.Size(547, 40);
+            this.barFiltroPlanta.Size = new System.Drawing.Size(546, 40);
             this.barFiltroPlanta.TabIndex = 0;
             this.barFiltroPlanta.WrapContents = false;
             // 
@@ -638,7 +421,7 @@ namespace ModuleGPI
             this.dgvUsuarios.Name = "dgvUsuarios";
             this.dgvUsuarios.RowHeadersVisible = false;
             this.dgvUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUsuarios.Size = new System.Drawing.Size(547, 469);
+            this.dgvUsuarios.Size = new System.Drawing.Size(546, 468);
             this.dgvUsuarios.TabIndex = 1;
             // 
             // rightAdmin
@@ -647,7 +430,7 @@ namespace ModuleGPI
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
-            this.rightAdmin.Size = new System.Drawing.Size(272, 498);
+            this.rightAdmin.Size = new System.Drawing.Size(273, 497);
             this.rightAdmin.TabIndex = 0;
             // 
             // dgvModulos
@@ -667,7 +450,7 @@ namespace ModuleGPI
             this.dgvModulos.ReadOnly = true;
             this.dgvModulos.RowHeadersVisible = false;
             this.dgvModulos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvModulos.Size = new System.Drawing.Size(272, 498);
+            this.dgvModulos.Size = new System.Drawing.Size(273, 497);
             this.dgvModulos.TabIndex = 0;
             // 
             // tabConfig
@@ -679,7 +462,7 @@ namespace ModuleGPI
             this.tabConfig.Controls.Add(this.btnNewModule);
             this.tabConfig.Location = new System.Drawing.Point(4, 22);
             this.tabConfig.Name = "tabConfig";
-            this.tabConfig.Size = new System.Drawing.Size(840, 498);
+            this.tabConfig.Size = new System.Drawing.Size(840, 497);
             this.tabConfig.TabIndex = 4;
             this.tabConfig.Text = "Configuración";
             // 
@@ -726,7 +509,7 @@ namespace ModuleGPI
             // 
             this.grpAcerca.Controls.Add(this.lblVersion);
             this.grpAcerca.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpAcerca.Location = new System.Drawing.Point(0, 378);
+            this.grpAcerca.Location = new System.Drawing.Point(0, 377);
             this.grpAcerca.Name = "grpAcerca";
             this.grpAcerca.Padding = new System.Windows.Forms.Padding(8);
             this.grpAcerca.Size = new System.Drawing.Size(840, 120);
@@ -741,7 +524,7 @@ namespace ModuleGPI
             this.lblVersion.Name = "lblVersion";
             this.lblVersion.Size = new System.Drawing.Size(824, 21);
             this.lblVersion.TabIndex = 0;
-            this.lblVersion.Text = "Versión: 1.0.0";
+            this.lblVersion.Text = "Versión: 2.0.0";
             // 
             // btnNewModule
             // 
@@ -833,20 +616,56 @@ namespace ModuleGPI
             // 
             this.root.ColumnCount = 1;
             this.root.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.root.Controls.Add(this.menuMain, 0, 0);
-            this.root.Controls.Add(this.toolMain, 0, 1);
-            this.root.Controls.Add(this.splitMain, 0, 2);
-            this.root.Controls.Add(this.statusMain, 0, 3);
+            this.root.Controls.Add(this.pnlTopBar, 0, 0);
+            this.root.Controls.Add(this.splitMain, 0, 1);
+            this.root.Controls.Add(this.statusMain, 0, 2);
             this.root.Dock = System.Windows.Forms.DockStyle.Fill;
             this.root.Location = new System.Drawing.Point(0, 0);
             this.root.Name = "root";
-            this.root.RowCount = 4;
-            this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24F));
-            this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
+            this.root.RowCount = 3;
+            this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.root.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 22F));
             this.root.Size = new System.Drawing.Size(1008, 601);
             this.root.TabIndex = 1;
+            // 
+            // pnlTopBar
+            // 
+            this.pnlTopBar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            this.pnlTopBar.Controls.Add(this.btnCerrarSesion);
+            this.pnlTopBar.Controls.Add(this.lblTitulo);
+            this.pnlTopBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlTopBar.Location = new System.Drawing.Point(0, 0);
+            this.pnlTopBar.Margin = new System.Windows.Forms.Padding(0);
+            this.pnlTopBar.Name = "pnlTopBar";
+            this.pnlTopBar.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
+            this.pnlTopBar.Size = new System.Drawing.Size(1008, 50);
+            this.pnlTopBar.TabIndex = 0;
+            // 
+            // btnCerrarSesion
+            // 
+            this.btnCerrarSesion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCerrarSesion.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.btnCerrarSesion.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.btnCerrarSesion.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCerrarSesion.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnCerrarSesion.Location = new System.Drawing.Point(878, 10);
+            this.btnCerrarSesion.Name = "btnCerrarSesion";
+            this.btnCerrarSesion.Size = new System.Drawing.Size(120, 30);
+            this.btnCerrarSesion.TabIndex = 1;
+            this.btnCerrarSesion.Text = "🚪 Cerrar Sesión";
+            this.btnCerrarSesion.UseVisualStyleBackColor = false;
+            // 
+            // lblTitulo
+            // 
+            this.lblTitulo.AutoSize = true;
+            this.lblTitulo.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Bold);
+            this.lblTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(102)))), ((int)(((byte)(204)))));
+            this.lblTitulo.Location = new System.Drawing.Point(10, 13);
+            this.lblTitulo.Name = "lblTitulo";
+            this.lblTitulo.Size = new System.Drawing.Size(148, 25);
+            this.lblTitulo.TabIndex = 0;
+            this.lblTitulo.Text = "GPI – Modulos.";
             // 
             // MainForm
             // 
@@ -860,10 +679,6 @@ namespace ModuleGPI
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GPI – Lanzador de Módulos";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.menuMain.ResumeLayout(false);
-            this.menuMain.PerformLayout();
-            this.toolMain.ResumeLayout(false);
-            this.toolMain.PerformLayout();
             this.splitMain.Panel1.ResumeLayout(false);
             this.splitMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitMain)).EndInit();
@@ -874,13 +689,9 @@ namespace ModuleGPI
             this.tabDashboard.ResumeLayout(false);
             this.tlpDash.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).EndInit();
-            this.tabOperacion.ResumeLayout(false);
-            this.pnlOpHeader.ResumeLayout(false);
-            this.pnlOpHeader.PerformLayout();
-            this.tabConsultas.ResumeLayout(false);
-            this.flpConsultas.ResumeLayout(false);
-            this.pnlConsHeader.ResumeLayout(false);
-            this.pnlConsHeader.PerformLayout();
+            this.tabModulos.ResumeLayout(false);
+            this.pnlModulosHeader.ResumeLayout(false);
+            this.pnlModulosHeader.PerformLayout();
             this.tabAdmin.ResumeLayout(false);
             this.pnlAdminButtons.ResumeLayout(false);
             this.splitAdmin.Panel1.ResumeLayout(false);
@@ -903,31 +714,15 @@ namespace ModuleGPI
             this.statusMain.PerformLayout();
             this.root.ResumeLayout(false);
             this.root.PerformLayout();
+            this.pnlTopBar.ResumeLayout(false);
+            this.pnlTopBar.PerformLayout();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-
-        private MenuStrip menuMain;
-        private ToolStripMenuItem mnuArchivo;
-        private ToolStripMenuItem mnuArchivo_Salir;
-        private ToolStripMenuItem mnuVer;
-        private ToolStripMenuItem mnuVer_Refrescar;
-        private ToolStripMenuItem mnuHerramientas;
-        private ToolStripMenuItem mnuHerramientas_Config;
-        private ToolStripMenuItem mnuAyuda;
-        private ToolStripMenuItem mnuAyuda_Acerca;
-
-        private ToolStrip toolMain;
-        private ToolStripButton tsbRefrescar;
-        private ToolStripSeparator tss1;
-        private ToolStripTextBox tstBuscar;
-        private ToolStripButton tsbBuscar;
-        private ToolStripSeparator tss2;
-        private ToolStripButton tsbConfig;
-        private ToolStripButton tsbCerrarSesion;
+        // ✅ REMOVIDO: menuMain y toolMain
 
         private SplitContainer splitMain;
         private Panel pnlLeft;
@@ -937,8 +732,7 @@ namespace ModuleGPI
 
         private TabControl tabMain;
         private TabPage tabDashboard;
-        private TabPage tabOperacion;
-        private TabPage tabConsultas;
+        private TabPage tabModulos;  // ✅ NUEVO: Tab unificado
         private TabPage tabAdmin;
         private TabPage tabConfig;
 
@@ -946,18 +740,12 @@ namespace ModuleGPI
         private FlowLayoutPanel flpKPIs;
         private DataGridView dgvLaunchLog;
 
-        private Panel pnlOpHeader;
-        private Label lblOpTitulo;
-        private TextBox txtOpSearch;
-        private Button btnOpRefrescar;
-        private FlowLayoutPanel flpOperacion;
-
-        private Panel pnlConsHeader;
-        private Label lblConsTitulo;
-        private TextBox txtConsSearch;
-        private FlowLayoutPanel flpConsultas;
-        private Button btnMod_Cons_Reportes;
-        private Button btnMod_Cons_KPIs;
+        // ✅ NUEVO: Controles para tab unificado de módulos
+        private Panel pnlModulosHeader;
+        private Label lblModulosTitulo;
+        private TextBox txtModulosSearch;
+        private Button btnModulosRefrescar;
+        private FlowLayoutPanel flpModulos;
 
         private SplitContainer splitAdmin;
         private GroupBox grpRoles;
@@ -993,5 +781,10 @@ namespace ModuleGPI
         private FlowLayoutPanel barFiltroPlanta;
         private CheckBox chkPlantFilter;
         private ComboBox cboPlantFilter;
+
+        // ✅ NUEVO: Barra superior con botón de cerrar sesión
+        private Panel pnlTopBar;
+        private Label lblTitulo;
+        private Button btnCerrarSesion;
     }
 }

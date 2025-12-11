@@ -20,19 +20,21 @@ namespace ModuleGPI.Services
 
         public DataTable LoadModules(int? plant) => _db.GetModules(plant);
 
-        public void PaintButtons(DataTable dt, FlowLayoutPanel op, FlowLayoutPanel cons,
-                                 ContextMenuStrip cm, ToolTip tips, Func<string, ModuleDef, bool> canSee)
+        public void PaintButtons(
+    DataTable dt,
+    FlowLayoutPanel panel,      // ✅ Solo un panel
+    FlowLayoutPanel _,          // ✅ Segundo panel ignorado (null)
+    ContextMenuStrip cm,
+    ToolTip tips,
+    Func<string, ModuleDef, bool> canSee)
         {
-            ClearButtons(op);
-            ClearButtons(cons);
+            if (panel == null) return;
+
+            ClearButtons(panel);
 
             foreach (DataRow row in dt.Rows)
             {
-                var cat = Convert.ToString(row["Category"]);
-                var panel = string.Equals(cat, "Operación", StringComparison.OrdinalIgnoreCase) ? op :
-                            string.Equals(cat, "Consultas", StringComparison.OrdinalIgnoreCase) ? cons : null;
-                if (panel == null) continue;
-
+                // ✅ IGNORAR categoría - todos al mismo panel
                 string btnName = Convert.ToString(row["ButtonName"]);
 
                 if (panel.Controls.OfType<Control>().Any(c => c.Name == btnName))
@@ -45,7 +47,7 @@ namespace ModuleGPI.Services
                     WorkingDir = Convert.ToString(row["WorkingDir"]),
                     Arguments = row.Table.Columns.Contains("Arguments") ? Convert.ToString(row["Arguments"]) : "",
                     IconPath = row.Table.Columns.Contains("IconPath") ? Convert.ToString(row["IconPath"]) : "",
-                    Category = cat,
+                    Category = Convert.ToString(row["Category"]),  // ✅ Se lee pero no se usa
                     RequiresElevation = row["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(row["RequiresElevation"]),
                     RolesMinTypeAut = row["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(row["RolesMinTypeAut"]),
                     Plant = row["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(row["Plant"])
@@ -56,8 +58,8 @@ namespace ModuleGPI.Services
                     Name = btnName,
                     ButtonText = def.Name,
                     IconPath = string.IsNullOrEmpty(def.IconPath) ? def.ExePath : def.IconPath,
-                    Plant = def.Plant,  // ⭐ AGREGAR ESTA LÍNEA
-                    Size = new System.Drawing.Size(120, 140),  // ⭐ Altura aumentada de 120 a 140
+                    Plant = def.Plant,
+                    Size = new System.Drawing.Size(120, 140),
                     Margin = new Padding(10),
                     Tag = def,
                     ContextMenuStrip = cm
@@ -72,23 +74,19 @@ namespace ModuleGPI.Services
                     tips.SetToolTip(moduleBtn, def.Name + Environment.NewLine + (def.ExePath ?? ""));
                 }
 
+                // ✅ Todos los módulos van al mismo panel
                 panel.Controls.Add(moduleBtn);
             }
         }
 
-        public void RefreshVisibility(FlowLayoutPanel op, FlowLayoutPanel cons, Func<string, ModuleDef, bool> canSee)
+        public void RefreshVisibility(
+     FlowLayoutPanel panel,     // ✅ Solo un panel
+     FlowLayoutPanel _,         // ✅ Segundo panel ignorado
+     Func<string, ModuleDef, bool> canSee)
         {
-            foreach (var control in op.Controls.OfType<Control>())
-            {
-                if (control.Tag is ModuleDef m)
-                {
-                    bool v = canSee(control.Name, m);
-                    control.Visible = v;
-                    control.Enabled = v;
-                }
-            }
+            if (panel == null) return;
 
-            foreach (var control in cons.Controls.OfType<Control>())
+            foreach (var control in panel.Controls.OfType<Control>())
             {
                 if (control.Tag is ModuleDef m)
                 {
@@ -156,17 +154,14 @@ namespace ModuleGPI.Services
             }
         }
 
-        public void WireButtons(FlowLayoutPanel op, FlowLayoutPanel cons, EventHandler clickHandler)
+        public void WireButtons(
+    FlowLayoutPanel panel,     // ✅ Solo un panel
+    FlowLayoutPanel _,         // ✅ Segundo panel ignorado
+    EventHandler clickHandler)
         {
-            foreach (Control ctrl in op.Controls)
-            {
-                if (ctrl.Tag is ModuleDef)
-                {
-                    ctrl.Click += clickHandler;
-                }
-            }
+            if (panel == null) return;
 
-            foreach (Control ctrl in cons.Controls)
+            foreach (Control ctrl in panel.Controls)
             {
                 if (ctrl.Tag is ModuleDef)
                 {
