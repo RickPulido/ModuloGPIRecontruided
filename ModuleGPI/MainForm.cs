@@ -289,6 +289,12 @@ namespace ModuleGPI
 
                 cboPlantFilter.SelectedIndexChanged += (s, e) => FilterUsersByPlant();
             }
+
+            if (txtModulosTestSearch != null)
+                txtModulosTestSearch.TextChanged += (s, e) => ApplySearch(txtModulosTestSearch.Text, flpModulosTest);
+
+            if (btnModulosTestRefrescar != null)
+                btnModulosTestRefrescar.Click += (s, e) => RefreshModules();
         }
 
 
@@ -567,11 +573,23 @@ namespace ModuleGPI
 
         private Control FindModuleControl(string buttonName)
         {
-            // ✅ SIMPLIFICADO: Solo buscar en un panel
+            // Buscar en panel PRD
             foreach (Control ctrl in flpModulos.Controls)
             {
                 if (ctrl.Name == buttonName)
                     return ctrl;
+            }
+
+            // ========================================
+            // ✅ NUEVO: Buscar en panel TEST
+            // ========================================
+            if (flpModulosTest != null)
+            {
+                foreach (Control ctrl in flpModulosTest.Controls)
+                {
+                    if (ctrl.Name == buttonName)
+                        return ctrl;
+                }
             }
 
             return null;
@@ -624,21 +642,60 @@ namespace ModuleGPI
 
                 var dt = _moduleService.LoadModules(null);
 
-                // ✅ SIMPLIFICADO: Solo un panel (flpModulos)
-                _moduleService.PaintButtons(
-                    dt,
-                    flpModulos,      // ✅ Panel único
-                    null,            // ✅ Ya no hay segundo panel
-                    cmuModulo,
-                    _toolTips,
-                    (btnName, module) => _roleManager.CanSeeModule(
-                        btnName,
-                        module,
-                        Session.TypeAut,
-                        Session.EmpId ?? Session.LogonName,
-                        _overrides
-                    )
-                );
+                // ========================================
+                // ✅ NUEVO: Filtrar módulos PRD (IsTest = false o NULL)
+                // ========================================
+                var prdRows = dt.AsEnumerable()
+                    .Where(r => r["IsTest"] == DBNull.Value || Convert.ToBoolean(r["IsTest"]) == false);
+
+                if (prdRows.Any())
+                {
+                    var dtPRD = prdRows.CopyToDataTable();
+
+                    _moduleService.PaintButtons(
+                        dtPRD,
+                        flpModulos,
+                        null,
+                        cmuModulo,
+                        _toolTips,
+                        (btnName, module) => _roleManager.CanSeeModule(
+                            btnName,
+                            module,
+                            Session.TypeAut,
+                            Session.EmpId ?? Session.LogonName,
+                            _overrides
+                        )
+                    );
+                }
+
+                // ========================================
+                // ✅ NUEVO: Filtrar y cargar módulos TEST (IsTest = true)
+                // ========================================
+                if (Session.TypeAut >= 5 && flpModulosTest != null)
+                {
+                    var testRows = dt.AsEnumerable()
+                        .Where(r => r["IsTest"] != DBNull.Value && Convert.ToBoolean(r["IsTest"]) == true);
+
+                    if (testRows.Any())
+                    {
+                        var dtTEST = testRows.CopyToDataTable();
+
+                        _moduleService.PaintButtons(
+                            dtTEST,
+                            flpModulosTest,
+                            null,
+                            cmuModulo,
+                            _toolTips,
+                            (btnName, module) => _roleManager.CanSeeModule(
+                                btnName,
+                                module,
+                                Session.TypeAut,
+                                Session.EmpId ?? Session.LogonName,
+                                _overrides
+                            )
+                        );
+                    }
+                }
 
                 UpdateStatus($"Módulos cargados: {dt.Rows.Count}");
             }
@@ -658,10 +715,12 @@ namespace ModuleGPI
         {
             LoadOverrides();
 
-            // ✅ SIMPLIFICADO: Solo un panel
+            // ========================================
+            // Refrescar módulos PRD
+            // ========================================
             _moduleService.RefreshVisibility(
-                flpModulos,     // ✅ Panel único
-                null,           // ✅ Ya no hay segundo panel
+                flpModulos,
+                null,
                 (btnName, module) => _roleManager.CanSeeModule(
                     btnName,
                     module,
@@ -671,13 +730,39 @@ namespace ModuleGPI
                 )
             );
 
+            // ========================================
+            // ✅ NUEVO: Refrescar módulos TEST (solo SysAdmin)
+            // ========================================
+            if (Session.TypeAut >= 5 && flpModulosTest != null)
+            {
+                _moduleService.RefreshVisibility(
+                    flpModulosTest,
+                    null,
+                    (btnName, module) => _roleManager.CanSeeModule(
+                        btnName,
+                        module,
+                        Session.TypeAut,
+                        Session.EmpId ?? Session.LogonName,
+                        _overrides
+                    )
+                );
+            }
+
             UpdateStatus("Módulos actualizados");
         }
 
         private void WireModuleButtons()
         {
-            // ✅ SIMPLIFICADO: Solo un panel
+            // Wire buttons en panel PRD
             _moduleService.WireButtons(flpModulos, null, ModuleButton_Click);
+
+            // ========================================
+            // ✅ NUEVO: Wire buttons en panel TEST
+            // ========================================
+            if (flpModulosTest != null)
+            {
+                _moduleService.WireButtons(flpModulosTest, null, ModuleButton_Click);
+            }
         }
 
         private void ModuleButton_Click(object sender, EventArgs e)
@@ -697,6 +782,13 @@ namespace ModuleGPI
                 this.Cursor = Cursors.WaitCursor;
 
                 _dtModulesConfig = _dataAccess.GetModules(null);
+
+                if (!_dtModulesConfig.Columns.Contains("IsTest"))
+                {
+                    _dtModulesConfig.Columns.Add("IsTest", typeof(bool));
+                    _dtModulesConfig.Columns["IsTest"].DefaultValue = false;
+                    _dtModulesConfig.Columns["IsTest"].ReadOnly = false;
+                }
 
                 if (_dtModulesConfig.Columns.Contains("IconPath"))
                 {
@@ -736,18 +828,17 @@ namespace ModuleGPI
             try
             {
                 var columns = new System.Collections.Generic.Dictionary<string, string>
-        {
-            { "ButtonName", "Nombre Botón" },
-            { "Name", "Nombre Módulo" },
-            { "ExePath", "Ruta Ejecutable" },
-            { "WorkingDir", "Directorio Trabajo" },
-           // { "Arguments", "Argumentos" },
-            { "IconPath", "Ruta Icono" },
-            { "Category", "Categoría" },
-            { "RequiresElevation", "Requiere Admin" },
-            { "RolesMinTypeAut", "Rol Mínimo" },
-            { "Plant", "Planta" }
-        };
+                {
+                    { "ButtonName", "Nombre Botón" },
+                    { "Name", "Nombre Módulo" },
+                    { "ExePath", "Ruta Ejecutable" },
+                    { "WorkingDir", "Directorio Trabajo" },
+                    { "IconPath", "Ruta Icono" },
+                    { "IsTest", "🧪 TEST" },  
+                    { "RequiresElevation", "Requiere Admin" },
+                    { "RolesMinTypeAut", "Rol Mínimo" },
+                    { "Plant", "Planta" }
+                };
 
                 // Paso 1: Solo configurar nombres (SEGURO)
                 foreach (var col in columns)
@@ -794,18 +885,17 @@ namespace ModuleGPI
                 dgvModulesConfig.SuspendLayout();
 
                 var widths = new System.Collections.Generic.Dictionary<string, int>
-        {
-            { "ButtonName", 120 },
-            { "Name", 150 },
-            { "ExePath", 300 },
-            { "WorkingDir", 250 },
-            { "Arguments", 150 },
-            { "IconPath", 250 }, 
-            { "Category", 100 },
-            { "RequiresElevation", 80 },
-            { "RolesMinTypeAut", 80 },
-            { "Plant", 60 }
-        };
+                {
+                    { "ButtonName", 120 },
+                    { "Name", 150 },
+                    { "ExePath", 300 },
+                    { "WorkingDir", 250 },
+                    { "IconPath", 250 },
+                    { "IsTest", 60 },  // ✅ NUEVO (reemplaza Category)
+                    { "RequiresElevation", 80 },
+                    { "RolesMinTypeAut", 80 },
+                    { "Plant", 60 }
+                };
 
                 foreach (var kvp in widths)
                 {
@@ -839,12 +929,12 @@ namespace ModuleGPI
                         newRow["Name"] = module.Name;
                         newRow["ExePath"] = module.ExePath;
                         newRow["WorkingDir"] = string.IsNullOrEmpty(module.WorkingDir) ? "" : module.WorkingDir;
-                       // newRow["Arguments"] = string.IsNullOrEmpty(module.Arguments) ? "" : module.Arguments;
-                        newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath; 
-                        newRow["Category"] = module.Category;
+                        newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath;
+                        newRow["Category"] = "";  // ✅ Vacío (ya no se usa)
                         newRow["RequiresElevation"] = module.RequiresElevation;
                         newRow["RolesMinTypeAut"] = module.RolesMinTypeAut;
                         newRow["Plant"] = module.Plant;
+                        newRow["IsTest"] = module.IsTest;  // ✅ NUEVO
 
                         _dtModulesConfig.Rows.Add(newRow);
                         _dataAccess.UpsertModule(newRow);
@@ -943,14 +1033,14 @@ namespace ModuleGPI
                     Name = Convert.ToString(drv["Name"]),
                     ExePath = Convert.ToString(drv["ExePath"]),
                     WorkingDir = Convert.ToString(drv["WorkingDir"]),
-                   // Arguments = Convert.ToString(drv["Arguments"]),
-                    IconPath = Convert.ToString(drv["IconPath"]), 
-                    Category = Convert.ToString(drv["Category"]),
+                    IconPath = Convert.ToString(drv["IconPath"]),
+                    Category = "",  // ✅ Ya no se usa
                     RequiresElevation = drv["RequiresElevation"] != DBNull.Value &&
-                                       Convert.ToBoolean(drv["RequiresElevation"]),
+                       Convert.ToBoolean(drv["RequiresElevation"]),
                     RolesMinTypeAut = drv["RolesMinTypeAut"] == DBNull.Value ? 1 :
-                                     Convert.ToInt32(drv["RolesMinTypeAut"]),
-                    Plant = drv["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(drv["Plant"])
+                     Convert.ToInt32(drv["RolesMinTypeAut"]),
+                    Plant = drv["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(drv["Plant"]),
+                    IsTest = drv["IsTest"] != DBNull.Value && Convert.ToBoolean(drv["IsTest"])  // ✅ NUEVO
                 };
 
                 using (var form = new ModuleEditForm(module))
@@ -960,12 +1050,12 @@ namespace ModuleGPI
                         drv["Name"] = form.Module.Name;
                         drv["ExePath"] = form.Module.ExePath;
                         drv["WorkingDir"] = form.Module.WorkingDir ?? "";
-                       // drv["Arguments"] = form.Module.Arguments ?? "";
-                        drv["IconPath"] = form.Module.IconPath ?? ""; 
-                        drv["Category"] = form.Module.Category;
+                        drv["IconPath"] = form.Module.IconPath ?? "";
+                        drv["Category"] = "";  // ✅ Vacío (ya no se usa)
                         drv["RequiresElevation"] = form.Module.RequiresElevation;
                         drv["RolesMinTypeAut"] = form.Module.RolesMinTypeAut;
                         drv["Plant"] = form.Module.Plant;
+                        drv["IsTest"] = form.Module.IsTest;  // ✅ NUEVO
 
                         _dataAccess.UpsertModule(drv.Row);
 

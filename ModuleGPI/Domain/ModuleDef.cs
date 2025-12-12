@@ -15,6 +15,9 @@
 
         public string IconPath { get; set; }
 
+        public bool IsTest { get; set; }
+
+
         public ModuleDef()
         {
             ButtonName = string.Empty;
@@ -23,10 +26,11 @@
             Arguments = string.Empty;
             WorkingDir = string.Empty;
             IconPath = string.Empty;
-            Category = "Operación";
+            Category = "";
             RequiresElevation = false;
             RolesMinTypeAut = 1;
             Plant = 1;
+            IsTest = false;
         }
     }
 }

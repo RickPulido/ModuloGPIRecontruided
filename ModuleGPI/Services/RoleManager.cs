@@ -14,7 +14,6 @@ namespace ModuleGPI.Services
 
         public string GetRoleName(int typeAut)
         {
-            // Manejo idéntico al código legacy
             if (typeAut <= 1) return "Viewer";
             if (typeAut == 2) return "Operator";
             if (typeAut == 3) return "Supervisor";
@@ -28,16 +27,25 @@ namespace ModuleGPI.Services
         {
             if (tabMain == null) return;
 
-            var tabDashboard = tabMain.TabPages.Cast<TabPage>().FirstOrDefault(t => t.Name == "tabDashboard");
-            var tabModulos = tabMain.TabPages.Cast<TabPage>().FirstOrDefault(t => t.Name == "tabModulos");
+            var tabDashboard = tabMain.TabPages.Cast<TabPage>()
+                .FirstOrDefault(t => t.Name == "tabDashboard");
+            var tabModulos = tabMain.TabPages.Cast<TabPage>()
+                .FirstOrDefault(t => t.Name == "tabModulos");
+            // ✅ NUEVO: Buscar tab de módulos TEST
+            var tabModulosTest = tabMain.TabPages.Cast<TabPage>()
+                .FirstOrDefault(t => t.Name == "tabModulosTest");
 
             // Dashboard siempre visible
             if (tabDashboard != null)
                 tabDashboard.Visible = true;
 
-            // ✅ Módulos visible para todos (Viewer y superiores)
+            // Módulos PRD visible para todos (Viewer y superiores)
             if (tabModulos != null)
                 tabModulos.Visible = typeAut >= 1;
+
+            // ✅ NUEVO: Módulos TEST visible SOLO para SysAdmin
+            if (tabModulosTest != null)
+                tabModulosTest.Visible = typeAut >= 5;
 
             // Admin y Config solo para AdminDept (4) y superiores
             if (typeAut < 4)
@@ -58,57 +66,52 @@ namespace ModuleGPI.Services
 
         public bool CanSeeModule(string buttonName, ModuleDef module, int userRole, string empId, OverridesStore store)
         {
-            // ========================================
-            // VALIDACIÓN INICIAL
-            // ========================================
             if (module == null || string.IsNullOrWhiteSpace(buttonName))
                 return false;
 
-            // ========================================
-            // PASO 1: Verificar ACCESO A PLANTA (prioritario)
-            // ========================================
-            // Si el usuario NO tiene acceso a la planta del módulo, 
-            // NO puede verlo bajo ninguna circunstancia (ni con override)
+            // PASO 1: Verificar acceso a planta
             bool hasPlantAccess = Session.HasAccessToPlant(module.Plant);
-
             if (!hasPlantAccess)
-            {
-                // Sin acceso a la planta = sin acceso al módulo
-                // Esto bloquea incluso si tiene override = 1
                 return false;
+
+            // ✅ NUEVO: PASO 2: Si es módulo TEST, validar acceso especial
+            if (module.IsTest)
+            {
+                // Solo SysAdmin o usuarios con override=1 pueden ver TEST
+                if (userRole < 5)
+                {
+                    var testOverride = store?.Items?.FirstOrDefault(x =>
+                        string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(x.EmpId, empId, StringComparison.OrdinalIgnoreCase));
+
+                    if (testOverride?.Override == 1)
+                        return true;
+
+                    if (testOverride?.Override == -1)
+                        return false;
+
+                    return false;  // Sin override no puede ver TEST
+                }
             }
 
-            // ========================================
-            // PASO 2: Verificar OVERRIDE
-            // ========================================
+            // PASO 3: Verificar override
             var userOverride = store?.Items?.FirstOrDefault(x =>
                 string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(x.EmpId, empId, StringComparison.OrdinalIgnoreCase));
 
             if (userOverride != null)
             {
-                // Override = -1: DENEGAR (bloquea incluso con acceso a planta)
                 if (userOverride.Override == -1)
                     return false;
 
-                // Override = 1: PERMITIR (ya validamos planta arriba, ahora ignoramos rol)
                 if (userOverride.Override == 1)
                     return true;
-
-                // Override = 0: HEREDADO (continúa con validación de rol)
             }
 
-            // ========================================
-            // PASO 3: Verificar ROL
-            // ========================================
-            bool hasRequiredRole = userRole >= module.RolesMinTypeAut;
-
-            // Resultado final: Tiene planta + (override=1 O rol suficiente)
-            return hasRequiredRole;
+            // PASO 4: Verificar rol
+            return userRole >= module.RolesMinTypeAut;
         }
 
-
-        // Método de diagnóstico para verificar paso a paso por qué un usuario puede/no puede ver un módulo
         public string DiagnoseModuleAccess(string buttonName, ModuleDef module, int userRole, string empId, OverridesStore store)
         {
             var sb = new System.Text.StringBuilder();
@@ -127,130 +130,113 @@ namespace ModuleGPI.Services
                 return sb.ToString();
             }
 
-            // ========================================
+            if (module.IsTest)
+            {
+                sb.AppendLine("⚠️ MÓDULO DE PRUEBA (TEST)");
+                sb.AppendLine("Solo accesible por SysAdmin o con override=1");
+                sb.AppendLine();
+            }
+
             // PASO 1: PLANTA
-            // ========================================
             sb.AppendLine("─────────────────────────────────────────");
             sb.AppendLine("PASO 1: VERIFICAR ACCESO A PLANTA");
             sb.AppendLine("─────────────────────────────────────────");
 
-            string modulePlantName = Session.GetPlantName(module.Plant);
-            sb.AppendLine($"Planta del módulo: {module.Plant} ({modulePlantName})");
-            sb.AppendLine();
-
-            sb.AppendLine($"Planta principal del usuario: {Session.Sucursal} ({Session.GetPlantName(Session.Sucursal)})");
-            sb.AppendLine($"  • MTY_Access: {(Session.MTY_Access ? "✅" : "❌")}");
-            sb.AppendLine($"  • QRO_Access: {(Session.QRO_Access ? "✅" : "❌")}");
-            sb.AppendLine($"  • TIJ_Access: {(Session.TIJ_Access ? "✅" : "❌")}");
-            sb.AppendLine();
-
             bool hasPlantAccess = Session.HasAccessToPlant(module.Plant);
+            sb.AppendLine($"Planta del módulo: {module.Plant} ({Session.GetPlantName(module.Plant)})");
+            sb.AppendLine($"Usuario {(hasPlantAccess ? "✅ TIENE" : "❌ NO TIENE")} acceso");
 
-            if (hasPlantAccess)
+            if (!hasPlantAccess)
             {
-                sb.AppendLine($"✅ Usuario TIENE acceso a planta {modulePlantName}");
-
-                if (module.Plant == Session.Sucursal)
-                {
-                    sb.AppendLine("   (Es su planta principal)");
-                }
-                else if (module.Plant == 0)
-                {
-                    sb.AppendLine("   (Módulo disponible para todas las plantas)");
-                }
-                else
-                {
-                    sb.AppendLine("   (Tiene acceso multi-planta)");
-                }
-            }
-            else
-            {
-                sb.AppendLine($"❌ Usuario NO tiene acceso a planta {modulePlantName}");
                 sb.AppendLine();
                 sb.AppendLine("═══════════════════════════════════════════");
-                sb.AppendLine("RESULTADO FINAL: ❌ ACCESO DENEGADO");
-                sb.AppendLine("RAZÓN: Sin acceso a la planta del módulo");
+                sb.AppendLine("RESULTADO: ❌ ACCESO DENEGADO (Sin acceso a planta)");
                 sb.AppendLine("═══════════════════════════════════════════");
                 return sb.ToString();
             }
 
-           
+            // ✅ PASO 2: Si es TEST
+            if (module.IsTest)
+            {
+                sb.AppendLine();
+                sb.AppendLine("─────────────────────────────────────────");
+                sb.AppendLine("PASO 2: VERIFICAR ACCESO A MÓDULO TEST");
+                sb.AppendLine("─────────────────────────────────────────");
+
+                if (userRole >= 5)
+                {
+                    sb.AppendLine($"✅ Usuario es SysAdmin (TypeAut={userRole})");
+                }
+                else
+                {
+                    var testOverride = store?.Items?.FirstOrDefault(x =>
+                        string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
+                        string.Equals(x.EmpId, empId, StringComparison.OrdinalIgnoreCase));
+
+                    if (testOverride?.Override == 1)
+                    {
+                        sb.AppendLine("✅ Override PERMITIR encontrado");
+                        sb.AppendLine();
+                        sb.AppendLine("═══════════════════════════════════════════");
+                        sb.AppendLine("RESULTADO: ✅ ACCESO CONCEDIDO (Override en TEST)");
+                        sb.AppendLine("═══════════════════════════════════════════");
+                        return sb.ToString();
+                    }
+                    else
+                    {
+                        sb.AppendLine($"❌ Usuario NO es SysAdmin y sin override=1");
+                        sb.AppendLine();
+                        sb.AppendLine("═══════════════════════════════════════════");
+                        sb.AppendLine("RESULTADO: ❌ ACCESO DENEGADO (No puede ver TEST)");
+                        sb.AppendLine("═══════════════════════════════════════════");
+                        return sb.ToString();
+                    }
+                }
+            }
+
+            // PASO 3: Override
             sb.AppendLine();
             sb.AppendLine("─────────────────────────────────────────");
-            sb.AppendLine("PASO 2: VERIFICAR OVERRIDE PERSONALIZADO");
+            sb.AppendLine("PASO " + (module.IsTest ? "3" : "2") + ": VERIFICAR OVERRIDE");
             sb.AppendLine("─────────────────────────────────────────");
 
             var userOverride = store?.Items?.FirstOrDefault(x =>
                 string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(x.EmpId, empId, StringComparison.OrdinalIgnoreCase));
 
-            if (userOverride != null)
+            if (userOverride?.Override == -1)
             {
-                string overrideText = userOverride.Override == 1 ? "✅ PERMITIR" :
-                                     userOverride.Override == -1 ? "❌ DENEGAR" : "⚪ HEREDADO";
-
-                sb.AppendLine($"Override encontrado: {overrideText}");
-
-                if (userOverride.Override == -1)
-                {
-                    sb.AppendLine();
-                    sb.AppendLine("═══════════════════════════════════════════");
-                    sb.AppendLine("RESULTADO FINAL: ❌ ACCESO DENEGADO");
-                    sb.AppendLine("RAZÓN: Override configurado como DENEGAR");
-                    sb.AppendLine("═══════════════════════════════════════════");
-                    return sb.ToString();
-                }
-                else if (userOverride.Override == 1)
-                {
-                    sb.AppendLine("Override = PERMITIR (se omite validación de rol)");
-                    sb.AppendLine();
-                    sb.AppendLine("═══════════════════════════════════════════");
-                    sb.AppendLine("RESULTADO FINAL: ✅ ACCESO CONCEDIDO");
-                    sb.AppendLine("RAZÓN: Override PERMITIR + Acceso a planta");
-                    sb.AppendLine("═══════════════════════════════════════════");
-                    return sb.ToString();
-                }
-                else
-                {
-                    sb.AppendLine("Override = HEREDADO (continúa validación normal)");
-                }
+                sb.AppendLine("❌ Override DENEGAR");
+                sb.AppendLine();
+                sb.AppendLine("═══════════════════════════════════════════");
+                sb.AppendLine("RESULTADO: ❌ ACCESO DENEGADO (Override)");
+                sb.AppendLine("═══════════════════════════════════════════");
+                return sb.ToString();
             }
-            else
+            else if (userOverride?.Override == 1)
             {
-                sb.AppendLine("No existe override para este usuario/módulo");
+                sb.AppendLine("✅ Override PERMITIR");
+                sb.AppendLine();
+                sb.AppendLine("═══════════════════════════════════════════");
+                sb.AppendLine("RESULTADO: ✅ ACCESO CONCEDIDO (Override)");
+                sb.AppendLine("═══════════════════════════════════════════");
+                return sb.ToString();
             }
 
-            // ========================================
-            // PASO 3: ROL
-            // ========================================
+            // PASO 4: Rol
             sb.AppendLine();
             sb.AppendLine("─────────────────────────────────────────");
-            sb.AppendLine("PASO 3: VERIFICAR ROL MÍNIMO REQUERIDO");
+            sb.AppendLine("PASO " + (module.IsTest ? "4" : "3") + ": VERIFICAR ROL");
             sb.AppendLine("─────────────────────────────────────────");
+            sb.AppendLine($"Rol mínimo: {module.RolesMinTypeAut} ({GetRoleName(module.RolesMinTypeAut)})");
+            sb.AppendLine($"Rol usuario: {userRole} ({GetRoleName(userRole)})");
 
-            sb.AppendLine($"Rol mínimo del módulo: {module.RolesMinTypeAut} ({GetRoleName(module.RolesMinTypeAut)})");
-            sb.AppendLine($"Rol del usuario: {userRole} ({GetRoleName(userRole)})");
-
-            bool hasRequiredRole = userRole >= module.RolesMinTypeAut;
-
-            if (hasRequiredRole)
-            {
-                sb.AppendLine($"✅ Usuario tiene rol suficiente ({userRole} >= {module.RolesMinTypeAut})");
-                sb.AppendLine();
-                sb.AppendLine("═══════════════════════════════════════════");
-                sb.AppendLine("RESULTADO FINAL: ✅ ACCESO CONCEDIDO");
-                sb.AppendLine("RAZÓN: Rol suficiente + Acceso a planta");
-                sb.AppendLine("═══════════════════════════════════════════");
-            }
-            else
-            {
-                sb.AppendLine($"❌ Usuario NO tiene rol suficiente ({userRole} < {module.RolesMinTypeAut})");
-                sb.AppendLine();
-                sb.AppendLine("═══════════════════════════════════════════");
-                sb.AppendLine("RESULTADO FINAL: ❌ ACCESO DENEGADO");
-                sb.AppendLine("RAZÓN: Rol insuficiente");
-                sb.AppendLine("═══════════════════════════════════════════");
-            }
+            bool hasRole = userRole >= module.RolesMinTypeAut;
+            sb.AppendLine($"{(hasRole ? "✅" : "❌")} Usuario {(hasRole ? "tiene" : "NO tiene")} rol suficiente");
+            sb.AppendLine();
+            sb.AppendLine("═══════════════════════════════════════════");
+            sb.AppendLine($"RESULTADO: {(hasRole ? "✅ ACCESO CONCEDIDO" : "❌ ACCESO DENEGADO")} (Rol)");
+            sb.AppendLine("═══════════════════════════════════════════");
 
             return sb.ToString();
         }

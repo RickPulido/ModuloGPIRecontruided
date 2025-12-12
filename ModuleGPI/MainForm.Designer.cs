@@ -50,6 +50,12 @@ namespace ModuleGPI
             this.lblModulosTitulo = new System.Windows.Forms.Label();
             this.txtModulosSearch = new System.Windows.Forms.TextBox();
             this.btnModulosRefrescar = new System.Windows.Forms.Button();
+            this.tabModulosTest = new System.Windows.Forms.TabPage();
+            this.flpModulosTest = new System.Windows.Forms.FlowLayoutPanel();
+            this.pnlModulosTestHeader = new System.Windows.Forms.Panel();
+            this.lblModulosTestTitulo = new System.Windows.Forms.Label();
+            this.txtModulosTestSearch = new System.Windows.Forms.TextBox();
+            this.btnModulosTestRefrescar = new System.Windows.Forms.Button();
             this.tabAdmin = new System.Windows.Forms.TabPage();
             this.pnlAdminButtons = new System.Windows.Forms.Panel();
             this.btnAdminGuardar = new System.Windows.Forms.Button();
@@ -97,6 +103,8 @@ namespace ModuleGPI
             ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).BeginInit();
             this.tabModulos.SuspendLayout();
             this.pnlModulosHeader.SuspendLayout();
+            this.tabModulosTest.SuspendLayout();
+            this.pnlModulosTestHeader.SuspendLayout();
             this.tabAdmin.SuspendLayout();
             this.pnlAdminButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitAdmin)).BeginInit();
@@ -179,6 +187,7 @@ namespace ModuleGPI
             // 
             this.tabMain.Controls.Add(this.tabDashboard);
             this.tabMain.Controls.Add(this.tabModulos);
+            this.tabMain.Controls.Add(this.tabModulosTest);
             this.tabMain.Controls.Add(this.tabAdmin);
             this.tabMain.Controls.Add(this.tabConfig);
             this.tabMain.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -292,6 +301,70 @@ namespace ModuleGPI
             this.btnModulosRefrescar.TabIndex = 2;
             this.btnModulosRefrescar.Text = "Refrescar";
             // 
+            // tabModulosTest
+            // 
+            this.tabModulosTest.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(250)))), ((int)(((byte)(240)))));
+            this.tabModulosTest.Controls.Add(this.flpModulosTest);
+            this.tabModulosTest.Controls.Add(this.pnlModulosTestHeader);
+            this.tabModulosTest.Location = new System.Drawing.Point(4, 22);
+            this.tabModulosTest.Name = "tabModulosTest";
+            this.tabModulosTest.Size = new System.Drawing.Size(840, 497);
+            this.tabModulosTest.TabIndex = 2;
+            this.tabModulosTest.Text = "Módulos TEST";
+            // 
+            // flpModulosTest
+            // 
+            this.flpModulosTest.AutoScroll = true;
+            this.flpModulosTest.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(250)))), ((int)(((byte)(240)))));
+            this.flpModulosTest.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpModulosTest.Location = new System.Drawing.Point(0, 48);
+            this.flpModulosTest.Name = "flpModulosTest";
+            this.flpModulosTest.Padding = new System.Windows.Forms.Padding(8);
+            this.flpModulosTest.Size = new System.Drawing.Size(840, 449);
+            this.flpModulosTest.TabIndex = 0;
+            // 
+            // pnlModulosTestHeader
+            // 
+            this.pnlModulosTestHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(243)))), ((int)(((byte)(205)))));
+            this.pnlModulosTestHeader.Controls.Add(this.lblModulosTestTitulo);
+            this.pnlModulosTestHeader.Controls.Add(this.txtModulosTestSearch);
+            this.pnlModulosTestHeader.Controls.Add(this.btnModulosTestRefrescar);
+            this.pnlModulosTestHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlModulosTestHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlModulosTestHeader.Name = "pnlModulosTestHeader";
+            this.pnlModulosTestHeader.Padding = new System.Windows.Forms.Padding(8);
+            this.pnlModulosTestHeader.Size = new System.Drawing.Size(840, 48);
+            this.pnlModulosTestHeader.TabIndex = 1;
+            // 
+            // lblModulosTestTitulo
+            // 
+            this.lblModulosTestTitulo.AutoSize = true;
+            this.lblModulosTestTitulo.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblModulosTestTitulo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(153)))), ((int)(((byte)(102)))), ((int)(((byte)(0)))));
+            this.lblModulosTestTitulo.Location = new System.Drawing.Point(8, 14);
+            this.lblModulosTestTitulo.Name = "lblModulosTestTitulo";
+            this.lblModulosTestTitulo.Size = new System.Drawing.Size(102, 19);
+            this.lblModulosTestTitulo.TabIndex = 0;
+            this.lblModulosTestTitulo.Text = "Módulos TEST";
+            // 
+            // txtModulosTestSearch
+            // 
+            this.txtModulosTestSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtModulosTestSearch.Location = new System.Drawing.Point(498, 12);
+            this.txtModulosTestSearch.Name = "txtModulosTestSearch";
+            this.txtModulosTestSearch.Size = new System.Drawing.Size(220, 20);
+            this.txtModulosTestSearch.TabIndex = 1;
+            // 
+            // btnModulosTestRefrescar
+            // 
+            this.btnModulosTestRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnModulosTestRefrescar.Location = new System.Drawing.Point(726, 11);
+            this.btnModulosTestRefrescar.Name = "btnModulosTestRefrescar";
+            this.btnModulosTestRefrescar.Size = new System.Drawing.Size(100, 23);
+            this.btnModulosTestRefrescar.TabIndex = 2;
+            this.btnModulosTestRefrescar.Text = "Refrescar";
+            this.btnModulosTestRefrescar.UseVisualStyleBackColor = true;
+            // 
             // tabAdmin
             // 
             this.tabAdmin.Controls.Add(this.pnlAdminButtons);
@@ -347,7 +420,7 @@ namespace ModuleGPI
             this.splitAdmin.Panel2.Controls.Add(this.rightAdmin);
             this.splitAdmin.Panel2MinSize = 260;
             this.splitAdmin.Size = new System.Drawing.Size(840, 497);
-            this.splitAdmin.SplitterDistance = 562;
+            this.splitAdmin.SplitterDistance = 561;
             this.splitAdmin.SplitterWidth = 5;
             this.splitAdmin.TabIndex = 0;
             // 
@@ -357,7 +430,7 @@ namespace ModuleGPI
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
             this.leftAdmin.Name = "leftAdmin";
-            this.leftAdmin.Size = new System.Drawing.Size(562, 497);
+            this.leftAdmin.Size = new System.Drawing.Size(561, 497);
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
@@ -368,7 +441,7 @@ namespace ModuleGPI
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
             this.grpRoles.Name = "grpRoles";
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8);
-            this.grpRoles.Size = new System.Drawing.Size(562, 497);
+            this.grpRoles.Size = new System.Drawing.Size(561, 497);
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
@@ -382,7 +455,7 @@ namespace ModuleGPI
             this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(0);
             this.barFiltroPlanta.Name = "barFiltroPlanta";
             this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.barFiltroPlanta.Size = new System.Drawing.Size(546, 40);
+            this.barFiltroPlanta.Size = new System.Drawing.Size(545, 40);
             this.barFiltroPlanta.TabIndex = 0;
             this.barFiltroPlanta.WrapContents = false;
             // 
@@ -421,7 +494,7 @@ namespace ModuleGPI
             this.dgvUsuarios.Name = "dgvUsuarios";
             this.dgvUsuarios.RowHeadersVisible = false;
             this.dgvUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUsuarios.Size = new System.Drawing.Size(546, 468);
+            this.dgvUsuarios.Size = new System.Drawing.Size(545, 468);
             this.dgvUsuarios.TabIndex = 1;
             // 
             // rightAdmin
@@ -430,7 +503,7 @@ namespace ModuleGPI
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
-            this.rightAdmin.Size = new System.Drawing.Size(273, 497);
+            this.rightAdmin.Size = new System.Drawing.Size(274, 497);
             this.rightAdmin.TabIndex = 0;
             // 
             // dgvModulos
@@ -450,7 +523,7 @@ namespace ModuleGPI
             this.dgvModulos.ReadOnly = true;
             this.dgvModulos.RowHeadersVisible = false;
             this.dgvModulos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvModulos.Size = new System.Drawing.Size(273, 497);
+            this.dgvModulos.Size = new System.Drawing.Size(274, 497);
             this.dgvModulos.TabIndex = 0;
             // 
             // tabConfig
@@ -653,7 +726,7 @@ namespace ModuleGPI
             this.btnCerrarSesion.Name = "btnCerrarSesion";
             this.btnCerrarSesion.Size = new System.Drawing.Size(120, 30);
             this.btnCerrarSesion.TabIndex = 1;
-            this.btnCerrarSesion.Text = "🚪 Cerrar Sesión";
+            this.btnCerrarSesion.Text = "Cerrar Sesión";
             this.btnCerrarSesion.UseVisualStyleBackColor = false;
             // 
             // lblTitulo
@@ -692,6 +765,9 @@ namespace ModuleGPI
             this.tabModulos.ResumeLayout(false);
             this.pnlModulosHeader.ResumeLayout(false);
             this.pnlModulosHeader.PerformLayout();
+            this.tabModulosTest.ResumeLayout(false);
+            this.pnlModulosTestHeader.ResumeLayout(false);
+            this.pnlModulosTestHeader.PerformLayout();
             this.tabAdmin.ResumeLayout(false);
             this.pnlAdminButtons.ResumeLayout(false);
             this.splitAdmin.Panel1.ResumeLayout(false);
@@ -786,5 +862,14 @@ namespace ModuleGPI
         private Panel pnlTopBar;
         private Label lblTitulo;
         private Button btnCerrarSesion;
+
+        private TabPage tabModulosTest;
+        private Panel pnlModulosTestHeader;
+        private Label lblModulosTestTitulo;
+        private TextBox txtModulosTestSearch;
+        private Button btnModulosTestRefrescar;
+        private FlowLayoutPanel flpModulosTest;
+
+
     }
 }

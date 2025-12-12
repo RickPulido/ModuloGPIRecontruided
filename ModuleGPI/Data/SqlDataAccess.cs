@@ -9,7 +9,7 @@ namespace ModuleGPI.Data
 {
     public sealed class SqlDataAccess : IDataAccess
     {
-        private SqlDataAdapter _daUsers; // Mantener adapter para usuarios
+        private SqlDataAdapter _daUsers;
 
         private string GetConnString()
         {
@@ -45,16 +45,24 @@ namespace ModuleGPI.Data
                 cmd.Parameters.Add("@ExePath", SqlDbType.NVarChar, 500).Value = r["ExePath"];
                 cmd.Parameters.Add("@WorkingDir", SqlDbType.NVarChar, 500).Value = r["WorkingDir"] ?? DBNull.Value;
 
-                // SOLO IconPath, sin Arguments
                 cmd.Parameters.Add("@IconPath", SqlDbType.NVarChar, 500).Value =
                     r.Table.Columns.Contains("IconPath") && r["IconPath"] != DBNull.Value && !string.IsNullOrEmpty(r["IconPath"].ToString())
                     ? r["IconPath"]
                     : (object)DBNull.Value;
 
-                cmd.Parameters.Add("@Category", SqlDbType.NVarChar, 50).Value = r["Category"];
+                // ⚠️ Category se deja NULL o vacío (ya no se usa)
+                cmd.Parameters.Add("@Category", SqlDbType.NVarChar, 50).Value = DBNull.Value;
+
                 cmd.Parameters.Add("@RequiresElevation", SqlDbType.Bit).Value = r["RequiresElevation"];
                 cmd.Parameters.Add("@RolesMinTypeAut", SqlDbType.Int).Value = r["RolesMinTypeAut"];
                 cmd.Parameters.Add("@Plant", SqlDbType.Int).Value = r["Plant"];
+
+                // ✅ NUEVO: Parámetro IsTest
+                cmd.Parameters.Add("@IsTest", SqlDbType.Bit).Value =
+                    r.Table.Columns.Contains("IsTest") && r["IsTest"] != DBNull.Value
+                    ? r["IsTest"]
+                    : (object)false;
+
                 cn.Open();
                 cmd.ExecuteNonQuery();
             }
@@ -76,7 +84,6 @@ namespace ModuleGPI.Data
         {
             var dt = new DataTable();
 
-            // CAST explícito a BIT para asegurar tipo correcto
             string sql = @"
         SELECT 
             U.USU_EmpID, 
@@ -97,23 +104,15 @@ namespace ModuleGPI.Data
                 _daUsers.Fill(dt);
             }
 
-            // CRÍTICO: Forzar que las columnas de checkboxes NO sean ReadOnly
             if (dt.Columns.Contains("MTY_Access"))
-            {
                 dt.Columns["MTY_Access"].ReadOnly = false;
-            }
 
             if (dt.Columns.Contains("QRO_Access"))
-            {
                 dt.Columns["QRO_Access"].ReadOnly = false;
-            }
 
             if (dt.Columns.Contains("TIJ_Access"))
-            {
                 dt.Columns["TIJ_Access"].ReadOnly = false;
-            }
 
-            //  Verificar tipos de columnas
             Debug.WriteLine("=== TIPOS DE COLUMNAS ===");
             Debug.WriteLine($"MTY_Access: {dt.Columns["MTY_Access"].DataType} - ReadOnly: {dt.Columns["MTY_Access"].ReadOnly}");
             Debug.WriteLine($"QRO_Access: {dt.Columns["QRO_Access"].DataType} - ReadOnly: {dt.Columns["QRO_Access"].ReadOnly}");
@@ -156,12 +155,10 @@ namespace ModuleGPI.Data
                 _daUsers.UpdateCommand.Parameters.Add("@USU_Status", SqlDbType.Int).SourceColumn = "USU_Status";
                 _daUsers.UpdateCommand.Parameters.Add("@USU_UserPLant", SqlDbType.Int).SourceColumn = "USU_UserPLant";
 
-                //  Parámetros BIT para checkboxes
                 _daUsers.UpdateCommand.Parameters.Add("@MTY_Access", SqlDbType.Bit).SourceColumn = "MTY_Access";
                 _daUsers.UpdateCommand.Parameters.Add("@QRO_Access", SqlDbType.Bit).SourceColumn = "QRO_Access";
                 _daUsers.UpdateCommand.Parameters.Add("@TIJ_Access", SqlDbType.Bit).SourceColumn = "TIJ_Access";
 
-                // Primary key
                 var pk = _daUsers.UpdateCommand.Parameters.Add("@USU_EmpID", SqlDbType.NVarChar, 10);
                 pk.SourceColumn = "USU_EmpID";
                 pk.SourceVersion = DataRowVersion.Original;
@@ -208,7 +205,6 @@ namespace ModuleGPI.Data
                 {
                     try
                     {
-                        // Primero eliminar todos los overrides existentes para este botón
                         using (var del = new SqlCommand(
                             "DELETE FROM dbo.ModGPI_UserModuleOverride WHERE ButtonName=@B", cn, tx))
                         {
@@ -216,7 +212,6 @@ namespace ModuleGPI.Data
                             del.ExecuteNonQuery();
                         }
 
-                        // Luego insertar los nuevos (solo los que no son heredados)
                         using (var ins = new SqlCommand(
                             "INSERT INTO dbo.ModGPI_UserModuleOverride (ButtonName, EmpId, Override) VALUES (@B,@E,@O)", cn, tx))
                         {
@@ -228,7 +223,6 @@ namespace ModuleGPI.Data
                             {
                                 int ov = Convert.ToInt32(r["Override"]);
 
-                                // Solo guardar overrides explícitos (no heredados)
                                 if (ov == 0) continue;
 
                                 ins.Parameters["@B"].Value = buttonName;

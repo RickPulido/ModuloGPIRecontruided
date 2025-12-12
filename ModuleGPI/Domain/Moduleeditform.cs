@@ -17,17 +17,18 @@ namespace ModuleGPI
         private Button btnBrowseIcon;
         private PictureBox picIconPreview;
 
-
         // Controls
         private TextBox txtButtonName;
         private TextBox txtName;
         private TextBox txtExePath;
         private TextBox txtWorkingDir;
-        //  private TextBox txtArguments;
-        private ComboBox cboCategory;
+        // ❌ REMOVIDO: private ComboBox cboCategory;
         private ComboBox cboRoleMin;
         private NumericUpDown nudPlant;
         private CheckBox chkRequiresElevation;
+        // ✅ NUEVO: CheckBox para marcar como módulo de prueba
+        private CheckBox chkIsTest;
+
         private Button btnBrowseExe;
         private Button btnBrowseDir;
         private Button btnSave;
@@ -36,10 +37,7 @@ namespace ModuleGPI
         private GroupBox grpBasic;
         private GroupBox grpPaths;
         private GroupBox grpPermissions;
-
         private Label lblPlantIndicator;
-
-
         #endregion
 
         #region Properties
@@ -53,12 +51,11 @@ namespace ModuleGPI
             _module = module ?? new ModuleDef
             {
                 ButtonName = $"btnMod_{DateTime.Now:yyyyMMddHHmmss}",
-                Category = "Operación",
+                Category = "",  // Ya no se usa
                 RolesMinTypeAut = 2,
-                Plant = 1
+                Plant = 1,
+                IsTest = false  // Por defecto es PRD
             };
-
-
 
             InitializeComponent();
             LoadModuleData();
@@ -116,30 +113,33 @@ namespace ModuleGPI
                 MaxLength = 100
             };
 
-            var lblCategory = new Label
+            // ✅ NUEVO: CheckBox para módulo de prueba (reemplaza cboCategory)
+            chkIsTest = new CheckBox
             {
-                Text = "Categoría:",
-                Location = new System.Drawing.Point(15, 85),
-                Size = new System.Drawing.Size(100, 23),
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight
+                Text = "🧪 Módulo de Prueba (TEST)",
+                Location = new System.Drawing.Point(120, 85),
+                Size = new System.Drawing.Size(200, 23),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 9F, FontStyle.Regular)
             };
 
-            cboCategory = new ComboBox
+            var lblTestInfo = new Label
             {
-                Location = new System.Drawing.Point(120, 85),
-                Size = new System.Drawing.Size(150, 23),
-                DropDownStyle = ComboBoxStyle.DropDownList
+                Text = "(Solo SysAdmin puede ver módulos TEST)",
+                Location = new System.Drawing.Point(325, 87),
+                Size = new System.Drawing.Size(250, 20),
+                ForeColor = Color.Gray,
+                Font = new Font("Segoe UI", 7.5F, FontStyle.Italic)
             };
-            cboCategory.Items.AddRange(new[] { "Operación", "Consultas" });
 
             grpBasic.Controls.AddRange(new Control[]
             {
-        lblButtonName, txtButtonName,
-        lblName, txtName,
-        lblCategory, cboCategory
+                lblButtonName, txtButtonName,
+                lblName, txtName,
+                chkIsTest, lblTestInfo
             });
 
-            // === GRUPO: Rutas y Directorios 
+            // === GRUPO: Rutas y Directorios ===
             grpPaths = new GroupBox
             {
                 Text = "Rutas y Directorios",
@@ -194,23 +194,6 @@ namespace ModuleGPI
                 Size = new System.Drawing.Size(40, 25)
             };
             btnBrowseDir.Click += BtnBrowseDir_Click;
-
-            // Argumentos
-            //var lblArguments = new Label
-            //{
-            //    Text = "Argumentos:",
-            //    Location = new System.Drawing.Point(15, 85),
-            //    Size = new System.Drawing.Size(100, 23),
-            //    TextAlign = System.Drawing.ContentAlignment.MiddleRight
-            //};
-
-            //txtArguments = new TextBox  
-            //{
-            //    Name = "txtArguments",
-            //    Location = new System.Drawing.Point(120, 85),
-            //    Size = new System.Drawing.Size(465, 23),
-            //    MaxLength = 500
-            //};
 
             // Icono
             var lblIconPath = new Label
@@ -270,14 +253,13 @@ namespace ModuleGPI
             };
             btnTest.Click += BtnTest_Click;
 
-            // Agregar TODOS los controles de rutas
             grpPaths.Controls.AddRange(new Control[]
             {
-        lblExePath, txtExePath, btnBrowseExe,
-        lblWorkingDir, txtWorkingDir, btnBrowseDir,
-        lblIconPath, txtIconPath, lblIconHelp, btnBrowseIcon,
-        picIconPreview, btnExtractIcon,
-        btnTest
+                lblExePath, txtExePath, btnBrowseExe,
+                lblWorkingDir, txtWorkingDir, btnBrowseDir,
+                lblIconPath, txtIconPath, lblIconHelp, btnBrowseIcon,
+                picIconPreview, btnExtractIcon,
+                btnTest
             });
 
             // === GRUPO: Permisos ===
@@ -304,11 +286,11 @@ namespace ModuleGPI
             };
             cboRoleMin.Items.AddRange(new object[]
             {
-        new { Value = 1, Text = "1 - Viewer" },
-        new { Value = 2, Text = "2 - Operator" },
-        new { Value = 3, Text = "3 - Supervisor" },
-        new { Value = 4, Text = "4 - AdminDept" },
-        new { Value = 5, Text = "5 - SysAdmin" }
+                new { Value = 1, Text = "1 - Viewer" },
+                new { Value = 2, Text = "2 - Operator" },
+                new { Value = 3, Text = "3 - Supervisor" },
+                new { Value = 4, Text = "4 - AdminDept" },
+                new { Value = 5, Text = "5 - SysAdmin" }
             });
             cboRoleMin.DisplayMember = "Text";
             cboRoleMin.ValueMember = "Value";
@@ -344,7 +326,6 @@ namespace ModuleGPI
 
             nudPlant.ValueChanged += NudPlant_ValueChanged;
 
-
             chkRequiresElevation = new CheckBox
             {
                 Text = "Requiere elevación de privilegios (Ejecutar como Administrador)",
@@ -355,10 +336,10 @@ namespace ModuleGPI
 
             grpPermissions.Controls.AddRange(new Control[]
             {
-        lblRoleMin, cboRoleMin,
-        lblPlant, nudPlant,
-        lblPlantIndicator,
-        chkRequiresElevation
+                lblRoleMin, cboRoleMin,
+                lblPlant, nudPlant,
+                lblPlantIndicator,
+                chkRequiresElevation
             });
 
             // === BOTONES ===
@@ -382,23 +363,20 @@ namespace ModuleGPI
             // Agregar todos los controles al formulario
             this.Controls.AddRange(new Control[]
             {
-        grpBasic, grpPaths, grpPermissions,
-        btnSave, btnCancel
+                grpBasic, grpPaths, grpPermissions,
+                btnSave, btnCancel
             });
 
             // Establecer botones de aceptar/cancelar
             this.AcceptButton = btnSave;
             this.CancelButton = btnCancel;
         }
-
         #endregion
 
         #region Private Methods
         private void SetFormTitle()
         {
             this.Text = _isNewModule ? "Crear Nuevo Módulo" : $"Editar Módulo: {_module.Name}";
-
-            // Si es nuevo, el campo ButtonName es editable
             txtButtonName.ReadOnly = !_isNewModule;
 
             if (!_isNewModule)
@@ -415,7 +393,8 @@ namespace ModuleGPI
             txtWorkingDir.Text = _module.WorkingDir;
             txtIconPath.Text = _module.IconPath ?? "";
 
-            cboCategory.SelectedItem = _module.Category ?? "Operación";
+            // ✅ NUEVO: Cargar IsTest
+            chkIsTest.Checked = _module.IsTest;
 
             for (int i = 0; i < cboRoleMin.Items.Count; i++)
             {
@@ -430,7 +409,6 @@ namespace ModuleGPI
             nudPlant.Value = _module.Plant > 0 ? _module.Plant : 1;
             chkRequiresElevation.Checked = _module.RequiresElevation;
 
-            // ⭐ Actualizar indicador de planta
             UpdatePlantIndicator();
 
             if (!string.IsNullOrEmpty(_module.IconPath))
@@ -450,7 +428,6 @@ namespace ModuleGPI
                 return false;
             }
 
-            // Validar que empiece con btnMod_
             if (!txtButtonName.Text.StartsWith("btnMod_"))
             {
                 MessageBox.Show("El nombre del botón debe comenzar con 'btnMod_'",
@@ -477,7 +454,6 @@ namespace ModuleGPI
                 return false;
             }
 
-            // Verificar si el archivo existe (advertencia, no error)
             if (!File.Exists(txtExePath.Text))
             {
                 var result = MessageBox.Show(
@@ -489,15 +465,6 @@ namespace ModuleGPI
 
                 if (result != DialogResult.Yes)
                     return false;
-            }
-
-            // Validar Category
-            if (cboCategory.SelectedItem == null)
-            {
-                MessageBox.Show("Seleccione una categoría.",
-                    "Validación", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                cboCategory.Focus();
-                return false;
             }
 
             // Validar RoleMin
@@ -520,12 +487,11 @@ namespace ModuleGPI
             {
                 dialog.Title = "Seleccionar Ejecutable";
                 dialog.Filter = "Ejecutables (*.exe)|*.exe|Todos los archivos (*.*)|*.*";
-                dialog.CheckFileExists = false; // Permitir seleccionar archivos en red
+                dialog.CheckFileExists = false;
 
                 if (!string.IsNullOrEmpty(txtExePath.Text))
                 {
                     dialog.FileName = Path.GetFileName(txtExePath.Text);
-
                     string dir = Path.GetDirectoryName(txtExePath.Text);
                     if (Directory.Exists(dir))
                         dialog.InitialDirectory = dir;
@@ -535,13 +501,11 @@ namespace ModuleGPI
                 {
                     txtExePath.Text = dialog.FileName;
 
-                    // Auto-llenar WorkingDir si está vacío
                     if (string.IsNullOrWhiteSpace(txtWorkingDir.Text))
                     {
                         txtWorkingDir.Text = Path.GetDirectoryName(dialog.FileName);
                     }
 
-                    // Auto-llenar Name si está vacío
                     if (string.IsNullOrWhiteSpace(txtName.Text))
                     {
                         txtName.Text = Path.GetFileNameWithoutExtension(dialog.FileName);
@@ -626,7 +590,6 @@ namespace ModuleGPI
             }
         }
 
-
         private void BtnExtractIcon_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtExePath.Text))
@@ -646,8 +609,6 @@ namespace ModuleGPI
 
             try
             {
-                // GUARDAR LA RUTA DEL EXE COMO FUENTE DEL ICONO
-                // El sistema extraerá el icono del .exe en tiempo de ejecución
                 txtIconPath.Text = txtExePath.Text;
                 LoadIconPreview(txtExePath.Text);
 
@@ -662,10 +623,6 @@ namespace ModuleGPI
             }
         }
 
-
-
-
-
         private void BtnSave_Click(object sender, EventArgs e)
         {
             if (!ValidateInput())
@@ -679,9 +636,12 @@ namespace ModuleGPI
             _module.ExePath = txtExePath.Text.Trim();
             _module.WorkingDir = txtWorkingDir.Text.Trim();
             _module.IconPath = txtIconPath.Text.Trim();
-            // _module.Arguments = txtArguments.Text.Trim(); 
 
-            _module.Category = cboCategory.SelectedItem?.ToString() ?? "Operación";
+            // ✅ ACTUALIZADO: Category se deja vacío (ya no se usa)
+            _module.Category = "";
+
+            // ✅ NUEVO: Guardar IsTest
+            _module.IsTest = chkIsTest.Checked;
 
             dynamic selectedRole = cboRoleMin.SelectedItem;
             _module.RolesMinTypeAut = selectedRole?.Value ?? 1;
@@ -693,9 +653,7 @@ namespace ModuleGPI
         }
         #endregion
 
-
         #region Icon Helpers
-
         private void BtnBrowseIcon_Click(object sender, EventArgs e)
         {
             using (var dialog = new OpenFileDialog())
@@ -704,7 +662,6 @@ namespace ModuleGPI
                 dialog.Filter = "Archivos de Icono (*.ico)|*.ico|Ejecutables (*.exe)|*.exe|Todos los archivos (*.*)|*.*";
                 dialog.CheckFileExists = false;
 
-                // Establecer directorio inicial
                 if (!string.IsNullOrEmpty(txtIconPath.Text))
                 {
                     dialog.FileName = Path.GetFileName(txtIconPath.Text);
@@ -745,7 +702,6 @@ namespace ModuleGPI
 
                 if (extension == ".ico")
                 {
-                    // Cargar archivo .ico directamente
                     using (var icon = new Icon(iconPath))
                     {
                         picIconPreview.Image = icon.ToBitmap();
@@ -753,7 +709,6 @@ namespace ModuleGPI
                 }
                 else if (extension == ".exe" || extension == ".dll")
                 {
-                    // Extraer icono del ejecutable
                     var icon = Icon.ExtractAssociatedIcon(iconPath);
                     if (icon != null)
                     {
@@ -768,9 +723,7 @@ namespace ModuleGPI
                     "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
-
         #endregion
-
 
         #region Plant Indicator
         private void NudPlant_ValueChanged(object sender, EventArgs e)
@@ -809,6 +762,5 @@ namespace ModuleGPI
             }
         }
         #endregion
-
     }
 }
