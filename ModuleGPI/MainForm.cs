@@ -3,6 +3,7 @@ using ModuleGPI.Domain;
 using ModuleGPI.Services;
 using ModuleGPI.UI;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
@@ -50,7 +51,7 @@ namespace ModuleGPI
     @"C:\Program Files\CorpApps\"
 };
         #endregion
-
+        private List<ModuleDef> _allModules = new List<ModuleDef>();
         #region Constructor
         public MainForm()
         {
@@ -79,15 +80,13 @@ namespace ModuleGPI
         {
             try
             {
-                
-
                 UpdateStatusBar();
-
-                _roleManager.ApplyVisibility(tabMain, tabAdmin, tabConfig, Session.TypeAut);
                 _adminCanEdit = Session.TypeAut >= 5;
 
                 LoadOverrides();
-                LoadModules();
+                LoadModules(); // Assume this populates _allModules
+
+                _roleManager.ApplyVisibility(tabMain, tabAdmin, tabConfig, Session.TypeAut, Session.EmpId ?? Session.LogonName, _overrides, _allModules);
 
                 if (Session.TypeAut >= 4)
                 {
@@ -107,7 +106,7 @@ namespace ModuleGPI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar formulario: {ex.Message}\n\n{ex.StackTrace}",
+                MessageBox.Show($"Error al cargar formulario: {ex.Message}\\n\\n{ex.StackTrace}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -139,7 +138,7 @@ namespace ModuleGPI
             if (btnCerrarSesion != null)
                 btnCerrarSesion.Click += (s, e) => Logout();
 
-           
+
 
             if (btnNewModule != null)
                 btnNewModule.Click += BtnNewModule_Click;
@@ -150,7 +149,7 @@ namespace ModuleGPI
             if (btnDeleteModule != null)
                 btnDeleteModule.Click += BtnDeleteModule_Click;
 
-            
+
 
             if (btnAdminGuardar != null)
             {
@@ -179,8 +178,8 @@ namespace ModuleGPI
 
             var cmuFavorito = new ToolStripMenuItem("⭐ Agregar/Quitar de Favoritos");
             cmuFavorito.Click += (s, e) => ToggleFavoriteFromContext();
-            cmuModulo.Items.Insert(0, cmuFavorito);  
-            cmuModulo.Items.Insert(1, new ToolStripSeparator());  
+            cmuModulo.Items.Insert(0, cmuFavorito);
+            cmuModulo.Items.Insert(1, new ToolStripSeparator());
 
         }
 
@@ -189,7 +188,7 @@ namespace ModuleGPI
             if (tabMain != null)
                 tabMain.Selected += TabMain_Selected;
 
-           
+
             if (txtModulosSearch != null)
                 txtModulosSearch.TextChanged += (s, e) => ApplySearch(txtModulosSearch.Text, flpModulos);
 
@@ -249,6 +248,7 @@ namespace ModuleGPI
             if (btnModulosTestRefrescar != null)
                 btnModulosTestRefrescar.Click += (s, e) => RefreshModules();
         }
+
 
 
         private void TreeFavoritos_AfterSelect(object sender, TreeViewEventArgs e)

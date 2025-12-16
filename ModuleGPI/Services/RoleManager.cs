@@ -1,7 +1,8 @@
-﻿using System;
+﻿using ModuleGPI.Domain;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
-using ModuleGPI.Domain;
 
 namespace ModuleGPI.Services
 {
@@ -23,7 +24,7 @@ namespace ModuleGPI.Services
             return "Unknown";
         }
 
-        public void ApplyVisibility(TabControl tabMain, TabPage tabAdmin, TabPage tabConfig, int typeAut)
+        public void ApplyVisibility(TabControl tabMain, TabPage tabAdmin, TabPage tabConfig, int typeAut, string empId, OverridesStore store, IEnumerable<ModuleDef> modules)
         {
             if (tabMain == null) return;
 
@@ -31,23 +32,18 @@ namespace ModuleGPI.Services
                 .FirstOrDefault(t => t.Name == "tabDashboard");
             var tabModulos = tabMain.TabPages.Cast<TabPage>()
                 .FirstOrDefault(t => t.Name == "tabModulos");
-            // ✅ NUEVO: Buscar tab de módulos TEST
             var tabModulosTest = tabMain.TabPages.Cast<TabPage>()
                 .FirstOrDefault(t => t.Name == "tabModulosTest");
 
-            // Dashboard siempre visible
             if (tabDashboard != null)
                 tabDashboard.Visible = true;
 
-            // Módulos PRD visible para todos (Viewer y superiores)
             if (tabModulos != null)
                 tabModulos.Visible = typeAut >= 1;
 
-            // ✅ NUEVO: Módulos TEST visible SOLO para SysAdmin
             if (tabModulosTest != null)
-                tabModulosTest.Visible = typeAut >= 5;
+                tabModulosTest.Visible = HasAccessToAnyTestModule(typeAut, empId, store, modules);
 
-            // Admin y Config solo para AdminDept (4) y superiores
             if (typeAut < 4)
             {
                 if (tabAdmin != null && tabMain.TabPages.Contains(tabAdmin))
@@ -63,6 +59,12 @@ namespace ModuleGPI.Services
                     tabMain.TabPages.Add(tabConfig);
             }
         }
+        public bool HasAccessToAnyTestModule(int userRole, string empId, OverridesStore store, IEnumerable<ModuleDef> modules)
+        {
+            if (userRole >= 5) return true;
+            return modules.Any(m => m.IsTest && CanSeeModule(m.ButtonName, m, userRole, empId, store));
+        }
+
 
         public bool CanSeeModule(string buttonName, ModuleDef module, int userRole, string empId, OverridesStore store)
         {
