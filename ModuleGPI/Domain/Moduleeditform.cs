@@ -139,7 +139,6 @@ namespace ModuleGPI
                 chkIsTest, lblTestInfo
             });
 
-            // === GRUPO: Rutas y Directorios ===
             grpPaths = new GroupBox
             {
                 Text = "Rutas y Directorios",
@@ -147,7 +146,7 @@ namespace ModuleGPI
                 Size = new System.Drawing.Size(610, 210)
             };
 
-            // Ejecutable
+            
             var lblExePath = new Label
             {
                 Text = "Ejecutable:",
@@ -228,7 +227,6 @@ namespace ModuleGPI
             };
             btnBrowseIcon.Click += BtnBrowseIcon_Click;
 
-            // Vista previa del icono
             picIconPreview = new PictureBox
             {
                 Location = new System.Drawing.Point(120, 130),

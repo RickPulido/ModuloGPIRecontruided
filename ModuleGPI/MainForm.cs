@@ -19,9 +19,7 @@ namespace ModuleGPI
         private readonly IRoleManager _roleManager;
         private readonly IUIHelpers _uiHelpers;
 
-        //private Panel _filterPanelUsuarios;
-        //private Panel _filterPanelModulos;
-        //private Panel _filterPanelOverrides;
+        
 
         private DataTable _dtModulesAdmin;
         private DataTable _dtModulesConfig;
@@ -38,17 +36,15 @@ namespace ModuleGPI
 
         private static readonly string[] ALLOWED_ROOTS = new string[]
 {
-    // ========================================
-    // ✅ VALIDACIÓN POR SERVIDOR (Permisivo)
-    // ========================================
+   
     // Esto permite cualquier ruta en estos servidores,
     // independientemente de la carpeta (MTY, QRO, TIJ)
     
-    @"\\USAZR3QITVFE001\",   // ⭐ Servidor 1 (todas las plantas)
-    @"\\USAZR3PITVFE001\",   // ⭐ Servidor 2 (todas las plantas)
+    @"\\USAZR3QITVFE001\",   //  Servidor 1 (TEST)
+    @"\\USAZR3PITVFE001\",   //  Servidor 2 (PRODUCCION)
     
     // ========================================
-    // RUTAS LOCALES/COMPARTIDAS (Opcional)
+    // RUTAS LOCALES/COMPARTIDAS 
     // ========================================
     @"\\srv\apps\",
     @"C:\Program Files\CorpApps\"
@@ -83,12 +79,10 @@ namespace ModuleGPI
         {
             try
             {
-                // ✅ YA NO necesita PositionHeaderSearchBoxes
-                // _uiHelpers.PositionHeaderSearchBoxes(...);
+                
 
                 UpdateStatusBar();
 
-                // ✅ Aplicar visibilidad (Admin y Config siguen igual)
                 _roleManager.ApplyVisibility(tabMain, tabAdmin, tabConfig, Session.TypeAut);
                 _adminCanEdit = Session.TypeAut >= 5;
 
@@ -145,32 +139,7 @@ namespace ModuleGPI
             if (btnCerrarSesion != null)
                 btnCerrarSesion.Click += (s, e) => Logout();
 
-            //if (mnuArchivo_Salir != null)
-            //    mnuArchivo_Salir.Click += (s, e) => Application.Exit();
-
-            //if (mnuVer_Refrescar != null)
-            //    mnuVer_Refrescar.Click += (s, e) => RefreshAll();
-
-            //if (mnuHerramientas_Config != null)
-            //    mnuHerramientas_Config.Click += (s, e) => ShowConfigTab();
-
-            //if (mnuAyuda_Acerca != null)
-            //    mnuAyuda_Acerca.Click += (s, e) => ShowAboutDialog();
-
-            //if (tsbRefrescar != null)
-            //    tsbRefrescar.Click += (s, e) => RefreshAll();
-
-            //if (tsbBuscar != null)
-            //    tsbBuscar.Click += (s, e) => PerformGlobalSearch();
-
-            //if (tstBuscar != null)
-            //    tstBuscar.KeyPress += (s, e) => { if (e.KeyChar == (char)Keys.Enter) PerformGlobalSearch(); };
-
-            //if (tsbConfig != null)
-            //    tsbConfig.Click += (s, e) => ShowConfigTab();
-
-            //if (tsbCerrarSesion != null)
-            //    tsbCerrarSesion.Click += (s, e) => Logout();
+           
 
             if (btnNewModule != null)
                 btnNewModule.Click += BtnNewModule_Click;
@@ -181,11 +150,7 @@ namespace ModuleGPI
             if (btnDeleteModule != null)
                 btnDeleteModule.Click += BtnDeleteModule_Click;
 
-            //if (btnGuardarConfig != null)
-            //{
-            //    btnGuardarConfig.Enabled = _adminCanEdit;
-            //    btnGuardarConfig.Click += (s, e) => SaveAllConfigChanges();
-            //}
+            
 
             if (btnAdminGuardar != null)
             {
@@ -214,8 +179,8 @@ namespace ModuleGPI
 
             var cmuFavorito = new ToolStripMenuItem("⭐ Agregar/Quitar de Favoritos");
             cmuFavorito.Click += (s, e) => ToggleFavoriteFromContext();
-            cmuModulo.Items.Insert(0, cmuFavorito);  // Insertar al inicio
-            cmuModulo.Items.Insert(1, new ToolStripSeparator());  // Separador
+            cmuModulo.Items.Insert(0, cmuFavorito);  
+            cmuModulo.Items.Insert(1, new ToolStripSeparator());  
 
         }
 
@@ -224,27 +189,15 @@ namespace ModuleGPI
             if (tabMain != null)
                 tabMain.Selected += TabMain_Selected;
 
-            //if (txtOpSearch != null)
-            //    txtOpSearch.TextChanged += (s, e) => ApplySearch(txtOpSearch.Text, flpOperacion);
-
-            //if (txtConsSearch != null)
-            //    txtConsSearch.TextChanged += (s, e) => ApplySearch(txtConsSearch.Text, flpConsultas);
-
-            //if (btnOpRefrescar != null)
-            //    btnOpRefrescar.Click += (s, e) => RefreshModules();
-
-            // ✅ NUEVO: Solo un textbox de búsqueda
+           
             if (txtModulosSearch != null)
                 txtModulosSearch.TextChanged += (s, e) => ApplySearch(txtModulosSearch.Text, flpModulos);
 
-            // ✅ NUEVO: Solo un botón refrescar
             if (btnModulosRefrescar != null)
                 btnModulosRefrescar.Click += (s, e) => RefreshModules();
 
-            // AGREGAR en SetupEventHandlers() ANTES del evento AfterSelect:
             if (treeFavoritos != null)
             {
-                // ⭐ TEMPORAL: Log de todos los eventos del TreeView
                 treeFavoritos.BeforeSelect += (s, e) =>
                 {
                     Debug.WriteLine($"🔍 BeforeSelect: Node={e.Node?.Text}, Action={e.Action}");
@@ -300,22 +253,19 @@ namespace ModuleGPI
 
         private void TreeFavoritos_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            // ⭐ CRÍTICO: Ignorar eventos durante la carga
             if (_isLoadingFavorites)
             {
                 Debug.WriteLine("⚠️ Evento AfterSelect ignorado: Cargando favoritos");
                 return;
             }
 
-            // ⭐ Solo procesar si el evento fue causado por el mouse o teclado
-            // (no por código programático)
+           
             if (e.Action != TreeViewAction.ByMouse && e.Action != TreeViewAction.ByKeyboard)
             {
                 Debug.WriteLine($"⚠️ Evento AfterSelect ignorado: Action={e.Action}");
                 return;
             }
 
-            // ⭐ Validar que el nodo tenga un módulo asociado
             if (e.Node?.Tag is string buttonName)
             {
                 Debug.WriteLine($"✅ Lanzando favorito desde TreeView: {buttonName}");
@@ -348,37 +298,30 @@ namespace ModuleGPI
 
             var columnName = dgvUsuarios.Columns[e.ColumnIndex].Name;
 
-            // Si es un checkbox de planta, hacer cambio inmediato
             if (columnName == "MTY_Access" || columnName == "QRO_Access" || columnName == "TIJ_Access")
             {
                 try
                 {
-                    // PASO 1: Obtener el valor actual
                     var currentCell = dgvUsuarios[e.ColumnIndex, e.RowIndex];
                     var currentValue = currentCell.Value;
 
-                    // PASO 2: Calcular el nuevo valor (invertir)
                     bool newValue;
                     if (currentValue == null || currentValue == DBNull.Value)
                     {
-                        newValue = true;  // Si es null, marcar como true
+                        newValue = true;  
                     }
                     else
                     {
                         newValue = !Convert.ToBoolean(currentValue);
                     }
 
-                    // PASO 3: Asignar el nuevo valor directamente
                     currentCell.Value = newValue;
 
-                    //PASO 4: Forzar commit del cambio
                     dgvUsuarios.CommitEdit(DataGridViewDataErrorContexts.Commit);
 
-                    // PASO 5: Refrescar la celda para que se vea el cambio
                     dgvUsuarios.RefreshEdit();
 
-                    // PASO 6: Marcar que hay cambios pendientes
-                    UpdateStatus($"⚠️ Acceso a {columnName.Replace("_Access", "")} modificado - Presione GUARDAR para aplicar");
+                    UpdateStatus($" Acceso a {columnName.Replace("_Access", "")} modificado - Presione GUARDAR para aplicar");
 
                     if (btnAdminGuardar != null && _adminCanEdit)
                     {
@@ -386,12 +329,11 @@ namespace ModuleGPI
                         btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180);
                     }
 
-                    // PASO 7: Log para debugging (temporal)
                     Debug.WriteLine($"Checkbox {columnName} cambiado a: {newValue} para fila {e.RowIndex}");
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($"❌ Error en CellContentClick: {ex.Message}");
+                    Debug.WriteLine($" Error en CellContentClick: {ex.Message}");
                     MessageBox.Show($"Error al cambiar checkbox: {ex.Message}", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -401,7 +343,6 @@ namespace ModuleGPI
         {
             if (dgvUsuarios.IsCurrentCellDirty)
             {
-                // Commit inmediatamente el cambio
                 dgvUsuarios.CommitEdit(DataGridViewDataErrorContexts.Commit);
             }
         }
@@ -412,12 +353,12 @@ namespace ModuleGPI
 
             try
             {
-                UpdateStatus("⚠️ Cambios sin guardar - Presione GUARDAR para aplicar");
+                UpdateStatus(" Cambios sin guardar - Presione GUARDAR para aplicar");
 
                 if (btnAdminGuardar != null && _adminCanEdit)
                 {
                     btnAdminGuardar.Enabled = true;
-                    btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180); // Color de advertencia
+                    btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180); 
                 }
             }
             catch (Exception ex)
@@ -529,7 +470,7 @@ namespace ModuleGPI
 
                     var lblOverrides = new Label
                     {
-                        Text = "🔐 Permisos Personalizados por Usuario",
+                        Text = " Permisos Personalizados por Usuario",
                         Dock = DockStyle.Top,
                         Height = 28,
                         TextAlign = ContentAlignment.MiddleLeft,
@@ -560,7 +501,6 @@ namespace ModuleGPI
 
             foreach (string buttonName in favorites)
             {
-                // Buscar el módulo en los paneles
                 Control moduleControl = FindModuleControl(buttonName);
 
                 if (moduleControl?.Tag is ModuleDef module)
@@ -573,7 +513,6 @@ namespace ModuleGPI
 
         private Control FindModuleControl(string buttonName)
         {
-            // Buscar en panel PRD
             foreach (Control ctrl in flpModulos.Controls)
             {
                 if (ctrl.Name == buttonName)
@@ -581,7 +520,7 @@ namespace ModuleGPI
             }
 
             // ========================================
-            // ✅ NUEVO: Buscar en panel TEST
+            // panel TEST
             // ========================================
             if (flpModulosTest != null)
             {
@@ -731,7 +670,7 @@ namespace ModuleGPI
             );
 
             // ========================================
-            // ✅ NUEVO: Refrescar módulos TEST (solo SysAdmin)
+            //  Refrescar módulos TEST (solo SysAdmin)
             // ========================================
             if (Session.TypeAut >= 5 && flpModulosTest != null)
             {
@@ -753,12 +692,8 @@ namespace ModuleGPI
 
         private void WireModuleButtons()
         {
-            // Wire buttons en panel PRD
             _moduleService.WireButtons(flpModulos, null, ModuleButton_Click);
 
-            // ========================================
-            // ✅ NUEVO: Wire buttons en panel TEST
-            // ========================================
             if (flpModulosTest != null)
             {
                 _moduleService.WireButtons(flpModulosTest, null, ModuleButton_Click);
@@ -840,7 +775,6 @@ namespace ModuleGPI
                     { "Plant", "Planta" }
                 };
 
-                // Paso 1: Solo configurar nombres (SEGURO)
                 foreach (var col in columns)
                 {
                     if (dgvModulesConfig.Columns[col.Key] != null)
@@ -849,11 +783,9 @@ namespace ModuleGPI
                     }
                 }
 
-                // Ocultar CreatedDate
                 if (dgvModulesConfig.Columns["CreatedDate"] != null)
                     dgvModulesConfig.Columns["CreatedDate"].Visible = false;
 
-                // Paso 2: Configurar anchos de forma diferida
                 if (dgvModulesConfig.IsHandleCreated && dgvModulesConfig.Visible)
                 {
                     AjustarAnchosModulosConfig();
@@ -891,7 +823,7 @@ namespace ModuleGPI
                     { "ExePath", 300 },
                     { "WorkingDir", 250 },
                     { "IconPath", 250 },
-                    { "IsTest", 60 },  // ✅ NUEVO (reemplaza Category)
+                    { "IsTest", 60 },  
                     { "RequiresElevation", 80 },
                     { "RolesMinTypeAut", 80 },
                     { "Plant", 60 }
@@ -930,11 +862,11 @@ namespace ModuleGPI
                         newRow["ExePath"] = module.ExePath;
                         newRow["WorkingDir"] = string.IsNullOrEmpty(module.WorkingDir) ? "" : module.WorkingDir;
                         newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath;
-                        newRow["Category"] = "";  // ✅ Vacío (ya no se usa)
+                        newRow["Category"] = "";  
                         newRow["RequiresElevation"] = module.RequiresElevation;
                         newRow["RolesMinTypeAut"] = module.RolesMinTypeAut;
                         newRow["Plant"] = module.Plant;
-                        newRow["IsTest"] = module.IsTest;  // ✅ NUEVO
+                        newRow["IsTest"] = module.IsTest;  
 
                         _dtModulesConfig.Rows.Add(newRow);
                         _dataAccess.UpsertModule(newRow);
@@ -1040,7 +972,7 @@ namespace ModuleGPI
                     RolesMinTypeAut = drv["RolesMinTypeAut"] == DBNull.Value ? 1 :
                      Convert.ToInt32(drv["RolesMinTypeAut"]),
                     Plant = drv["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(drv["Plant"]),
-                    IsTest = drv["IsTest"] != DBNull.Value && Convert.ToBoolean(drv["IsTest"])  // ✅ NUEVO
+                    IsTest = drv["IsTest"] != DBNull.Value && Convert.ToBoolean(drv["IsTest"])  
                 };
 
                 using (var form = new ModuleEditForm(module))
@@ -1051,11 +983,11 @@ namespace ModuleGPI
                         drv["ExePath"] = form.Module.ExePath;
                         drv["WorkingDir"] = form.Module.WorkingDir ?? "";
                         drv["IconPath"] = form.Module.IconPath ?? "";
-                        drv["Category"] = "";  // ✅ Vacío (ya no se usa)
+                        drv["Category"] = "";  
                         drv["RequiresElevation"] = form.Module.RequiresElevation;
                         drv["RolesMinTypeAut"] = form.Module.RolesMinTypeAut;
                         drv["Plant"] = form.Module.Plant;
-                        drv["IsTest"] = form.Module.IsTest;  // ✅ NUEVO
+                        drv["IsTest"] = form.Module.IsTest;  
 
                         _dataAccess.UpsertModule(drv.Row);
 
@@ -1152,18 +1084,11 @@ namespace ModuleGPI
                 ConfigureUsersGrid();
 
 
-                // ✅ Envolver dgvUsuarios en BindingSource
-                // var bsUsers = new BindingSource { DataSource = _dtUsers };
-                dgvModulos.DataSource = _dtModulesAdmin;  // Asignación directa
+                dgvModulos.DataSource = _dtModulesAdmin;  
                 dgvModulos.ReadOnly = true;
                 ConfigureModulesAdminGrid();
 
-                // ✅ Agregar filtro a dgvUsuarios
-                //if (_filterPanelUsuarios == null)
-                //{
-                //    _filterPanelUsuarios = DataGridViewFilterHelper.AddFilterRow(dgvUsuarios);
-                //}
-
+               
 
                 if (btnAdminGuardar != null)
                 {
@@ -1202,7 +1127,7 @@ namespace ModuleGPI
 
             try
             {
-                // ✅ SOLO MOSTRAR: Name, Category, RolesMinTypeAut
+                
                 var visibleColumns = new[] { "Name", "Category", "RolesMinTypeAut" };
 
                 foreach (DataGridViewColumn col in dgvModulos.Columns)
@@ -1301,9 +1226,7 @@ namespace ModuleGPI
                 dgvUsuarios.EditMode = DataGridViewEditMode.EditOnEnter;
                 dgvUsuarios.SelectionMode = DataGridViewSelectionMode.CellSelect;
 
-                // ========================================
-                // COLUMNAS SIMPLES (ReadOnly)
-                // ========================================
+                
                 if (dgvUsuarios.Columns["USU_EmpID"] != null)
                 {
                     dgvUsuarios.Columns["USU_EmpID"].HeaderText = "ID Empleado";
@@ -1316,9 +1239,7 @@ namespace ModuleGPI
                     dgvUsuarios.Columns["USU_UserLog"].ReadOnly = true;
                 }
 
-                // ========================================
-                // COMBOBOXES (Reemplazar columnas)
-                // ========================================
+           
 
                 if (dgvUsuarios.Columns["USU_TypeAut"] != null)
                 {
@@ -1345,7 +1266,7 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Insert(roleIndex, roleCombo);
-                    Debug.WriteLine("✅ ComboBox TypeAut creado");
+                    Debug.WriteLine("ComboBox TypeAut creado");
                 }
 
                 if (dgvUsuarios.Columns["USU_Status"] != null)
@@ -1370,7 +1291,7 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Insert(statusIndex, statusCombo);
-                    Debug.WriteLine("✅ ComboBox Status creado");
+                    Debug.WriteLine("ComboBox Status creado");
                 }
 
                 if (dgvUsuarios.Columns["USU_UserPLant"] != null)
@@ -1399,14 +1320,11 @@ namespace ModuleGPI
                     Debug.WriteLine("✅ ComboBox UserPLant creado");
                 }
 
-                // ========================================
-                // ✅ CHECKBOXES 
-                // ========================================
+               
 
-                // ✅ MTY_Access
+                //  MTY_Access
                 if (dgvUsuarios.Columns.Contains("MTY_Access") && dgvUsuarios.Columns["MTY_Access"] != null)
                 {
-                    // La columna existe, reemplazarla
                     int mtyIndex = dgvUsuarios.Columns["MTY_Access"].Index;
                     dgvUsuarios.Columns.RemoveAt(mtyIndex);
 
@@ -1422,14 +1340,14 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Insert(mtyIndex, mtyCheckbox);
-                    Debug.WriteLine("✅ Checkbox MTY_Access creado");
+                    Debug.WriteLine(" Checkbox MTY_Access creado");
                 }
                 else
                 {
                     var mtyCheckbox = new DataGridViewCheckBoxColumn
                     {
                         Name = "MTY_Access",
-                        HeaderText = "✓ MTY",
+                        HeaderText = " MTY",
                         DataPropertyName = "MTY_Access",
                         TrueValue = true,
                         FalseValue = false,
@@ -1438,7 +1356,7 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Add(mtyCheckbox);
-                    Debug.WriteLine("⚠️ Checkbox MTY_Access NO existía, se agregó al final");
+                    Debug.WriteLine(" Checkbox MTY_Access NO existía, se agregó al final");
                 }
 
                 // ✅ QRO_Access
@@ -1450,7 +1368,7 @@ namespace ModuleGPI
                     var qroCheckbox = new DataGridViewCheckBoxColumn
                     {
                         Name = "QRO_Access",
-                        HeaderText = "✓ QRO",
+                        HeaderText = " QRO",
                         DataPropertyName = "QRO_Access",
                         TrueValue = true,
                         FalseValue = false,
@@ -1459,14 +1377,14 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Insert(qroIndex, qroCheckbox);
-                    Debug.WriteLine("✅ Checkbox QRO_Access creado");
+                    Debug.WriteLine("Checkbox QRO_Access creado");
                 }
                 else
                 {
                     var qroCheckbox = new DataGridViewCheckBoxColumn
                     {
                         Name = "QRO_Access",
-                        HeaderText = "✓ QRO",
+                        HeaderText = " QRO",
                         DataPropertyName = "QRO_Access",
                         TrueValue = true,
                         FalseValue = false,
@@ -1475,10 +1393,10 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Add(qroCheckbox);
-                    Debug.WriteLine("⚠️ Checkbox QRO_Access NO existía, se agregó al final");
+                    Debug.WriteLine(" Checkbox QRO_Access NO existía, se agregó al final");
                 }
 
-                // ✅ TIJ_Access
+                //  TIJ_Access
                 if (dgvUsuarios.Columns.Contains("TIJ_Access") && dgvUsuarios.Columns["TIJ_Access"] != null)
                 {
                     int tijIndex = dgvUsuarios.Columns["TIJ_Access"].Index;
@@ -1487,7 +1405,7 @@ namespace ModuleGPI
                     var tijCheckbox = new DataGridViewCheckBoxColumn
                     {
                         Name = "TIJ_Access",
-                        HeaderText = "✓ TIJ",
+                        HeaderText = " TIJ",
                         DataPropertyName = "TIJ_Access",
                         TrueValue = true,
                         FalseValue = false,
@@ -1496,14 +1414,14 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Insert(tijIndex, tijCheckbox);
-                    Debug.WriteLine("✅ Checkbox TIJ_Access creado");
+                    Debug.WriteLine(" Checkbox TIJ_Access creado");
                 }
                 else
                 {
                     var tijCheckbox = new DataGridViewCheckBoxColumn
                     {
                         Name = "TIJ_Access",
-                        HeaderText = "✓ TIJ",
+                        HeaderText = " TIJ",
                         DataPropertyName = "TIJ_Access",
                         TrueValue = true,
                         FalseValue = false,
@@ -1512,14 +1430,12 @@ namespace ModuleGPI
                     };
 
                     dgvUsuarios.Columns.Add(tijCheckbox);
-                    Debug.WriteLine("⚠️ Checkbox TIJ_Access NO existía, se agregó al final");
+                    Debug.WriteLine(" Checkbox TIJ_Access NO existía, se agregó al final");
                 }
 
                 dgvUsuarios.ResumeLayout();
 
-                // ========================================
-                // ✅ AJUSTAR ANCHOS DE COLUMNAS
-                // ========================================
+
                 if (dgvUsuarios.IsHandleCreated && dgvUsuarios.Visible)
                 {
                     AjustarAnchosUsuarios();
@@ -1548,11 +1464,11 @@ namespace ModuleGPI
                     dgvUsuarios.VisibleChanged += handlerVisible;
                 }
 
-                Debug.WriteLine("✅ ConfigureUsersGrid completado exitosamente");
+                Debug.WriteLine(" ConfigureUsersGrid completado exitosamente");
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"❌ ERROR en ConfigureUsersGrid: {ex.Message}");
+                Debug.WriteLine($" ERROR en ConfigureUsersGrid: {ex.Message}");
                 Debug.WriteLine($"   StackTrace: {ex.StackTrace}");
                 MessageBox.Show($"Error configurando grid: {ex.Message}\n\n{ex.StackTrace}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -1686,14 +1602,12 @@ namespace ModuleGPI
             {
                 this.Cursor = Cursors.WaitCursor;
 
-                // Guardar cambios en usuarios
                 if (_dtUsers?.GetChanges() != null)
                 {
                     _dataAccess.UpdateUsers(_dtUsers);
                     _dtUsers.AcceptChanges();
                 }
 
-                // Guardar overrides
                 SaveAllOverrides();
 
                 if (btnAdminGuardar != null)
@@ -1701,7 +1615,7 @@ namespace ModuleGPI
                     btnAdminGuardar.BackColor = SystemColors.Control;
                 }
 
-                UpdateStatus("✅ Cambios guardados exitosamente");
+                UpdateStatus(" Cambios guardados exitosamente");
                 MessageBox.Show("Cambios guardados correctamente", "Éxito",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -1747,7 +1661,7 @@ namespace ModuleGPI
 
             try
             {
-                UpdateStatus("⚠️ Usuario modificado - Presione GUARDAR para aplicar cambios");
+                UpdateStatus(" Usuario modificado - Presione GUARDAR para aplicar cambios");
             }
             catch (Exception ex)
             {
@@ -1793,15 +1707,10 @@ namespace ModuleGPI
                     _dtOverridesView.Rows.Add(empId, userName, _roleManager.GetRoleName(userRole), ov);
                 }
 
-                // ✅ Usar BindingSource para filtrado
                 var bsOverrides = new BindingSource { DataSource = _dtOverridesView };
                 dgvOverrides.DataSource = bsOverrides;
 
-                // ✅ Agregar filtro
-                //if (_filterPanelOverrides == null)
-                //{
-                //    _filterPanelOverrides = DataGridViewFilterHelper.AddFilterRow(dgvOverrides);
-                //}
+               
 
                 if (dgvOverrides.IsHandleCreated)
                 {
@@ -1866,9 +1775,9 @@ namespace ModuleGPI
                         DataPropertyName = "Override",
                         DataSource = new[]
                         {
-                    new { Value = -1, Display = "❌ Denegar" },
-                    new { Value = 0, Display = "⚪ Heredado" },
-                    new { Value = 1, Display = "✅ Permitir" }
+                    new { Value = -1, Display = " Denegar" },
+                    new { Value = 0, Display = " Heredado" },
+                    new { Value = 1, Display = " Permitir" }
                 },
                         ValueMember = "Value",
                         DisplayMember = "Display",
@@ -1916,7 +1825,7 @@ namespace ModuleGPI
             string buttonName = Convert.ToString(drv["ButtonName"]);
             ApplyOneOverrideFromRow(buttonName, e.RowIndex);
 
-            UpdateStatus("⚠️ Override modificado - Presione GUARDAR para aplicar cambios");
+            UpdateStatus(" Override modificado - Presione GUARDAR para aplicar cambios");
 
             if (btnAdminGuardar != null && _adminCanEdit)
             {
@@ -2051,24 +1960,22 @@ namespace ModuleGPI
         {
             if (treeFavoritos == null) return;
 
-            // ⭐ ACTIVAR BANDERA: Estamos cargando
             _isLoadingFavorites = true;
 
             try
             {
-                treeFavoritos.BeginUpdate();  // ⭐ Suspender actualizaciones visuales
+                treeFavoritos.BeginUpdate();  
                 treeFavoritos.Nodes.Clear();
 
                 var favorites = _favoritesManager.GetFavorites();
 
                 if (favorites.Count() == 0)
                 {
-                    // Mostrar mensaje cuando no hay favoritos
                     var emptyNode = new TreeNode("No hay favoritos aún")
                     {
                         ForeColor = Color.Gray,
                         NodeFont = new Font("Segoe UI", 8.5F, FontStyle.Italic),
-                        Tag = null  // ⭐ Sin tag = no es clickeable
+                        Tag = null  
                     };
                     treeFavoritos.Nodes.Add(emptyNode);
                 }
@@ -2076,12 +1983,10 @@ namespace ModuleGPI
                 {
                     foreach (string buttonName in favorites)
                     {
-                        // Buscar el módulo en los paneles
                         Control moduleControl = FindModuleControl(buttonName);
 
                         if (moduleControl?.Tag is ModuleDef module)
                         {
-                            // Crear nodo con icono de estrella y nombre del módulo
                             var favNode = new TreeNode($"⭐ {module.Name}")
                             {
                                 Tag = buttonName,
@@ -2095,11 +2000,10 @@ namespace ModuleGPI
                     treeFavoritos.ExpandAll();
                 }
 
-                treeFavoritos.EndUpdate();  // ⭐ Reanudar actualizaciones visuales
+                treeFavoritos.EndUpdate();  
             }
             finally
             {
-                // ⭐ DESACTIVAR BANDERA: Carga completa
                 _isLoadingFavorites = false;
             }
         }
@@ -2113,9 +2017,9 @@ namespace ModuleGPI
                 case "Dashboard":
                     if (tabDashboard != null) tabMain.SelectedTab = tabDashboard;
                     break;
-                case "Módulos GPI":  // ✅ ACTUALIZADO
-                case "Operación":     // ✅ Legacy - redirigir al tab unificado
-                case "Consultas":     // ✅ Legacy - redirigir al tab unificado
+                case "Módulos GPI":  
+                case "Operación":     
+                case "Consultas":     
                     if (tabModulos?.Visible == true) tabMain.SelectedTab = tabModulos;
                     break;
                 case "Administración":
@@ -2150,30 +2054,7 @@ namespace ModuleGPI
             }
         }
 
-        //private void PerformGlobalSearch()
-        //{
-        //    string searchText = tstBuscar?.Text ?? "";
-
-        //    if (string.IsNullOrWhiteSpace(searchText))
-        //    {
-        //        MessageBox.Show("Ingrese un término de búsqueda.",
-        //            "Búsqueda", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //        return;
-        //    }
-
-        //    ApplySearch(searchText, flpOperacion);
-        //    ApplySearch(searchText, flpConsultas);
-
-        //    int opCount = flpOperacion.Controls.OfType<Button>().Count(b => b.Visible);
-        //    int consCount = flpConsultas.Controls.OfType<Button>().Count(b => b.Visible);
-
-        //    if (opCount > 0)
-        //        tabMain.SelectedTab = tabOperacion;
-        //    else if (consCount > 0)
-        //        tabMain.SelectedTab = tabConsultas;
-
-        //    UpdateStatus($"Búsqueda: {opCount + consCount} módulos encontrados");
-        //}
+       
 
         private void RefreshAll()
         {
