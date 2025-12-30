@@ -34,7 +34,6 @@ namespace ModuleGPI.Services
 
             foreach (DataRow row in dt.Rows)
             {
-                // ✅ IGNORAR categoría - todos al mismo panel
                 string btnName = Convert.ToString(row["ButtonName"]);
 
                 if (panel.Controls.OfType<Control>().Any(c => c.Name == btnName))
@@ -42,16 +41,19 @@ namespace ModuleGPI.Services
 
                 var def = new ModuleDef
                 {
+                    ButtonName = Convert.ToString(row["ButtonName"]), 
                     Name = Convert.ToString(row["Name"]),
                     ExePath = Convert.ToString(row["ExePath"]),
                     WorkingDir = Convert.ToString(row["WorkingDir"]),
                     Arguments = row.Table.Columns.Contains("Arguments") ? Convert.ToString(row["Arguments"]) : "",
                     IconPath = row.Table.Columns.Contains("IconPath") ? Convert.ToString(row["IconPath"]) : "",
-                    Category = Convert.ToString(row["Category"]),  // ✅ Se lee pero no se usa
+                    Category = Convert.ToString(row["Category"]),
                     RequiresElevation = row["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(row["RequiresElevation"]),
                     RolesMinTypeAut = row["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(row["RolesMinTypeAut"]),
-                    Plant = row["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(row["Plant"])
+                    Plant = row["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(row["Plant"]),
+                    IsTest = row.Table.Columns.Contains("IsTest") && row["IsTest"] != DBNull.Value && Convert.ToBoolean(row["IsTest"]) 
                 };
+
 
                 var moduleBtn = new ModuleButton
                 {
@@ -74,14 +76,14 @@ namespace ModuleGPI.Services
                     tips.SetToolTip(moduleBtn, def.Name + Environment.NewLine + (def.ExePath ?? ""));
                 }
 
-                // ✅ Todos los módulos van al mismo panel
+                
                 panel.Controls.Add(moduleBtn);
             }
         }
 
         public void RefreshVisibility(
-     FlowLayoutPanel panel,     // ✅ Solo un panel
-     FlowLayoutPanel _,         // ✅ Segundo panel ignorado
+     FlowLayoutPanel panel,     
+     FlowLayoutPanel _,         
      Func<string, ModuleDef, bool> canSee)
         {
             if (panel == null) return;

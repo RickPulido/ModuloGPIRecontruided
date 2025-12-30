@@ -24,45 +24,82 @@ namespace ModuleGPI.Services
             return "Unknown";
         }
 
-        public void ApplyVisibility(TabControl tabMain, TabPage tabAdmin, TabPage tabConfig, int typeAut, string empId, OverridesStore store, IEnumerable<ModuleDef> modules)
+        public void ApplyVisibility(
+     TabControl tabMain,
+     TabPage tabAdmin,
+     TabPage tabConfig,
+     int typeAut,
+     string empId,
+     OverridesStore store,
+     IEnumerable<ModuleDef> modules)
         {
             if (tabMain == null) return;
 
-            var tabDashboard = tabMain.TabPages.Cast<TabPage>()
-                .FirstOrDefault(t => t.Name == "tabDashboard");
+            // Buscar tabs por nombre (solo si existen en el control)
             var tabModulos = tabMain.TabPages.Cast<TabPage>()
                 .FirstOrDefault(t => t.Name == "tabModulos");
+
             var tabModulosTest = tabMain.TabPages.Cast<TabPage>()
                 .FirstOrDefault(t => t.Name == "tabModulosTest");
 
-            if (tabDashboard != null)
-                tabDashboard.Visible = true;
+            // Si todavía existe en tu proyecto, lo puedes dejar o eliminar
+            var tabDashboard = tabMain.TabPages.Cast<TabPage>()
+                .FirstOrDefault(t => t.Name == "tabDashboard");
 
+            // Dashboard (si existe) - tú ya lo quieres quitar; si ya no existe no pasa nada
+            if (tabDashboard != null)
+                tabDashboard.Visible = false;
+
+            // PRD
             if (tabModulos != null)
                 tabModulos.Visible = typeAut >= 1;
 
+            // TEST: SysAdmin o override=1 en algún módulo TEST consumible
             if (tabModulosTest != null)
                 tabModulosTest.Visible = HasAccessToAnyTestModule(typeAut, empId, store, modules);
 
-            if (typeAut < 4)
-            {
-                if (tabAdmin != null && tabMain.TabPages.Contains(tabAdmin))
-                    tabMain.TabPages.Remove(tabAdmin);
-                if (tabConfig != null && tabMain.TabPages.Contains(tabConfig))
-                    tabMain.TabPages.Remove(tabConfig);
-            }
-            else
-            {
-                if (tabAdmin != null && !tabMain.TabPages.Contains(tabAdmin))
-                    tabMain.TabPages.Add(tabAdmin);
-                if (tabConfig != null && !tabMain.TabPages.Contains(tabConfig))
-                    tabMain.TabPages.Add(tabConfig);
-            }
+            // ✅ IMPORTANTÍSIMO: NO remover/agregar páginas (eso resetea SelectedTab).
+            // En su lugar, solo visibilidad:
+            if (tabAdmin != null) tabAdmin.Visible = typeAut >= 4;
+            if (tabConfig != null) tabConfig.Visible = typeAut >= 4;
         }
+
+
         public bool HasAccessToAnyTestModule(int userRole, string empId, OverridesStore store, IEnumerable<ModuleDef> modules)
         {
+            // SysAdmin siempre ve la pestaña TEST
             if (userRole >= 5) return true;
-            return modules.Any(m => m.IsTest && CanSeeModule(m.ButtonName, m, userRole, empId, store));
+
+            if (store?.Items == null || modules == null) return false;
+
+            // Identidades posibles del usuario (por si en DB guardaste distinto)
+            var ids = new[] { empId, Session.LogonName }
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (ids.Count == 0) return false;
+
+            // Módulos TEST existentes
+            var testModules = modules.Where(m => m != null && m.IsTest && !string.IsNullOrWhiteSpace(m.ButtonName)).ToList();
+            if (testModules.Count == 0) return false;
+
+            // Para cada módulo TEST, revisar override=1 para el usuario
+            foreach (var m in testModules)
+            {
+                // ✅ Si quieres que el tab solo aparezca si el módulo es "consumible" por planta:
+                if (!Session.HasAccessToPlant(m.Plant))
+                    continue;
+
+                var ov = store.Items.FirstOrDefault(x =>
+                    !string.IsNullOrWhiteSpace(x.ButtonName) &&
+                    string.Equals(x.ButtonName, m.ButtonName, StringComparison.OrdinalIgnoreCase) &&
+                    ids.Any(id => string.Equals(x.EmpId, id, StringComparison.OrdinalIgnoreCase)));
+
+                if (ov?.Override == 1) return true;
+            }
+
+            return false;
         }
 
 
@@ -71,12 +108,19 @@ namespace ModuleGPI.Services
             if (module == null || string.IsNullOrWhiteSpace(buttonName))
                 return false;
 
+            var ids = new[] { empId, Session.LogonName }
+    .Where(s => !string.IsNullOrWhiteSpace(s))
+    .Distinct(StringComparer.OrdinalIgnoreCase)
+    .ToList();
+
+
+
             // PASO 1: Verificar acceso a planta
             bool hasPlantAccess = Session.HasAccessToPlant(module.Plant);
             if (!hasPlantAccess)
                 return false;
 
-            // ✅ NUEVO: PASO 2: Si es módulo TEST, validar acceso especial
+            // ✅ PASO 2: Si es módulo TEST, validar acceso especial
             if (module.IsTest)
             {
                 // Solo SysAdmin o usuarios con override=1 pueden ver TEST
@@ -94,9 +138,10 @@ namespace ModuleGPI.Services
 
                     return false;  // Sin override no puede ver TEST
                 }
+                // SysAdmin (userRole >= 5) continúa a verificación de rol normal
             }
 
-            // PASO 3: Verificar override
+            // PASO 3: Verificar override para módulos NO-TEST
             var userOverride = store?.Items?.FirstOrDefault(x =>
                 string.Equals(x.ButtonName, buttonName, StringComparison.OrdinalIgnoreCase) &&
                 string.Equals(x.EmpId, empId, StringComparison.OrdinalIgnoreCase));
@@ -109,6 +154,8 @@ namespace ModuleGPI.Services
                 if (userOverride.Override == 1)
                     return true;
             }
+           
+
 
             // PASO 4: Verificar rol
             return userRole >= module.RolesMinTypeAut;
@@ -139,7 +186,7 @@ namespace ModuleGPI.Services
                 sb.AppendLine();
             }
 
-            // PASO 1: PLANTA
+            // PASO 1:  PLANTA
             sb.AppendLine("─────────────────────────────────────────");
             sb.AppendLine("PASO 1: VERIFICAR ACCESO A PLANTA");
             sb.AppendLine("─────────────────────────────────────────");
@@ -220,7 +267,7 @@ namespace ModuleGPI.Services
                 sb.AppendLine("✅ Override PERMITIR");
                 sb.AppendLine();
                 sb.AppendLine("═══════════════════════════════════════════");
-                sb.AppendLine("RESULTADO: ✅ ACCESO CONCEDIDO (Override)");
+                sb.AppendLine("RESULTADO:  ✅ ACCESO CONCEDIDO (Override)");
                 sb.AppendLine("═══════════════════════════════════════════");
                 return sb.ToString();
             }
@@ -230,7 +277,7 @@ namespace ModuleGPI.Services
             sb.AppendLine("─────────────────────────────────────────");
             sb.AppendLine("PASO " + (module.IsTest ? "4" : "3") + ": VERIFICAR ROL");
             sb.AppendLine("─────────────────────────────────────────");
-            sb.AppendLine($"Rol mínimo: {module.RolesMinTypeAut} ({GetRoleName(module.RolesMinTypeAut)})");
+            sb.AppendLine($"Rol mínimo:  {module.RolesMinTypeAut} ({GetRoleName(module.RolesMinTypeAut)})");
             sb.AppendLine($"Rol usuario: {userRole} ({GetRoleName(userRole)})");
 
             bool hasRole = userRole >= module.RolesMinTypeAut;

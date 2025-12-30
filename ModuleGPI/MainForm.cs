@@ -27,7 +27,7 @@ namespace ModuleGPI
         private DataTable _dtUsers;
         private DataTable _dtOverridesView;
         private readonly ToolTip _toolTips = new ToolTip();
-        private OverridesStore _overrides;
+        private OverridesStore _overrides; 
         private bool _adminCanEdit;
         private DataGridView dgvOverrides;
 
@@ -36,22 +36,22 @@ namespace ModuleGPI
         private TreeNode _favoritesNode;
 
         private static readonly string[] ALLOWED_ROOTS = new string[]
-{
+        {
    
-    // Esto permite cualquier ruta en estos servidores,
-    // independientemente de la carpeta (MTY, QRO, TIJ)
+            // Esto permite cualquier ruta en estos servidores,
+            // independientemente de la carpeta (MTY, QRO, TIJ)
     
-    @"\\USAZR3QITVFE001\",   //  Servidor 1 (TEST)
-    @"\\USAZR3PITVFE001\",   //  Servidor 2 (PRODUCCION)
+            @"\\USAZR3QITVFE001\",   //  Servidor 1 (TEST)
+            @"\\USAZR3PITVFE001\",   //  Servidor 2 (PRODUCCION)
     
-    // ========================================
-    // RUTAS LOCALES/COMPARTIDAS 
-    // ========================================
-    @"\\srv\apps\",
-    @"C:\Program Files\CorpApps\"
-};
+            // ========================================
+            // RUTAS LOCALES/COMPARTIDAS 
+            // ========================================
+            @"\\srv\apps\",
+            @"C:\Program Files\CorpApps\"
+        };
         #endregion
-        private List<ModuleDef> _allModules = new List<ModuleDef>();
+       private List<ModuleDef> _allModules = new List<ModuleDef>();
         #region Constructor
         public MainForm()
         {
@@ -68,6 +68,9 @@ namespace ModuleGPI
             this.Shown += MainForm_Shown;
             this.Resize += MainForm_Resize;
             this.FormClosing += MainForm_FormClosing;
+
+           //btnRefreshAll.Click += (s, e) => RefreshAll();
+
 
             SetupEventHandlers();
             SetupOverridesGrid();
@@ -138,6 +141,9 @@ namespace ModuleGPI
             if (btnCerrarSesion != null)
                 btnCerrarSesion.Click += (s, e) => Logout();
 
+            if (btnRefreshAll != null)
+                btnRefreshAll.Click += (s, e) => RefreshAll();
+
 
 
             if (btnNewModule != null)
@@ -189,11 +195,11 @@ namespace ModuleGPI
                 tabMain.Selected += TabMain_Selected;
 
 
-            if (txtModulosSearch != null)
-                txtModulosSearch.TextChanged += (s, e) => ApplySearch(txtModulosSearch.Text, flpModulos);
+            //if (txtModulosSearch != null)
+            //    txtModulosSearch.TextChanged += (s, e) => ApplySearch(txtModulosSearch.Text, flpModulos);
 
-            if (btnModulosRefrescar != null)
-                btnModulosRefrescar.Click += (s, e) => RefreshModules();
+            //if (btnModulosRefrescar != null)
+            //    btnModulosRefrescar.Click += (s, e) => RefreshModules();
 
             if (treeFavoritos != null)
             {
@@ -242,11 +248,11 @@ namespace ModuleGPI
                 cboPlantFilter.SelectedIndexChanged += (s, e) => FilterUsersByPlant();
             }
 
-            if (txtModulosTestSearch != null)
-                txtModulosTestSearch.TextChanged += (s, e) => ApplySearch(txtModulosTestSearch.Text, flpModulosTest);
+            //if (txtModulosTestSearch != null)
+            //    txtModulosTestSearch.TextChanged += (s, e) => ApplySearch(txtModulosTestSearch.Text, flpModulosTest);
 
-            if (btnModulosTestRefrescar != null)
-                btnModulosTestRefrescar.Click += (s, e) => RefreshModules();
+            //if (btnModulosTestRefrescar != null)
+            //    btnModulosTestRefrescar.Click += (s, e) => RefreshModules();
         }
 
 
@@ -568,6 +574,24 @@ namespace ModuleGPI
             }
         }
         #endregion
+        //private bool ShouldShowTestTab()
+        //{
+        //    // SysAdmin siempre
+        //    if (Session.TypeAut >= 5) return true;
+
+        //    string empId = Session.EmpId ?? Session.LogonName;
+        //    if (string.IsNullOrWhiteSpace(empId)) return false;
+
+        //    // ¿Tiene override=1 en algún módulo marcado IsTest?
+        //    foreach (var m in _allModules.Where(x => x.IsTest))
+        //    {
+        //        if (_overrides.Get(m.ButtonName, empId) == 1)
+        //            return true;
+        //    }
+
+        //    return false;
+        //}
+
 
         #region Module Management
         private void LoadModules()
@@ -577,43 +601,71 @@ namespace ModuleGPI
             try
             {
                 spinner = ShowLoadingSpinner("Cargando módulos...");
-                this.Cursor = Cursors.WaitCursor;
 
-                var dt = _moduleService.LoadModules(null);
+                int? plant = cboPlantFilter?.SelectedValue as int?;
+                var dt = _moduleService.LoadModules(plant);
+
+
+                // 1) Construir lista completa para reglas de visibilidad de tabs
+                _allModules = dt.AsEnumerable()
+     .Select(r => new ModuleDef
+     {
+         ButtonName = Convert.ToString(r["ButtonName"]),
+         Name = Convert.ToString(r["Name"]),
+         ExePath = Convert.ToString(r["ExePath"]),
+         Arguments = dt.Columns.Contains("Arguments") ? Convert.ToString(r["Arguments"]) : "",
+         WorkingDir = Convert.ToString(r["WorkingDir"]),
+         IconPath = Convert.ToString(r["IconPath"]),
+         RequiresElevation = r["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(r["RequiresElevation"]),
+         RolesMinTypeAut = r["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(r["RolesMinTypeAut"]),
+         Plant = r["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(r["Plant"]),
+         IsTest = r["IsTest"] != DBNull.Value && Convert.ToBoolean(r["IsTest"]),
+     })
+     .ToList();
+
 
                 // ========================================
-                // ✅ NUEVO: Filtrar módulos PRD (IsTest = false o NULL)
+                // Cargar módulos PRD (IsTest = false)
                 // ========================================
-                var prdRows = dt.AsEnumerable()
-                    .Where(r => r["IsTest"] == DBNull.Value || Convert.ToBoolean(r["IsTest"]) == false);
-
-                if (prdRows.Any())
+                if (flpModulos != null)
                 {
-                    var dtPRD = prdRows.CopyToDataTable();
+                    var prdRows = dt.AsEnumerable()
+                        .Where(r => r["IsTest"] == DBNull.Value || Convert.ToBoolean(r["IsTest"]) == false);
 
-                    _moduleService.PaintButtons(
-                        dtPRD,
-                        flpModulos,
-                        null,
-                        cmuModulo,
-                        _toolTips,
-                        (btnName, module) => _roleManager.CanSeeModule(
-                            btnName,
-                            module,
-                            Session.TypeAut,
-                            Session.EmpId ?? Session.LogonName,
-                            _overrides
-                        )
-                    );
+                    if (prdRows.Any())
+                    {
+                        var dtPRD = prdRows.CopyToDataTable();
+
+                        _moduleService.PaintButtons(
+                            dtPRD,
+                            flpModulos,
+                            null,
+                            cmuModulo,
+                            _toolTips,
+                            (btnName, module) => _roleManager.CanSeeModule(
+                                btnName,
+                                module,
+                                Session.TypeAut,
+                                Session.EmpId ?? Session.LogonName,
+                                _overrides
+                            )
+                        );
+                    }
                 }
 
                 // ========================================
-                // ✅ NUEVO: Filtrar y cargar módulos TEST (IsTest = true)
+                // ✅ CORREGIDO: Cargar TODOS los módulos TEST
+                // (La visibilidad se controla por override en CanSeeModule)
                 // ========================================
-                if (Session.TypeAut >= 5 && flpModulosTest != null)
+                // ========================================
+                // Cargar módulos TEST (IsTest = true)
+                // ========================================
+                if (flpModulosTest != null)
                 {
+                   // tabModulosTest.Visible = ShouldShowTestTab();
+
                     var testRows = dt.AsEnumerable()
-                        .Where(r => r["IsTest"] != DBNull.Value && Convert.ToBoolean(r["IsTest"]) == true);
+                        .Where(r => r["IsTest"] != DBNull.Value && Convert.ToBoolean(r["IsTest"]));
 
                     if (testRows.Any())
                     {
@@ -634,60 +686,55 @@ namespace ModuleGPI
                             )
                         );
                     }
+                    else
+                    {
+                        if (!tabModulosTest.Visible && flpModulosTest != null)
+
+                            flpModulosTest.Controls.Clear();
+                    }
+
+
+                    // Aplicar búsqueda si hay texto
+                    //if (!string.IsNullOrEmpty(txtModulosTestSearch?.Text))
+                    //    ApplySearch(txtModulosTestSearch.Text, flpModulosTest);
                 }
 
-                UpdateStatus($"Módulos cargados: {dt.Rows.Count}");
+
+                //  HideLoadingSpinner(spinner);
+                UpdateStatus("Módulos cargados correctamente");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar módulos: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+               //e HideLoadingSpinner(spinner);
+                MessageBox.Show($"Error cargando módulos: {ex.Message}", "Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
                 HideLoadingSpinner(spinner);
-                this.Cursor = Cursors.Default;
             }
+
         }
+
 
         private void RefreshModules()
         {
-            LoadOverrides();
+            LoadModules();
 
-            // ========================================
-            // Refrescar módulos PRD
-            // ========================================
-            _moduleService.RefreshVisibility(
-                flpModulos,
-                null,
-                (btnName, module) => _roleManager.CanSeeModule(
-                    btnName,
-                    module,
-                    Session.TypeAut,
-                    Session.EmpId ?? Session.LogonName,
-                    _overrides
-                )
+            // Muy importante: volver a aplicar reglas de visibilidad de pestañas
+            _roleManager.ApplyVisibility(
+                tabMain,
+                tabAdmin,
+                tabConfig,
+                Session.TypeAut,
+                Session.EmpId ?? Session.LogonName,
+                _overrides,
+                _allModules
             );
 
-            // ========================================
-            //  Refrescar módulos TEST (solo SysAdmin)
-            // ========================================
-            if (Session.TypeAut >= 5 && flpModulosTest != null)
-            {
-                _moduleService.RefreshVisibility(
-                    flpModulosTest,
-                    null,
-                    (btnName, module) => _roleManager.CanSeeModule(
-                        btnName,
-                        module,
-                        Session.TypeAut,
-                        Session.EmpId ?? Session.LogonName,
-                        _overrides
-                    )
-                );
-            }
-
-            UpdateStatus("Módulos actualizados");
+            // Opcional: si la pestaña TEST quedó visible pero no hay botones, ocultarla
+            if (tabModulosTest != null && flpModulosTest?.Controls.Count == 0 && Session.TypeAut < 5)
+                tabModulosTest.Visible = false;
         }
 
         private void WireModuleButtons()
@@ -2015,7 +2062,7 @@ namespace ModuleGPI
             switch (node)
             {
                 case "Dashboard":
-                    if (tabDashboard != null) tabMain.SelectedTab = tabDashboard;
+                   // if (tabDashboard != null) tabMain.SelectedTab = tabDashboard;
                     break;
                 case "Módulos GPI":  
                 case "Operación":     
@@ -2054,10 +2101,21 @@ namespace ModuleGPI
             }
         }
 
-       
+
+
+        private bool _isRefreshingAll = false;
 
         private void RefreshAll()
         {
+            if (_isRefreshingAll) return; // evita re-entradas (y ayuda si algo dispara doble)
+            _isRefreshingAll = true;
+
+            // Guardar tab actual ANTES de tocar TabPages
+            string desiredTabName = tabMain?.SelectedTab?.Name;
+
+            // Opcional: desconectar handler para que no dispare cargas mientras movemos tabs
+            if (tabMain != null) tabMain.Selected -= TabMain_Selected;
+
             try
             {
                 this.Cursor = Cursors.WaitCursor;
@@ -2065,13 +2123,27 @@ namespace ModuleGPI
                 LoadOverrides();
                 LoadModules();
 
-                if (Session.TypeAut >= 4)
+                // OJO: esto puede remover/agregar tabs y resetear SelectedTab
+                _roleManager.ApplyVisibility(
+                    tabMain, tabAdmin, tabConfig,
+                    Session.TypeAut,
+                    Session.EmpId ?? Session.LogonName,
+                    _overrides,
+                    _allModules
+                );
+
+                // ✅ Restaurar el tab DESPUÉS de que WinForms procese el cambio de páginas
+                tabMain?.BeginInvoke(new Action(() =>
                 {
-                    if (tabMain.SelectedTab == tabAdmin)
-                        LoadAdminData();
-                    else if (tabMain.SelectedTab == tabConfig)
-                        LoadConfigData();
-                }
+                    RestoreSelectedTab(desiredTabName);
+
+                    // Cargar data acorde al tab final (ya restaurado)
+                    if (Session.TypeAut >= 4)
+                    {
+                        if (tabMain.SelectedTab == tabAdmin) LoadAdminData();
+                        else if (tabMain.SelectedTab == tabConfig) LoadConfigData();
+                    }
+                }));
 
                 UpdateStatus("Sistema actualizado");
             }
@@ -2082,9 +2154,27 @@ namespace ModuleGPI
             }
             finally
             {
+                if (tabMain != null) tabMain.Selected += TabMain_Selected;
                 this.Cursor = Cursors.Default;
+                _isRefreshingAll = false;
             }
         }
+
+        private void RestoreSelectedTab(string tabName)
+        {
+            if (tabMain == null || string.IsNullOrWhiteSpace(tabName)) return;
+
+            // Buscar el tab por Name en los TabPages actuales
+            var desired = tabMain.TabPages
+                .Cast<TabPage>()
+                .FirstOrDefault(tp => string.Equals(tp.Name, tabName, StringComparison.OrdinalIgnoreCase));
+
+            // Si no existe (o quedó invisible), NO muevas nada: te quedas donde WinForms decidió
+            if (desired == null || !desired.Visible) return;
+
+            tabMain.SelectedTab = desired;
+        }
+
 
         private void ShowAboutDialog()
         {
