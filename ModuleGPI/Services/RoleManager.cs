@@ -35,34 +35,61 @@ namespace ModuleGPI.Services
         {
             if (tabMain == null) return;
 
-            // Buscar tabs por nombre (solo si existen en el control)
-            var tabModulos = tabMain.TabPages.Cast<TabPage>()
-                .FirstOrDefault(t => t.Name == "tabModulos");
-
-            var tabModulosTest = tabMain.TabPages.Cast<TabPage>()
-                .FirstOrDefault(t => t.Name == "tabModulosTest");
-
-            // Si todavía existe en tu proyecto, lo puedes dejar o eliminar
+            // --- Referencias base por nombre (si existen en TabPages hoy) ---
             var tabDashboard = tabMain.TabPages.Cast<TabPage>()
                 .FirstOrDefault(t => t.Name == "tabDashboard");
 
-            // Dashboard (si existe) - tú ya lo quieres quitar; si ya no existe no pasa nada
-            if (tabDashboard != null)
-                tabDashboard.Visible = false;
+            var tabModulos = tabMain.TabPages.Cast<TabPage>()
+                .FirstOrDefault(t => t.Name == "tabModulos");
 
-            // PRD
-            if (tabModulos != null)
-                tabModulos.Visible = typeAut >= 1;
+            // OJO: tabModulosTest puede estar removida; si no está, intenta tomarla del diseñador:
+            // Si tú tienes el field tabModulosTest en MainForm, pásalo como parámetro sería ideal,
+            // pero aquí lo localizamos si existe. Si no existe, NO truena.
+            var tabModulosTest = tabMain.TabPages.Cast<TabPage>()
+                .FirstOrDefault(t => t.Name == "tabModulosTest");
 
-            // TEST: SysAdmin o override=1 en algún módulo TEST consumible
-            if (tabModulosTest != null)
-                tabModulosTest.Visible = HasAccessToAnyTestModule(typeAut, empId, store, modules);
+            // --- Reglas ---
+            bool allowAdminConfig = typeAut >= 4; // Ajusta si quieres que sea >= 5
+            bool allowTestTab = HasAccessToAnyTestModule(typeAut, empId, store, modules);
 
-            // ✅ IMPORTANTÍSIMO: NO remover/agregar páginas (eso resetea SelectedTab).
-            // En su lugar, solo visibilidad:
-            if (tabAdmin != null) tabAdmin.Visible = typeAut >= 4;
-            if (tabConfig != null) tabConfig.Visible = typeAut >= 4;
+            // --- Dashboard: tú querías eliminarlo -> fuera siempre ---
+            EnsureTab(tabMain, tabDashboard, shouldBePresent: false, desiredIndex: 0);
+
+            // --- PRD: siempre presente (o >=1 si quieres) ---
+            EnsureTab(tabMain, tabModulos, shouldBePresent: (typeAut >= 1), desiredIndex: 0);
+
+            // --- TEST: solo si SysAdmin o override=1 en algún módulo TEST consumible ---
+            // (Si tu tabModulosTest NO está en TabPages porque la removiste antes, este locator no la encontrará.
+            // Para que esto sea 100% robusto, lo ideal es PASAR tabModulosTest como parámetro, igual que Admin/Config.)
+            // Si hoy sí está declarada como field en el diseñador, la forma más limpia es ampliar la firma.
+            EnsureTab(tabMain, tabModulosTest, shouldBePresent: allowTestTab, desiredIndex: 1);
+
+            // --- Admin/Config: solo si >=4 (o >=5 si cambias regla) ---
+            EnsureTab(tabMain, tabAdmin, shouldBePresent: allowAdminConfig, desiredIndex: 2);
+            EnsureTab(tabMain, tabConfig, shouldBePresent: allowAdminConfig, desiredIndex: 3);
         }
+
+        private static void EnsureTab(TabControl tabMain, TabPage tab, bool shouldBePresent, int desiredIndex)
+        {
+            if (tabMain == null || tab == null) return;
+
+            bool isPresent = tabMain.TabPages.Contains(tab);
+
+            if (shouldBePresent)
+            {
+                if (!isPresent)
+                {
+                    int idx = Math.Max(0, Math.Min(desiredIndex, tabMain.TabPages.Count));
+                    tabMain.TabPages.Insert(idx, tab);
+                }
+            }
+            else
+            {
+                if (isPresent)
+                    tabMain.TabPages.Remove(tab);
+            }
+        }
+
 
 
         public bool HasAccessToAnyTestModule(int userRole, string empId, OverridesStore store, IEnumerable<ModuleDef> modules)

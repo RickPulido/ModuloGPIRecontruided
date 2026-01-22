@@ -1,6 +1,9 @@
 ﻿//using GPI.Launcher;
+using ModuleGPI;
+using ModuleGPI.Services;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace ModuleGPI
@@ -36,21 +39,35 @@ namespace ModuleGPI
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // ✅ INICIAR PRECARGA INMEDIATAMENTE (antes del login)
+            ModulesCache.StartLoading();
+
             while (true)
             {
                 // 1) Login
                 using (var login = new FormLogin())
                 {
                     var r = login.ShowDialog();
-                    if (r != DialogResult.OK) break;   // canceló -> salir
+                    if (r != DialogResult.OK)
+                    {
+                        ModulesCache.Clear(); // Limpiar si cancela
+                        break;
+                    }
                 }
 
                 // 2) Shell principal
                 using (var main = new MainForm())
                 {
                     var r = main.ShowDialog();
-                    if (r == DialogResult.Abort) continue; // Logout -> regresar a login
-                    break;                                  // cerró normal -> salir
+
+                    if (r == DialogResult.Abort)
+                    {
+                        // Logout - limpiar cache para recargar con nuevo usuario
+                        ModulesCache.Clear();
+                        continue;
+                    }
+
+                    break;
                 }
             }
         }

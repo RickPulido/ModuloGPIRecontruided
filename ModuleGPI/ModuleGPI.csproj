@@ -114,7 +114,9 @@
     <Compile Include="Services\ModuleButton.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Services\ModulesCache.cs" />
     <Compile Include="Services\ModuleService.cs" />
+    <Compile Include="Services\PreloadManager.cs" />
     <Compile Include="Services\ProcessTracker.cs" />
     <Compile Include="Services\RoleManager.cs" />
     <Compile Include="Session.cs" />

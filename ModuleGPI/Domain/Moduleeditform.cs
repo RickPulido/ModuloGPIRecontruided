@@ -146,7 +146,7 @@ namespace ModuleGPI
                 Size = new System.Drawing.Size(610, 210)
             };
 
-            
+
             var lblExePath = new Label
             {
                 Text = "Ejecutable:",
@@ -235,13 +235,13 @@ namespace ModuleGPI
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            var btnExtractIcon = new Button
-            {
-                Text = "Extraer del EXE",
-                Location = new System.Drawing.Point(180, 135),
-                Size = new System.Drawing.Size(110, 25)
-            };
-            btnExtractIcon.Click += BtnExtractIcon_Click;
+            //var btnExtractIcon = new Button
+            //{
+            //    Text = "Extraer del EXE",
+            //    Location = new System.Drawing.Point(180, 135),
+            //    Size = new System.Drawing.Size(110, 25)
+            //};
+            //btnExtractIcon.Click += BtnExtractIcon_Click;
 
             btnTest = new Button
             {
@@ -256,10 +256,10 @@ namespace ModuleGPI
                 lblExePath, txtExePath, btnBrowseExe,
                 lblWorkingDir, txtWorkingDir, btnBrowseDir,
                 lblIconPath, txtIconPath, lblIconHelp, btnBrowseIcon,
-                picIconPreview, btnExtractIcon,
+                picIconPreview, 
                 btnTest
             });
-
+            //btnExtractIcon
             // === GRUPO: Permisos ===
             grpPermissions = new GroupBox
             {
@@ -729,36 +729,36 @@ namespace ModuleGPI
             UpdatePlantIndicator();
         }
 
-        private void UpdatePlantIndicator()
-        {
-            if (lblPlantIndicator == null) return;
-
-            int plant = (int)nudPlant.Value;
-
-            switch (plant)
+            private void UpdatePlantIndicator()
             {
-                case 1:
-                    lblPlantIndicator.Text = "MTY";
-                    lblPlantIndicator.BackColor = Color.FromArgb(230, 245, 255);
-                    lblPlantIndicator.ForeColor = Color.FromArgb(0, 102, 204);
-                    break;
-                case 2:
-                    lblPlantIndicator.Text = "QRO";
-                    lblPlantIndicator.BackColor = Color.FromArgb(255, 240, 230);
-                    lblPlantIndicator.ForeColor = Color.FromArgb(204, 102, 0);
-                    break;
-                case 3:
-                    lblPlantIndicator.Text = "TIJ";
-                    lblPlantIndicator.BackColor = Color.FromArgb(240, 255, 230);
-                    lblPlantIndicator.ForeColor = Color.FromArgb(51, 153, 51);
-                    break;
-                default:
-                    lblPlantIndicator.Text = "???";
-                    lblPlantIndicator.BackColor = Color.FromArgb(240, 240, 240);
-                    lblPlantIndicator.ForeColor = Color.Gray;
-                    break;
+                if (lblPlantIndicator == null) return;
+
+                int plant = (int)nudPlant.Value;
+
+                switch (plant)
+                {
+                    case 1:
+                        lblPlantIndicator.Text = "MTY";
+                        lblPlantIndicator.BackColor = Color.FromArgb(230, 245, 255);
+                        lblPlantIndicator.ForeColor = Color.FromArgb(0, 102, 204);
+                        break;
+                    case 2:
+                        lblPlantIndicator.Text = "QRO";
+                        lblPlantIndicator.BackColor = Color.FromArgb(255, 240, 230);
+                        lblPlantIndicator.ForeColor = Color.FromArgb(204, 102, 0);
+                        break;
+                    case 3:
+                        lblPlantIndicator.Text = "TIJ";
+                        lblPlantIndicator.BackColor = Color.FromArgb(240, 255, 230);
+                        lblPlantIndicator.ForeColor = Color.FromArgb(51, 153, 51);
+                        break;
+                    default:
+                        lblPlantIndicator.Text = "???";
+                        lblPlantIndicator.BackColor = Color.FromArgb(240, 240, 240);
+                        lblPlantIndicator.ForeColor = Color.Gray;
+                        break;
+                }
             }
-        }
         #endregion
     }
 }

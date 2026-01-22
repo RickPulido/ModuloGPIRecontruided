@@ -54,6 +54,13 @@ namespace ModuleGPI
             this.txtPass.Size = new System.Drawing.Size(159, 20);
             this.txtPass.TabIndex = 1;
             // 
+
+            txtUser.KeyPress += BlockWhitespace_KeyPress;
+            txtPass.KeyPress += BlockWhitespace_KeyPress;
+
+            txtUser.TextChanged += RemoveWhitespace_TextChanged;
+            txtPass.TextChanged += RemoveWhitespace_TextChanged;
+
             // btnLogin
             // 
             this.btnLogin.Location = new System.Drawing.Point(227, 126);

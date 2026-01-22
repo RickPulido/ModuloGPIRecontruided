@@ -1,9 +1,11 @@
 ﻿using ModuleGPI.Domain;
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using static System.Windows.Forms.AxHost;
 
 namespace ModuleGPI.Data
 {
@@ -121,6 +123,9 @@ namespace ModuleGPI.Data
             return dt;
         }
 
+
+     
+
         public void UpdateUsers(DataTable users)
         {
             if (_daUsers == null)
@@ -168,6 +173,32 @@ namespace ModuleGPI.Data
                 Debug.WriteLine($"✅ Usuarios actualizados: {rowsAffected}");
             }
         }
+
+        //public DataTable GetOver()
+        //{
+        //    var dt = new DataTable();
+        //    using (var cn = new SqlConnection(GetConnString()))
+
+        //    using (var cmd = new SqlCommand("dbo.ModGPI_Override_GetAll", cn))
+        //    {
+        //        cmd.CommandType = CommandType.StoredProcedure;
+        //        cn.Open();
+
+        //        using (var rd = cmd.ExecuteReader())
+        //        {
+        //            while (rd.Read())
+        //            {
+        //                dt.Items.Add(new ModuleUserOverride
+        //                {
+        //                    ButtonName = rd["ButtonName"].ToString(),
+        //                    EmpId = rd["EmpId"].ToString(),
+        //                    Override = Convert.ToInt32(rd["Override"])
+        //                });
+        //            }
+        //        }
+        //    }
+        //    return dt;
+        //}
 
         public OverridesStore GetOverrides()
         {

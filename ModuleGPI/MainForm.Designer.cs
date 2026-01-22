@@ -33,17 +33,12 @@ namespace ModuleGPI
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitMain = new System.Windows.Forms.SplitContainer();
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.treeFavoritos = new System.Windows.Forms.TreeView();
             this.txtFiltroCategoria = new System.Windows.Forms.TextBox();
             this.lblFavoritos = new System.Windows.Forms.Label();
             this.tabMain = new System.Windows.Forms.TabControl();
-           // this.tabDashboard = new System.Windows.Forms.TabPage();
-            this.tlpDash = new System.Windows.Forms.TableLayoutPanel();
-            this.flpKPIs = new System.Windows.Forms.FlowLayoutPanel();
-            this.dgvLaunchLog = new System.Windows.Forms.DataGridView();
             this.tabModulos = new System.Windows.Forms.TabPage();
             this.flpModulos = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlModulosHeader = new System.Windows.Forms.Panel();
@@ -53,26 +48,28 @@ namespace ModuleGPI
             this.pnlModulosTestHeader = new System.Windows.Forms.Panel();
             this.lblModulosTestTitulo = new System.Windows.Forms.Label();
             this.tabAdmin = new System.Windows.Forms.TabPage();
-            this.pnlAdminButtons = new System.Windows.Forms.Panel();
-            this.btnAdminGuardar = new System.Windows.Forms.Button();
-            this.btnAdminRefrescar = new System.Windows.Forms.Button();
             this.splitAdmin = new System.Windows.Forms.SplitContainer();
             this.leftAdmin = new System.Windows.Forms.Panel();
             this.grpRoles = new System.Windows.Forms.GroupBox();
             this.barFiltroPlanta = new System.Windows.Forms.FlowLayoutPanel();
             this.chkPlantFilter = new System.Windows.Forms.CheckBox();
             this.cboPlantFilter = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.txtSearchAd = new System.Windows.Forms.TextBox();
+            this.btnAdminGuardar = new System.Windows.Forms.Button();
             this.dgvUsuarios = new System.Windows.Forms.DataGridView();
             this.rightAdmin = new System.Windows.Forms.Panel();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.dgvModulos = new System.Windows.Forms.DataGridView();
+            this.dgvOverrides = new System.Windows.Forms.DataGridView();
             this.tabConfig = new System.Windows.Forms.TabPage();
+            this.dgvModulesConfig = new System.Windows.Forms.DataGridView();
             this.btnDeleteModule = new System.Windows.Forms.Button();
             this.btnSaveModule = new System.Windows.Forms.Button();
-            this.grpGeneral = new System.Windows.Forms.GroupBox();
-            this.dgvModulesConfig = new System.Windows.Forms.DataGridView();
-            this.grpAcerca = new System.Windows.Forms.GroupBox();
-            this.lblVersion = new System.Windows.Forms.Label();
             this.btnNewModule = new System.Windows.Forms.Button();
+            this.tlpDash = new System.Windows.Forms.TableLayoutPanel();
+            this.flpKPIs = new System.Windows.Forms.FlowLayoutPanel();
+            this.dgvLaunchLog = new System.Windows.Forms.DataGridView();
             this.cmuModulo = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.cmuAbrir = new System.Windows.Forms.ToolStripMenuItem();
             this.cmuAbrirAdmin = new System.Windows.Forms.ToolStripMenuItem();
@@ -86,24 +83,24 @@ namespace ModuleGPI
             this.tsslEstado = new System.Windows.Forms.ToolStripStatusLabel();
             this.root = new System.Windows.Forms.TableLayoutPanel();
             this.pnlTopBar = new System.Windows.Forms.Panel();
+            this.btnRefreshAll = new System.Windows.Forms.Button();
             this.btnCerrarSesion = new System.Windows.Forms.Button();
             this.lblTitulo = new System.Windows.Forms.Label();
-            this.btnRefreshAll = new System.Windows.Forms.Button();
+            this.chkPlantP = new System.Windows.Forms.CheckBox();
+            this.cboPlantP = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtSearchMod = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitMain)).BeginInit();
             this.splitMain.Panel1.SuspendLayout();
             this.splitMain.Panel2.SuspendLayout();
             this.splitMain.SuspendLayout();
             this.pnlLeft.SuspendLayout();
             this.tabMain.SuspendLayout();
-           // this.tabDashboard.SuspendLayout();
-            this.tlpDash.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).BeginInit();
             this.tabModulos.SuspendLayout();
             this.pnlModulosHeader.SuspendLayout();
             this.tabModulosTest.SuspendLayout();
             this.pnlModulosTestHeader.SuspendLayout();
             this.tabAdmin.SuspendLayout();
-            this.pnlAdminButtons.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitAdmin)).BeginInit();
             this.splitAdmin.Panel1.SuspendLayout();
             this.splitAdmin.Panel2.SuspendLayout();
@@ -113,11 +110,16 @@ namespace ModuleGPI
             this.barFiltroPlanta.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).BeginInit();
             this.rightAdmin.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvOverrides)).BeginInit();
             this.tabConfig.SuspendLayout();
-            this.grpGeneral.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvModulesConfig)).BeginInit();
-            this.grpAcerca.SuspendLayout();
+            this.tlpDash.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).BeginInit();
             this.cmuModulo.SuspendLayout();
             this.statusMain.SuspendLayout();
             this.root.SuspendLayout();
@@ -182,7 +184,6 @@ namespace ModuleGPI
             // 
             // tabMain
             // 
-            //this.tabMain.Controls.Add(this.tabDashboard);
             this.tabMain.Controls.Add(this.tabModulos);
             this.tabMain.Controls.Add(this.tabModulosTest);
             this.tabMain.Controls.Add(this.tabAdmin);
@@ -193,51 +194,6 @@ namespace ModuleGPI
             this.tabMain.SelectedIndex = 0;
             this.tabMain.Size = new System.Drawing.Size(848, 523);
             this.tabMain.TabIndex = 0;
-            // 
-            // tabDashboard
-            // 
-            //this.tabDashboard.Controls.Add(this.tlpDash);
-            //this.tabDashboard.Location = new System.Drawing.Point(4, 22);
-            //this.tabDashboard.Name = "tabDashboard";
-            //this.tabDashboard.Size = new System.Drawing.Size(840, 497);
-            //this.tabDashboard.TabIndex = 0;
-            //this.tabDashboard.Text = "Dashboard";
-            // 
-            // tlpDash
-            // 
-            this.tlpDash.ColumnCount = 1;
-            this.tlpDash.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpDash.Controls.Add(this.flpKPIs, 0, 0);
-            this.tlpDash.Controls.Add(this.dgvLaunchLog, 0, 1);
-            this.tlpDash.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpDash.Location = new System.Drawing.Point(0, 0);
-            this.tlpDash.Name = "tlpDash";
-            this.tlpDash.RowCount = 2;
-            this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
-            this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpDash.Size = new System.Drawing.Size(840, 497);
-            this.tlpDash.TabIndex = 0;
-            // 
-            // flpKPIs
-            // 
-            this.flpKPIs.AutoScroll = true;
-            this.flpKPIs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.flpKPIs.Location = new System.Drawing.Point(3, 3);
-            this.flpKPIs.Name = "flpKPIs";
-            this.flpKPIs.Padding = new System.Windows.Forms.Padding(8);
-            this.flpKPIs.Size = new System.Drawing.Size(834, 114);
-            this.flpKPIs.TabIndex = 0;
-            // 
-            // dgvLaunchLog
-            // 
-            this.dgvLaunchLog.AllowUserToAddRows = false;
-            this.dgvLaunchLog.AllowUserToDeleteRows = false;
-            this.dgvLaunchLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvLaunchLog.Location = new System.Drawing.Point(3, 123);
-            this.dgvLaunchLog.Name = "dgvLaunchLog";
-            this.dgvLaunchLog.ReadOnly = true;
-            this.dgvLaunchLog.Size = new System.Drawing.Size(834, 371);
-            this.dgvLaunchLog.TabIndex = 1;
             // 
             // tabModulos
             // 
@@ -261,6 +217,10 @@ namespace ModuleGPI
             // 
             // pnlModulosHeader
             // 
+            this.pnlModulosHeader.Controls.Add(this.chkPlantP);
+            this.pnlModulosHeader.Controls.Add(this.cboPlantP);
+            this.pnlModulosHeader.Controls.Add(this.label2);
+            this.pnlModulosHeader.Controls.Add(this.txtSearchMod);
             this.pnlModulosHeader.Controls.Add(this.lblModulosTitulo);
             this.pnlModulosHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlModulosHeader.Location = new System.Drawing.Point(0, 0);
@@ -325,42 +285,12 @@ namespace ModuleGPI
             // 
             // tabAdmin
             // 
-            this.tabAdmin.Controls.Add(this.pnlAdminButtons);
             this.tabAdmin.Controls.Add(this.splitAdmin);
             this.tabAdmin.Location = new System.Drawing.Point(4, 22);
             this.tabAdmin.Name = "tabAdmin";
             this.tabAdmin.Size = new System.Drawing.Size(840, 497);
             this.tabAdmin.TabIndex = 3;
             this.tabAdmin.Text = "Administración";
-            // 
-            // pnlAdminButtons
-            // 
-            this.pnlAdminButtons.Controls.Add(this.btnAdminGuardar);
-            this.pnlAdminButtons.Controls.Add(this.btnAdminRefrescar);
-            this.pnlAdminButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlAdminButtons.Location = new System.Drawing.Point(0, 453);
-            this.pnlAdminButtons.Name = "pnlAdminButtons";
-            this.pnlAdminButtons.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlAdminButtons.Size = new System.Drawing.Size(840, 44);
-            this.pnlAdminButtons.TabIndex = 1;
-            // 
-            // btnAdminGuardar
-            // 
-            this.btnAdminGuardar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdminGuardar.Location = new System.Drawing.Point(732, 8);
-            this.btnAdminGuardar.Name = "btnAdminGuardar";
-            this.btnAdminGuardar.Size = new System.Drawing.Size(100, 28);
-            this.btnAdminGuardar.TabIndex = 0;
-            this.btnAdminGuardar.Text = "Guardar";
-            // 
-            // btnAdminRefrescar
-            // 
-            this.btnAdminRefrescar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnAdminRefrescar.Location = new System.Drawing.Point(624, 8);
-            this.btnAdminRefrescar.Name = "btnAdminRefrescar";
-            this.btnAdminRefrescar.Size = new System.Drawing.Size(100, 28);
-            this.btnAdminRefrescar.TabIndex = 1;
-            this.btnAdminRefrescar.Text = "Refrescar";
             // 
             // splitAdmin
             // 
@@ -378,7 +308,7 @@ namespace ModuleGPI
             this.splitAdmin.Panel2.Controls.Add(this.rightAdmin);
             this.splitAdmin.Panel2MinSize = 260;
             this.splitAdmin.Size = new System.Drawing.Size(840, 497);
-            this.splitAdmin.SplitterDistance = 560;
+            this.splitAdmin.SplitterDistance = 417;
             this.splitAdmin.SplitterWidth = 5;
             this.splitAdmin.TabIndex = 0;
             // 
@@ -388,7 +318,7 @@ namespace ModuleGPI
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
             this.leftAdmin.Name = "leftAdmin";
-            this.leftAdmin.Size = new System.Drawing.Size(560, 497);
+            this.leftAdmin.Size = new System.Drawing.Size(417, 497);
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
@@ -399,7 +329,7 @@ namespace ModuleGPI
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
             this.grpRoles.Name = "grpRoles";
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8);
-            this.grpRoles.Size = new System.Drawing.Size(560, 497);
+            this.grpRoles.Size = new System.Drawing.Size(417, 497);
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
@@ -408,12 +338,15 @@ namespace ModuleGPI
             // 
             this.barFiltroPlanta.Controls.Add(this.chkPlantFilter);
             this.barFiltroPlanta.Controls.Add(this.cboPlantFilter);
+            this.barFiltroPlanta.Controls.Add(this.label1);
+            this.barFiltroPlanta.Controls.Add(this.txtSearchAd);
+            this.barFiltroPlanta.Controls.Add(this.btnAdminGuardar);
             this.barFiltroPlanta.Dock = System.Windows.Forms.DockStyle.Top;
             this.barFiltroPlanta.Location = new System.Drawing.Point(8, 21);
-            this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(0);
+            this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(10);
             this.barFiltroPlanta.Name = "barFiltroPlanta";
             this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.barFiltroPlanta.Size = new System.Drawing.Size(544, 40);
+            this.barFiltroPlanta.Size = new System.Drawing.Size(401, 40);
             this.barFiltroPlanta.TabIndex = 0;
             this.barFiltroPlanta.WrapContents = false;
             // 
@@ -436,6 +369,34 @@ namespace ModuleGPI
             this.cboPlantFilter.Size = new System.Drawing.Size(160, 21);
             this.cboPlantFilter.TabIndex = 1;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(289, 13);
+            this.label1.Margin = new System.Windows.Forms.Padding(10, 8, 10, 8);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(52, 13);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "Buscador";
+            // 
+            // txtSearchAd
+            // 
+            this.txtSearchAd.Location = new System.Drawing.Point(356, 10);
+            this.txtSearchAd.Margin = new System.Windows.Forms.Padding(5, 5, 5, 1);
+            this.txtSearchAd.Name = "txtSearchAd";
+            this.txtSearchAd.Size = new System.Drawing.Size(155, 20);
+            this.txtSearchAd.TabIndex = 3;
+            this.txtSearchAd.TextChanged += new System.EventHandler(this.txtSearchAd_TextChanged);
+            // 
+            // btnAdminGuardar
+            // 
+            this.btnAdminGuardar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAdminGuardar.Location = new System.Drawing.Point(519, 8);
+            this.btnAdminGuardar.Name = "btnAdminGuardar";
+            this.btnAdminGuardar.Size = new System.Drawing.Size(100, 28);
+            this.btnAdminGuardar.TabIndex = 0;
+            this.btnAdminGuardar.Text = "Guardar";
+            // 
             // dgvUsuarios
             // 
             this.dgvUsuarios.AllowUserToAddRows = false;
@@ -452,44 +413,69 @@ namespace ModuleGPI
             this.dgvUsuarios.Name = "dgvUsuarios";
             this.dgvUsuarios.RowHeadersVisible = false;
             this.dgvUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUsuarios.Size = new System.Drawing.Size(544, 468);
+            this.dgvUsuarios.Size = new System.Drawing.Size(401, 468);
             this.dgvUsuarios.TabIndex = 1;
             // 
             // rightAdmin
             // 
-            this.rightAdmin.Controls.Add(this.dgvModulos);
+            this.rightAdmin.Controls.Add(this.splitContainer1);
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
-            this.rightAdmin.Size = new System.Drawing.Size(275, 497);
+            this.rightAdmin.Size = new System.Drawing.Size(418, 497);
             this.rightAdmin.TabIndex = 0;
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.dgvModulos);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.dgvOverrides);
+            this.splitContainer1.Size = new System.Drawing.Size(418, 497);
+            this.splitContainer1.SplitterDistance = 229;
+            this.splitContainer1.SplitterWidth = 6;
+            this.splitContainer1.TabIndex = 1;
             // 
             // dgvModulos
             // 
-            this.dgvModulos.AllowUserToAddRows = false;
-            this.dgvModulos.AllowUserToDeleteRows = false;
-            this.dgvModulos.AllowUserToResizeRows = false;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(248)))), ((int)(((byte)(248)))));
-            this.dgvModulos.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle2;
-            this.dgvModulos.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dgvModulos.BackgroundColor = System.Drawing.SystemColors.Window;
-            this.dgvModulos.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvModulos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvModulos.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvModulos.Location = new System.Drawing.Point(0, 0);
-            this.dgvModulos.MultiSelect = false;
             this.dgvModulos.Name = "dgvModulos";
-            this.dgvModulos.ReadOnly = true;
-            this.dgvModulos.RowHeadersVisible = false;
-            this.dgvModulos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvModulos.Size = new System.Drawing.Size(275, 497);
+            this.dgvModulos.Size = new System.Drawing.Size(418, 229);
             this.dgvModulos.TabIndex = 0;
+            // 
+            // dgvOverrides
+            // 
+            this.dgvOverrides.AllowUserToAddRows = false;
+            this.dgvOverrides.AllowUserToDeleteRows = false;
+            this.dgvOverrides.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.dgvOverrides.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvOverrides.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvOverrides.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvOverrides.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
+            this.dgvOverrides.Location = new System.Drawing.Point(0, 0);
+            this.dgvOverrides.MultiSelect = false;
+            this.dgvOverrides.Name = "dgvOverrides";
+            this.dgvOverrides.RowHeadersWidth = 51;
+            this.dgvOverrides.RowTemplate.Height = 24;
+            this.dgvOverrides.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgvOverrides.Size = new System.Drawing.Size(418, 262);
+            this.dgvOverrides.TabIndex = 0;
             // 
             // tabConfig
             // 
+            this.tabConfig.Controls.Add(this.dgvModulesConfig);
             this.tabConfig.Controls.Add(this.btnDeleteModule);
             this.tabConfig.Controls.Add(this.btnSaveModule);
-            this.tabConfig.Controls.Add(this.grpGeneral);
-            this.tabConfig.Controls.Add(this.grpAcerca);
             this.tabConfig.Controls.Add(this.btnNewModule);
             this.tabConfig.Location = new System.Drawing.Point(4, 22);
             this.tabConfig.Name = "tabConfig";
@@ -497,74 +483,76 @@ namespace ModuleGPI
             this.tabConfig.TabIndex = 4;
             this.tabConfig.Text = "Configuración";
             // 
+            // dgvModulesConfig
+            // 
+            this.dgvModulesConfig.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvModulesConfig.Location = new System.Drawing.Point(4, 1);
+            this.dgvModulesConfig.Name = "dgvModulesConfig";
+            this.dgvModulesConfig.Size = new System.Drawing.Size(707, 306);
+            this.dgvModulesConfig.TabIndex = 5;
+            // 
             // btnDeleteModule
             // 
-            this.btnDeleteModule.Location = new System.Drawing.Point(262, 262);
+            this.btnDeleteModule.Location = new System.Drawing.Point(293, 332);
             this.btnDeleteModule.Name = "btnDeleteModule";
             this.btnDeleteModule.Size = new System.Drawing.Size(100, 30);
             this.btnDeleteModule.TabIndex = 4;
-            this.btnDeleteModule.Text = "Eliminar!";
+            this.btnDeleteModule.Text = "Eliminar";
             this.btnDeleteModule.UseVisualStyleBackColor = true;
             // 
             // btnSaveModule
             // 
-            this.btnSaveModule.Location = new System.Drawing.Point(156, 262);
+            this.btnSaveModule.Location = new System.Drawing.Point(170, 332);
             this.btnSaveModule.Name = "btnSaveModule";
             this.btnSaveModule.Size = new System.Drawing.Size(100, 30);
             this.btnSaveModule.TabIndex = 3;
             this.btnSaveModule.Text = "Editar Modulo";
             this.btnSaveModule.UseVisualStyleBackColor = true;
             // 
-            // grpGeneral
-            // 
-            this.grpGeneral.Controls.Add(this.dgvModulesConfig);
-            this.grpGeneral.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpGeneral.Location = new System.Drawing.Point(0, 0);
-            this.grpGeneral.Name = "grpGeneral";
-            this.grpGeneral.Padding = new System.Windows.Forms.Padding(8);
-            this.grpGeneral.Size = new System.Drawing.Size(840, 256);
-            this.grpGeneral.TabIndex = 0;
-            this.grpGeneral.TabStop = false;
-            this.grpGeneral.Text = "General";
-            // 
-            // dgvModulesConfig
-            // 
-            this.dgvModulesConfig.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvModulesConfig.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvModulesConfig.Location = new System.Drawing.Point(8, 21);
-            this.dgvModulesConfig.Name = "dgvModulesConfig";
-            this.dgvModulesConfig.Size = new System.Drawing.Size(824, 227);
-            this.dgvModulesConfig.TabIndex = 1;
-            // 
-            // grpAcerca
-            // 
-            this.grpAcerca.Controls.Add(this.lblVersion);
-            this.grpAcerca.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.grpAcerca.Location = new System.Drawing.Point(0, 377);
-            this.grpAcerca.Name = "grpAcerca";
-            this.grpAcerca.Padding = new System.Windows.Forms.Padding(8);
-            this.grpAcerca.Size = new System.Drawing.Size(840, 120);
-            this.grpAcerca.TabIndex = 1;
-            this.grpAcerca.TabStop = false;
-            this.grpAcerca.Text = "Acerca de";
-            // 
-            // lblVersion
-            // 
-            this.lblVersion.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lblVersion.Location = new System.Drawing.Point(8, 21);
-            this.lblVersion.Name = "lblVersion";
-            this.lblVersion.Size = new System.Drawing.Size(824, 21);
-            this.lblVersion.TabIndex = 0;
-            this.lblVersion.Text = "Versión: 2.0.0";
-            // 
             // btnNewModule
             // 
-            this.btnNewModule.Location = new System.Drawing.Point(50, 262);
+            this.btnNewModule.Location = new System.Drawing.Point(42, 332);
             this.btnNewModule.Name = "btnNewModule";
             this.btnNewModule.Size = new System.Drawing.Size(100, 30);
             this.btnNewModule.TabIndex = 2;
             this.btnNewModule.Text = "Nuevo Modulo";
             this.btnNewModule.UseVisualStyleBackColor = true;
+            // 
+            // tlpDash
+            // 
+            this.tlpDash.ColumnCount = 1;
+            this.tlpDash.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpDash.Controls.Add(this.flpKPIs, 0, 0);
+            this.tlpDash.Controls.Add(this.dgvLaunchLog, 0, 1);
+            this.tlpDash.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpDash.Location = new System.Drawing.Point(0, 0);
+            this.tlpDash.Name = "tlpDash";
+            this.tlpDash.RowCount = 2;
+            this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 120F));
+            this.tlpDash.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpDash.Size = new System.Drawing.Size(840, 497);
+            this.tlpDash.TabIndex = 0;
+            // 
+            // flpKPIs
+            // 
+            this.flpKPIs.AutoScroll = true;
+            this.flpKPIs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flpKPIs.Location = new System.Drawing.Point(3, 3);
+            this.flpKPIs.Name = "flpKPIs";
+            this.flpKPIs.Padding = new System.Windows.Forms.Padding(8);
+            this.flpKPIs.Size = new System.Drawing.Size(834, 114);
+            this.flpKPIs.TabIndex = 0;
+            // 
+            // dgvLaunchLog
+            // 
+            this.dgvLaunchLog.AllowUserToAddRows = false;
+            this.dgvLaunchLog.AllowUserToDeleteRows = false;
+            this.dgvLaunchLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvLaunchLog.Location = new System.Drawing.Point(3, 123);
+            this.dgvLaunchLog.Name = "dgvLaunchLog";
+            this.dgvLaunchLog.ReadOnly = true;
+            this.dgvLaunchLog.Size = new System.Drawing.Size(834, 371);
+            this.dgvLaunchLog.TabIndex = 1;
             // 
             // cmuModulo
             // 
@@ -674,6 +662,15 @@ namespace ModuleGPI
             this.pnlTopBar.Size = new System.Drawing.Size(1008, 50);
             this.pnlTopBar.TabIndex = 0;
             // 
+            // btnRefreshAll
+            // 
+            this.btnRefreshAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnRefreshAll.Location = new System.Drawing.Point(772, 10);
+            this.btnRefreshAll.Name = "btnRefreshAll";
+            this.btnRefreshAll.Size = new System.Drawing.Size(100, 23);
+            this.btnRefreshAll.TabIndex = 3;
+            this.btnRefreshAll.Text = "Refrescar";
+            // 
             // btnCerrarSesion
             // 
             this.btnCerrarSesion.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -699,14 +696,42 @@ namespace ModuleGPI
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "GPI – Modulos.";
             // 
-            // btnRefreshAll
+            // chkPlantP
             // 
-            this.btnRefreshAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnRefreshAll.Location = new System.Drawing.Point(772, 10);
-            this.btnRefreshAll.Name = "btnRefreshAll";
-            this.btnRefreshAll.Size = new System.Drawing.Size(100, 23);
-            this.btnRefreshAll.TabIndex = 3;
-            this.btnRefreshAll.Text = "Refrescar";
+            this.chkPlantP.AutoSize = true;
+            this.chkPlantP.Location = new System.Drawing.Point(335, 15);
+            this.chkPlantP.Margin = new System.Windows.Forms.Padding(0, 8, 12, 0);
+            this.chkPlantP.Name = "chkPlantP";
+            this.chkPlantP.Size = new System.Drawing.Size(101, 17);
+            this.chkPlantP.TabIndex = 4;
+            this.chkPlantP.Text = "Filtrar por planta";
+            // 
+            // cboPlantP
+            // 
+            this.cboPlantP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPlantP.Location = new System.Drawing.Point(448, 12);
+            this.cboPlantP.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            this.cboPlantP.Name = "cboPlantP";
+            this.cboPlantP.Size = new System.Drawing.Size(160, 21);
+            this.cboPlantP.TabIndex = 5;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(618, 15);
+            this.label2.Margin = new System.Windows.Forms.Padding(10, 8, 10, 8);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(52, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Buscador";
+            // 
+            // txtSearchMod
+            // 
+            this.txtSearchMod.Location = new System.Drawing.Point(685, 12);
+            this.txtSearchMod.Margin = new System.Windows.Forms.Padding(5, 5, 5, 1);
+            this.txtSearchMod.Name = "txtSearchMod";
+            this.txtSearchMod.Size = new System.Drawing.Size(155, 20);
+            this.txtSearchMod.TabIndex = 7;
             // 
             // MainForm
             // 
@@ -727,9 +752,6 @@ namespace ModuleGPI
             this.pnlLeft.ResumeLayout(false);
             this.pnlLeft.PerformLayout();
             this.tabMain.ResumeLayout(false);
-            //this.tabDashboard.ResumeLayout(false);
-            this.tlpDash.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).EndInit();
             this.tabModulos.ResumeLayout(false);
             this.pnlModulosHeader.ResumeLayout(false);
             this.pnlModulosHeader.PerformLayout();
@@ -737,7 +759,6 @@ namespace ModuleGPI
             this.pnlModulosTestHeader.ResumeLayout(false);
             this.pnlModulosTestHeader.PerformLayout();
             this.tabAdmin.ResumeLayout(false);
-            this.pnlAdminButtons.ResumeLayout(false);
             this.splitAdmin.Panel1.ResumeLayout(false);
             this.splitAdmin.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitAdmin)).EndInit();
@@ -748,11 +769,16 @@ namespace ModuleGPI
             this.barFiltroPlanta.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvUsuarios)).EndInit();
             this.rightAdmin.ResumeLayout(false);
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvModulos)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvOverrides)).EndInit();
             this.tabConfig.ResumeLayout(false);
-            this.grpGeneral.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvModulesConfig)).EndInit();
-            this.grpAcerca.ResumeLayout(false);
+            this.tlpDash.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLaunchLog)).EndInit();
             this.cmuModulo.ResumeLayout(false);
             this.statusMain.ResumeLayout(false);
             this.statusMain.PerformLayout();
@@ -792,11 +818,7 @@ namespace ModuleGPI
         private SplitContainer splitAdmin;
         private GroupBox grpRoles;
         private DataGridView dgvUsuarios;
-        private DataGridView dgvModulos;
-
-        private GroupBox grpGeneral;
-        private GroupBox grpAcerca;
-        private Label lblVersion;
+        //private DataGridView dgvModulos;
 
         private ContextMenuStrip cmuModulo;
         private ToolStripMenuItem cmuAbrir;
@@ -813,14 +835,10 @@ namespace ModuleGPI
         private Panel leftAdmin;
         private Panel rightAdmin;
         private TableLayoutPanel root;
-        private System.Windows.Forms.Panel pnlAdminButtons;
         private System.Windows.Forms.Button btnAdminGuardar;
-        private System.Windows.Forms.Button btnAdminRefrescar;
         private Button btnDeleteModule;
         private Button btnSaveModule;
         private Button btnNewModule;
-        private DataGridView dgvModulesConfig;
-        private FlowLayoutPanel barFiltroPlanta;
         private CheckBox chkPlantFilter;
         private ComboBox cboPlantFilter;
 
@@ -834,5 +852,16 @@ namespace ModuleGPI
         private Label lblModulosTestTitulo;
         private FlowLayoutPanel flpModulosTest;
         private Button btnRefreshAll;
+        private Label label1;
+        private FlowLayoutPanel barFiltroPlanta;
+        private TextBox txtSearchAd;
+        private SplitContainer splitContainer1;
+        private DataGridView dgvOverrides;
+        private DataGridView dgvModulos;
+        private DataGridView dgvModulesConfig;
+        private CheckBox chkPlantP;
+        private ComboBox cboPlantP;
+        private Label label2;
+        private TextBox txtSearchMod;
     }
 }

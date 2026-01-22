@@ -14,5 +14,13 @@ namespace ModuleGPI.Data
 
         OverridesStore GetOverrides();                                 // SP: ModGPI_Override_GetAll
         void ReplaceOverrides(string buttonName, DataTable overridesView); // tx: DELETE+INSERT
+
+
+       
     }
+    //public static class AppCache
+    //{
+    //    public static DataTable Modules { get; set; }
+    //}
+
 }
