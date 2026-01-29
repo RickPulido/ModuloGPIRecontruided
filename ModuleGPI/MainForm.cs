@@ -12,25 +12,26 @@ using System.Windows.Forms;
 
 namespace ModuleGPI
 {
+    /// <summary>
+    /// Formulario principal del sistema de lanzamiento de módulos GPI
+    /// </summary>
     public partial class MainForm : Form
     {
         #region Fields
+
         private readonly IDataAccess _dataAccess;
         private readonly IModuleService _moduleService;
         private readonly IRoleManager _roleManager;
         private readonly IUIHelpers _uiHelpers;
 
-                   // private static readonly ModuleService _service = new ModuleService();
-
-
         private DataTable _dtModulesAdmin;
         private DataTable _dtModulesConfig;
         private DataTable _dtUsers;
         private DataTable _dtOverridesView;
+        
         private readonly ToolTip _toolTips = new ToolTip();
-        private OverridesStore _overrides; 
+        private OverridesStore _overrides;
         private bool _adminCanEdit;
-       // private DataGridView dgvOverrides;
 
         private FavoritesManager _favoritesManager;
         private bool _isLoadingFavorites = false;
@@ -39,30 +40,26 @@ namespace ModuleGPI
         private readonly BindingSource _bsUsers = new BindingSource();
         private readonly BindingSource _modulosBinding = new BindingSource();
 
-
+        private List<ModuleDef> _allModules = new List<ModuleDef>();
+        private bool _isRefreshingAll = false;
 
         private static readonly string[] ALLOWED_ROOTS = new string[]
         {
-   
-            // Esto permite cualquier ruta en estos servidores,
-            // independientemente de la carpeta (MTY, QRO, TIJ)
-    
-            @"\\USAZR3QITVFE001\",   //  Servidor 1 (TEST)
-            @"\\USAZR3PITVFE001\",   //  Servidor 2 (PRODUCCION)
-    
-            // ========================================
-            // RUTAS LOCALES/COMPARTIDAS 
-            // ========================================
+            @"\\USAZR3QITVFE001\",   // Servidor 1 (TEST)
+            @"\\USAZR3PITVFE001\",   // Servidor 2 (PRODUCCION)
             @"\\srv\apps\",
             @"C:\Program Files\CorpApps\"
         };
+
         #endregion
-       private List<ModuleDef> _allModules = new List<ModuleDef>();
+
         #region Constructor
+
         public MainForm()
         {
             InitializeComponent();
 
+            // Inicializar servicios
             _dataAccess = new SqlDataAccess();
             _moduleService = new ModuleService(_dataAccess);
             _roleManager = new RoleManager();
@@ -70,41 +67,19 @@ namespace ModuleGPI
             _overrides = new OverridesStore();
             _favoritesManager = new FavoritesManager();
 
+            // Suscribir eventos del formulario
             this.Load += MainForm_Load;
-           // this.Shown += MainForm_Shown;
-           // this.Resize += MainForm_Resize;
             this.FormClosing += MainForm_FormClosing;
 
-            //btnRefreshAll.Click += (s, e) => RefreshAll();
-           // var dt = AppCache.Modules ?? _moduleService.LoadModules(null);
-
-
+            // Configurar handlers
             SetupEventHandlers();
-            //SetupOverridesGrid();
             ConnectAllButtonEvents();
-
-
-          
-
         }
-        #endregion
-        //public static class AppInitializer
-        //{
-        //    private static readonly ModuleService _service = new ModuleService();
 
-        //    public static void PreloadModules(int? plant = null)
-        //    {
-        //        try
-        //        {
-        //            AppCache.Modules = _service.LoadModules(plant);
-        //        }
-        //        catch (Exception ex)
-        //        {
-        //            // Aquí puedes loguear o manejar el error
-        //        }
-        //    }
-        //}
+        #endregion
+
         #region Form Events
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             try
@@ -113,9 +88,15 @@ namespace ModuleGPI
                 _adminCanEdit = Session.TypeAut >= 5;
 
                 LoadOverrides();
-                LoadModules(); 
+                LoadModules();
 
-                _roleManager.ApplyVisibility(tabMain, tabAdmin, tabConfig, Session.TypeAut, Session.EmpId ?? Session.LogonName, _overrides, _allModules);
+                _roleManager.ApplyVisibility(
+                    tabMain, tabAdmin, tabConfig,
+                    Session.TypeAut,
+                    Session.EmpId ?? Session.LogonName,
+                    _overrides,
+                    _allModules
+                );
 
                 if (Session.TypeAut >= 4)
                 {
@@ -130,30 +111,37 @@ namespace ModuleGPI
                 }
 
                 WireModuleButtons();
-
                 UpdateStatus("Sistema listo");
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar formulario: {ex.Message}\\n\\n{ex.StackTrace}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al cargar formulario: {0}\n\n{1}", ex.Message, ex.StackTrace),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
         }
-
-        
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                var result = MessageBox.Show("¿Está seguro que desea salir?", "Confirmar",
-                    MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var result = MessageBox.Show(
+                    "¿Está seguro que desea salir?",
+                    "Confirmar",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question
+                );
                 e.Cancel = (result != DialogResult.Yes);
             }
         }
+
         #endregion
 
         #region Setup Methods
+
         private void ConnectAllButtonEvents()
         {
             if (btnCerrarSesion != null)
@@ -161,8 +149,6 @@ namespace ModuleGPI
 
             if (btnRefreshAll != null)
                 btnRefreshAll.Click += (s, e) => RefreshAll();
-
-
 
             if (btnNewModule != null)
                 btnNewModule.Click += BtnNewModule_Click;
@@ -173,16 +159,11 @@ namespace ModuleGPI
             if (btnDeleteModule != null)
                 btnDeleteModule.Click += BtnDeleteModule_Click;
 
-
-
             if (btnAdminGuardar != null)
             {
                 btnAdminGuardar.Enabled = _adminCanEdit;
                 btnAdminGuardar.Click += BtnAdminGuardar_Click;
             }
-
-            //if (btnAdminRefrescar != null)
-            //    btnAdminRefrescar.Click += (s, e) => LoadAdminData();
 
             if (cmuAbrir != null)
                 cmuAbrir.Click += (s, e) => OpenContextSelected(false);
@@ -196,15 +177,11 @@ namespace ModuleGPI
             if (cmuVerProp != null)
                 cmuVerProp.Click += (s, e) => ShowModulePropertiesFromContext();
 
-            if (cmuVerProp != null)
-                cmuVerProp.Click += (s, e) => ShowModulePropertiesFromContext();
-
-
+            // Agregar opción de favoritos al menú contextual
             var cmuFavorito = new ToolStripMenuItem("⭐ Agregar/Quitar de Favoritos");
             cmuFavorito.Click += (s, e) => ToggleFavoriteFromContext();
             cmuModulo.Items.Insert(0, cmuFavorito);
             cmuModulo.Items.Insert(1, new ToolStripSeparator());
-
         }
 
         private void SetupEventHandlers()
@@ -212,33 +189,34 @@ namespace ModuleGPI
             if (tabMain != null)
                 tabMain.Selected += TabMain_Selected;
 
-
-            //if (txtModulosSearch != null)
-            //    txtModulosSearch.TextChanged += (s, e) => ApplySearch(txtModulosSearch.Text, flpModulos);
-
-            //if (btnModulosRefrescar != null)
-            //    btnModulosRefrescar.Click += (s, e) => RefreshModules();
-
             if (treeFavoritos != null)
             {
                 treeFavoritos.BeforeSelect += (s, e) =>
                 {
-                    Debug.WriteLine($"🔍 BeforeSelect: Node={e.Node?.Text}, Action={e.Action}");
+                    Debug.WriteLine(string.Format("🔍 BeforeSelect: Node={0}, Action={1}",
+                        e.Node != null ? e.Node.Text : "null", e.Action));
                 };
-
                 treeFavoritos.AfterSelect += TreeFavoritos_AfterSelect;
             }
 
+            // DataGridView eventos
             if (dgvModulos != null)
             {
                 dgvModulos.SelectionChanged += DgvModulos_SelectionChanged;
                 dgvModulos.CellFormatting += DgvModulos_CellFormatting;
                 dgvModulos.DataError += (s, e) => e.ThrowException = false;
+                dgvModulos.RowPrePaint += DgvModulos_RowPrePaint;
                 _uiHelpers.EnableDgvDoubleBuffer(dgvModulos);
+            }
 
-                dgvModulesConfig.RowPrePaint -= DgvModulesConfig_RowPrePaint; // evita doble suscripción
+            if (dgvModulesConfig != null)
+            {
+                dgvModulesConfig.SelectionChanged += DgvModulesConfig_SelectionChanged;
+                dgvModulesConfig.CellDoubleClick += DgvModulesConfig_CellDoubleClick;
+                dgvModulesConfig.DataError += (s, e) => e.ThrowException = false;
+                dgvModulesConfig.RowPrePaint -= DgvModulesConfig_RowPrePaint;
                 dgvModulesConfig.RowPrePaint += DgvModulesConfig_RowPrePaint;
-                
+                _uiHelpers.EnableDgvDoubleBuffer(dgvModulesConfig);
             }
 
             if (dgvUsuarios != null)
@@ -251,14 +229,6 @@ namespace ModuleGPI
                 _uiHelpers.EnableDgvDoubleBuffer(dgvUsuarios);
             }
 
-            if (dgvModulesConfig != null)
-            {
-                dgvModulesConfig.SelectionChanged += DgvModulesConfig_SelectionChanged;
-                dgvModulesConfig.CellDoubleClick += DgvModulesConfig_CellDoubleClick;
-                dgvModulesConfig.DataError += (s, e) => e.ThrowException = false;
-                _uiHelpers.EnableDgvDoubleBuffer(dgvModulesConfig);
-            }
-
             if (chkPlantFilter != null && cboPlantFilter != null)
             {
                 chkPlantFilter.CheckedChanged += (s, e) =>
@@ -266,29 +236,48 @@ namespace ModuleGPI
                     cboPlantFilter.Enabled = chkPlantFilter.Checked;
                     FilterUsersByPlant();
                 };
-
                 cboPlantFilter.SelectedIndexChanged += (s, e) => FilterUsersByPlant();
                 cboPlantFilter.SelectedValueChanged -= CboPlantFilter_SelectedIndexChanged;
                 cboPlantFilter.SelectedValueChanged += CboPlantFilter_SelectedIndexChanged;
-
-            }
-            if (dgvOverrides != null) {
-                    dgvOverrides.CurrentCellDirtyStateChanged += DgvOverrides_CurrentCellDirtyStateChanged;
-                    dgvOverrides.CellValueChanged += DgvOverrides_CellValueChanged;
-                    dgvOverrides.CellFormatting += DgvOverrides_CellFormatting;
-                    dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
             }
 
-            //if (txtModulosTestSearch != null)
-            //    txtModulosTestSearch.TextChanged += (s, e) => ApplySearch(txtModulosTestSearch.Text, flpModulosTest);
+            if (dgvOverrides != null)
+            {
+                dgvOverrides.CurrentCellDirtyStateChanged += DgvOverrides_CurrentCellDirtyStateChanged;
+                dgvOverrides.CellValueChanged += DgvOverrides_CellValueChanged;
+                dgvOverrides.CellFormatting += DgvOverrides_CellFormatting;
+                dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
+            }
 
-            //if (btnModulosTestRefrescar != null)
-            //    btnModulosTestRefrescar.Click += (s, e) => RefreshModules();
+            if (chkPlantP != null && cboPlantP != null)
+            {
+                chkPlantP.CheckedChanged += chkFiltrarPorPlanta_CheckedChanged;
+                cboPlantP.SelectedIndexChanged += (s, e) =>
+                {
+                    if (!_isRefreshingAll)
+                        LoadModules();
+                };
+            }
+
+            if (txtSearchMod != null)
+            {
+                txtSearchMod.TextChanged += (s, e) =>
+                {
+                    ApplySearch(txtSearchMod.Text, flpModulos);
+                    ApplySearch(txtSearchMod.Text, flpModulosTest);
+                };
+            }
         }
+
+        #endregion
+
+        #region DataGridView Eventos - Diseño Dinámico
 
         private void RefreshOverridesForCurrentModule()
         {
-            if (dgvModulos?.CurrentRow?.DataBoundItem is DataRowView drv)
+            if (dgvModulos == null || dgvModulos.CurrentRow == null) return;
+
+            if (dgvModulos.CurrentRow.DataBoundItem is DataRowView drv)
             {
                 string buttonName = Convert.ToString(drv["ButtonName"]);
                 BuildOverridesViewFor(buttonName);
@@ -301,7 +290,6 @@ namespace ModuleGPI
 
             var row = dgvModulesConfig.Rows[e.RowIndex];
 
-            // Asegura que exista la columna
             if (!dgvModulesConfig.Columns.Contains("IsTest")) return;
 
             bool isTest = false;
@@ -311,9 +299,7 @@ namespace ModuleGPI
 
             if (isTest)
             {
-                // ✅ ámbar suave
                 var amber = Color.FromArgb(255, 245, 200);
-
                 row.DefaultCellStyle.BackColor = amber;
                 row.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 230, 160);
                 row.DefaultCellStyle.ForeColor = Color.Black;
@@ -321,7 +307,6 @@ namespace ModuleGPI
             }
             else
             {
-                // ✅ opcional: reseteo para no “arrastrar” estilo si cambia IsTest
                 row.DefaultCellStyle.BackColor = dgvModulesConfig.DefaultCellStyle.BackColor;
                 row.DefaultCellStyle.SelectionBackColor = dgvModulesConfig.DefaultCellStyle.SelectionBackColor;
                 row.DefaultCellStyle.ForeColor = dgvModulesConfig.DefaultCellStyle.ForeColor;
@@ -337,16 +322,15 @@ namespace ModuleGPI
                 return;
             }
 
-           
             if (e.Action != TreeViewAction.ByMouse && e.Action != TreeViewAction.ByKeyboard)
             {
-                Debug.WriteLine($"⚠️ Evento AfterSelect ignorado: Action={e.Action}");
+                Debug.WriteLine(string.Format("⚠️ Evento AfterSelect ignorado: Action={0}", e.Action));
                 return;
             }
 
-            if (e.Node?.Tag is string buttonName)
+            if (e.Node != null && e.Node.Tag is string buttonName)
             {
-                Debug.WriteLine($"✅ Lanzando favorito desde TreeView: {buttonName}");
+                Debug.WriteLine(string.Format("✅ Lanzando favorito desde TreeView: {0}", buttonName));
                 LaunchFavoriteModule(buttonName);
             }
             else
@@ -355,16 +339,17 @@ namespace ModuleGPI
             }
         }
 
-
         private void ToggleFavoriteFromContext()
         {
-            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
+            if (cmuModulo != null && cmuModulo.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
             {
                 _favoritesManager.ToggleFavorite(ctrl.Name);
 
                 bool isFav = _favoritesManager.IsFavorite(ctrl.Name);
 
-                UpdateStatus(isFav ? $"'{m.Name}' agregado a favoritos" : $"'{m.Name}' removido de favoritos");
+                UpdateStatus(isFav
+                    ? string.Format("'{0}' agregado a favoritos", m.Name)
+                    : string.Format("'{0}' removido de favoritos", m.Name));
 
                 RefreshFavorites();
             }
@@ -386,7 +371,7 @@ namespace ModuleGPI
                     bool newValue;
                     if (currentValue == null || currentValue == DBNull.Value)
                     {
-                        newValue = true;  
+                        newValue = true;
                     }
                     else
                     {
@@ -396,10 +381,10 @@ namespace ModuleGPI
                     currentCell.Value = newValue;
 
                     dgvUsuarios.CommitEdit(DataGridViewDataErrorContexts.Commit);
-
                     dgvUsuarios.RefreshEdit();
 
-                    UpdateStatus($" Acceso a {columnName.Replace("_Access", "")} modificado - Presione GUARDAR para aplicar");
+                    UpdateStatus(string.Format("Acceso a {0} modificado - Presione GUARDAR para aplicar",
+                        columnName.Replace("_Access", "")));
 
                     if (btnAdminGuardar != null && _adminCanEdit)
                     {
@@ -407,16 +392,22 @@ namespace ModuleGPI
                         btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180);
                     }
 
-                    Debug.WriteLine($"Checkbox {columnName} cambiado a: {newValue} para fila {e.RowIndex}");
+                    Debug.WriteLine(string.Format("Checkbox {0} cambiado a: {1} para fila {2}",
+                        columnName, newValue, e.RowIndex));
                 }
                 catch (Exception ex)
                 {
-                    Debug.WriteLine($" Error en CellContentClick: {ex.Message}");
-                    MessageBox.Show($"Error al cambiar checkbox: {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Debug.WriteLine(string.Format("Error en CellContentClick: {0}", ex.Message));
+                    MessageBox.Show(
+                        string.Format("Error al cambiar checkbox: {0}", ex.Message),
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
             }
         }
+
         private void DgvUsuarios_CurrentCellDirtyStateChanged(object sender, EventArgs e)
         {
             if (dgvUsuarios.IsCurrentCellDirty)
@@ -431,24 +422,30 @@ namespace ModuleGPI
 
             try
             {
-                UpdateStatus(" Cambios sin guardar - Presione GUARDAR para aplicar");
+                UpdateStatus("Cambios sin guardar - Presione GUARDAR para aplicar");
 
                 if (btnAdminGuardar != null && _adminCanEdit)
                 {
                     btnAdminGuardar.Enabled = true;
-                    btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180); 
+                    btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180);
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error en CellValueChanged: {ex.Message}");
+                Debug.WriteLine(string.Format("Error en CellValueChanged: {0}", ex.Message));
             }
         }
 
+        private void DgvUsuarios_CellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            // Evento adicional para manejar fin de edición si es necesario
+        }
 
         private void BtnDiagnosticar_Click(object sender, EventArgs e)
         {
-            if (dgvModulos?.CurrentRow?.DataBoundItem is DataRowView drv)
+            if (dgvModulos == null || dgvModulos.CurrentRow == null) return;
+
+            if (dgvModulos.CurrentRow.DataBoundItem is DataRowView drv)
             {
                 try
                 {
@@ -473,7 +470,7 @@ namespace ModuleGPI
                     var formDiag = new Form
                     {
                         Text = "Diagnóstico de Acceso",
-                        Size = new System.Drawing.Size(600, 500),
+                        Size = new Size(600, 500),
                         StartPosition = FormStartPosition.CenterParent,
                         FormBorderStyle = FormBorderStyle.SizableToolWindow
                     };
@@ -484,7 +481,7 @@ namespace ModuleGPI
                         ReadOnly = true,
                         ScrollBars = ScrollBars.Vertical,
                         Dock = DockStyle.Fill,
-                        Font = new System.Drawing.Font("Consolas", 9F),
+                        Font = new Font("Consolas", 9F),
                         Text = diagnostico
                     };
 
@@ -493,122 +490,190 @@ namespace ModuleGPI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error en diagnóstico: {ex.Message}", "Error",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        string.Format("Error en diagnóstico: {0}", ex.Message),
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
             }
             else
             {
-                MessageBox.Show("Seleccione un módulo primero", "Información",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    "Seleccione un módulo primero",
+                    "Información",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
             }
         }
 
-        private SplitContainer _adminSplit; // opcional para reutilizar
+        private void DgvModulos_SelectionChanged(object sender, EventArgs e)
+        {
+            RefreshOverridesForCurrentModule();
+        }
 
-        //private void SetupOverridesGrid()
-        //{
-        //    if (dgvOverrides != null) return;
+        private void DgvModulos_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvModulos == null || e.RowIndex < 0) return;
 
-        //    dgvOverrides = new DataGridView
-        //    {
-        //        Name = "dgvOverrides",
-        //        AutoGenerateColumns = true,
-        //        AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None,
-        //        AllowUserToAddRows = false,
-        //        AllowUserToDeleteRows = false,
-        //        ReadOnly = false,
-        //        RowHeadersVisible = false,
-        //        SelectionMode = DataGridViewSelectionMode.CellSelect,
-        //        MultiSelect = false,
-        //        Dock = DockStyle.Fill,
-        //        BackgroundColor = SystemColors.Window,
-        //        BorderStyle = BorderStyle.None,
-        //        EditMode = DataGridViewEditMode.EditOnEnter
-        //    };
+            var row = dgvModulos.Rows[e.RowIndex];
+            if (row.DataBoundItem is DataRowView drv)
+            {
+                bool isTest = false;
+                if (drv.Row.Table.Columns.Contains("IsTest") &&
+                    drv["IsTest"] != DBNull.Value)
+                {
+                    isTest = Convert.ToBoolean(drv["IsTest"]);
+                }
 
-        //    dgvOverrides.CurrentCellDirtyStateChanged += DgvOverrides_CurrentCellDirtyStateChanged;
-        //    dgvOverrides.CellValueChanged += DgvOverrides_CellValueChanged;
-        //    dgvOverrides.CellFormatting += DgvOverrides_CellFormatting;
-        //    dgvOverrides.DataError += (s, e) => { e.ThrowException = false; };
+                if (isTest)
+                {
+                    e.CellStyle.BackColor = Color.FromArgb(255, 245, 200);
+                    e.CellStyle.SelectionBackColor = Color.FromArgb(255, 230, 160);
+                    e.CellStyle.ForeColor = Color.Black;
+                    e.CellStyle.SelectionForeColor = Color.Black;
+                }
+            }
+        }
 
-        //    _uiHelpers.EnableDgvDoubleBuffer(dgvOverrides);
+        private void DgvModulos_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
+        {
+            if (dgvModulos == null || e.RowIndex < 0) return;
 
-        //    if (rightAdmin == null || dgvModulos == null) return;
+            var row = dgvModulos.Rows[e.RowIndex];
+            var isTestCol = dgvModulos.Columns["IsTest"];
+            if (isTestCol == null) return;
 
-        //    rightAdmin.Controls.Clear();
+            bool isTest = false;
+            var v = row.Cells[isTestCol.Index].Value;
+            if (v != null && v != DBNull.Value)
+                bool.TryParse(v.ToString(), out isTest);
 
-        //    // ✅ IMPORTANTE: NO setear Panel1MinSize/Panel2MinSize aquí (provoca crash)
-        //    var splitContainer = new SplitContainer
-        //    {
-        //        Dock = DockStyle.Fill,
-        //        Orientation = Orientation.Horizontal,
-        //        SplitterWidth = 6
-        //    };
+            if (isTest)
+            {
+                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 245, 200);
+                row.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 230, 160);
+                row.DefaultCellStyle.ForeColor = Color.Black;
+                row.DefaultCellStyle.SelectionForeColor = Color.Black;
+            }
+            else
+            {
+                row.DefaultCellStyle.BackColor = dgvModulos.DefaultCellStyle.BackColor;
+                row.DefaultCellStyle.SelectionBackColor = dgvModulos.DefaultCellStyle.SelectionBackColor;
+                row.DefaultCellStyle.ForeColor = dgvModulos.DefaultCellStyle.ForeColor;
+                row.DefaultCellStyle.SelectionForeColor = dgvModulos.DefaultCellStyle.SelectionForeColor;
+            }
+        }
 
-        //    _adminSplit = splitContainer;
+        private void DgvOverrides_CurrentCellDirtyStateChanged(object sender, EventArgs e)
+        {
+            if (dgvOverrides.IsCurrentCellDirty)
+            {
+                dgvOverrides.CommitEdit(DataGridViewDataErrorContexts.Commit);
+            }
+        }
 
-        //    // Panel 1
-        //    splitContainer.Panel1.Controls.Add(dgvModulos);
-        //    dgvModulos.Dock = DockStyle.Fill;
+        private void DgvOverrides_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || dgvOverrides.Columns.Count == 0) return;
 
-        //    // Panel 2
-        //    var lblOverrides = new Label
-        //    {
-        //        Text = " Permisos Personalizados por Usuario",
-        //        Dock = DockStyle.Top,
-        //        Height = 28,
-        //        TextAlign = ContentAlignment.MiddleLeft,
-        //        Font = new Font("Segoe UI", 9F, FontStyle.Bold),
-        //        Padding = new Padding(8, 0, 0, 0),
-        //        BackColor = SystemColors.Control
-        //    };
+            try
+            {
+                var row = dgvOverrides.Rows[e.RowIndex];
+                string empId = Convert.ToString(row.Cells["USU_UserLog"].Value);
+                int? overrideValue = null;
 
-        //    splitContainer.Panel2.Controls.Add(dgvOverrides);
-        //    splitContainer.Panel2.Controls.Add(lblOverrides);
+                for (int i = 1; i < dgvOverrides.Columns.Count; i++)
+                {
+                    if (dgvOverrides.Columns[i] is DataGridViewCheckBoxColumn && e.ColumnIndex == i)
+                    {
+                        var val = row.Cells[i].Value;
+                        if (val != null && val != DBNull.Value && Convert.ToBoolean(val))
+                        {
+                            overrideValue = 1;
+                        }
+                        else
+                        {
+                            overrideValue = null;
+                        }
 
-        //    rightAdmin.Controls.Add(splitContainer);
+                        string buttonName = dgvOverrides.Columns[i].Name.Replace("chk_", "");
+                        _overrides.Set(buttonName, empId, overrideValue ?? 0);
+                        break;
+                        // ov == 0 ? 0 : ov
+                    }
+                }
 
-        //    // ✅ Aplicar min sizes + splitter distance SOLO cuando ya tenga tamaño
-        //    void ApplyLayoutSafe()
-        //    {
-        //        if (splitContainer.IsDisposed) return;
+                UpdateStatus("Override modificado - Presione GUARDAR para aplicar");
+                if (btnAdminGuardar != null && _adminCanEdit)
+                {
+                    btnAdminGuardar.Enabled = true;
+                    btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(string.Format("Error en DgvOverrides_CellValueChanged: {0}", ex.Message));
+            }
+        }
 
-        //        int total = splitContainer.Orientation == Orientation.Horizontal
-        //            ? splitContainer.Height
-        //            : splitContainer.Width;
+        private void DgvOverrides_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvOverrides == null || e.RowIndex < 0) return;
 
-        //        if (total <= 0) return;
-
-        //        // Queremos min ~180 pero si no cabe, bajarlo a lo que sí cabe
-        //        int maxMin = Math.Max(0, (total - splitContainer.SplitterWidth) / 2 - 20);
-        //        int minSize = Math.Min(180, maxMin);
-
-        //        // 1) Setear mins (ya calculados para que quepan)
-        //        splitContainer.Panel1MinSize = minSize;
-        //        splitContainer.Panel2MinSize = minSize;
-
-        //        // 2) Setear splitterDistance clamped
-        //        int desired = (int)(total * 0.55);
-        //        splitContainer.SplitterDistance = ClampSplitterDistance(splitContainer, desired);
-        //    }
-
-        //    // Se ejecuta al crear handle y también cuando ya tenga tamaño real
-        //    splitContainer.HandleCreated += (s, e) =>
-        //        splitContainer.BeginInvoke(new Action(ApplyLayoutSafe));
-
-        //    splitContainer.SizeChanged += (s, e) =>
-        //    {
-        //        // Re-aplicar si cambia tamaño (seguro y no crashea)
-        //        if (splitContainer.IsHandleCreated)
-        //            ApplyLayoutSafe();
-        //    };
-        //}
+            if (e.RowIndex % 2 == 0)
+            {
+                e.CellStyle.BackColor = Color.White;
+            }
+            else
+            {
+                e.CellStyle.BackColor = Color.FromArgb(245, 245, 245);
+            }
+        }
 
         #endregion
 
-
         #region Favoritos
+
+        private void LoadFavorites()
+        {
+            if (treeFavoritos == null) return;
+
+            _isLoadingFavorites = true;
+            try
+            {
+                treeFavoritos.Nodes.Clear();
+
+                _favoritesNode = new TreeNode("⭐ Favoritos")
+                {
+                    Name = "nodeFavoritos",
+                    NodeFont = new Font(treeFavoritos.Font, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(0, 102, 204)
+                };
+
+                treeFavoritos.Nodes.Add(_favoritesNode);
+
+                var favorites = _favoritesManager.GetFavorites();
+                foreach (string buttonName in favorites)
+                {
+                    Control moduleControl = FindModuleControl(buttonName);
+                    if (moduleControl != null && moduleControl.Tag is ModuleDef module)
+                    {
+                        var favNode = new TreeNode(module.Name) { Tag = buttonName };
+                        _favoritesNode.Nodes.Add(favNode);
+                    }
+                }
+
+                _favoritesNode.Expand();
+            }
+            finally
+            {
+                _isLoadingFavorites = false;
+            }
+        }
+
         private void RefreshFavorites()
         {
             LoadFavorites();
@@ -622,7 +687,7 @@ namespace ModuleGPI
             {
                 Control moduleControl = FindModuleControl(buttonName);
 
-                if (moduleControl?.Tag is ModuleDef module)
+                if (moduleControl != null && moduleControl.Tag is ModuleDef module)
                 {
                     var favNode = new TreeNode(module.Name) { Tag = buttonName };
                     _favoritesNode.Nodes.Add(favNode);
@@ -632,15 +697,15 @@ namespace ModuleGPI
 
         private Control FindModuleControl(string buttonName)
         {
-            foreach (Control ctrl in flpModulos.Controls)
+            if (flpModulos != null)
             {
-                if (ctrl.Name == buttonName)
-                    return ctrl;
+                foreach (Control ctrl in flpModulos.Controls)
+                {
+                    if (ctrl.Name == buttonName)
+                        return ctrl;
+                }
             }
 
-            // ========================================
-            // panel TEST
-            // ========================================
             if (flpModulosTest != null)
             {
                 foreach (Control ctrl in flpModulosTest.Controls)
@@ -657,14 +722,16 @@ namespace ModuleGPI
         {
             Control moduleControl = FindModuleControl(buttonName);
 
-            if (moduleControl?.Tag is ModuleDef module)
+            if (moduleControl != null && moduleControl.Tag is ModuleDef module)
             {
                 _moduleService.LaunchModule(buttonName, module, false, ALLOWED_ROOTS, UpdateStatus);
             }
         }
+
         #endregion
 
         #region Tab Navigation
+
         private void TabMain_Selected(object sender, TabControlEventArgs e)
         {
             if (e.TabPage == tabAdmin)
@@ -682,207 +749,57 @@ namespace ModuleGPI
             }
             else
             {
-                MessageBox.Show("No tiene permisos para acceder a configuración.",
-                    "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    "No tiene permisos para acceder a configuración.",
+                    "Acceso Denegado",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
             }
         }
+
         #endregion
-        //private bool ShouldShowTestTab()
-        //{
-        //    // SysAdmin siempre
-        //    if (Session.TypeAut >= 5) return true;
-
-        //    string empId = Session.EmpId ?? Session.LogonName;
-        //    if (string.IsNullOrWhiteSpace(empId)) return false;
-
-        //    // ¿Tiene override=1 en algún módulo marcado IsTest?
-        //    foreach (var m in _allModules.Where(x => x.IsTest))
-        //    {
-        //        if (_overrides.Get(m.ButtonName, empId) == 1)
-        //            return true;
-        //    }
-
-        //    return false;
-        //}
-
 
         #region Module Management
-        //public void LoadModules()
-        //{
-        //    LoadingSpinner spinner = null;
-        //    try
-        //    {
-        //        spinner = ShowLoadingSpinner("Cargando módulos...");
 
-        //        int? plant = cboPlantFilter?.SelectedValue as int?;
-        //        var dt = _moduleService.LoadModules(plant);
-
-
-        //        // 1) Construir lista completa para reglas de visibilidad de tabs
-        //        _allModules = dt.AsEnumerable()
-        //     .Select(r => new ModuleDef
-        //     {
-        //         ButtonName = Convert.ToString(r["ButtonName"]),
-        //         Name = Convert.ToString(r["Name"]),
-        //         ExePath = Convert.ToString(r["ExePath"]),
-        //         Arguments = dt.Columns.Contains("Arguments") ? Convert.ToString(r["Arguments"]) : "",
-        //         WorkingDir = Convert.ToString(r["WorkingDir"]),
-        //         IconPath = Convert.ToString(r["IconPath"]),
-        //         RequiresElevation = r["RequiresElevation"] != DBNull.Value && Convert.ToBoolean(r["RequiresElevation"]),
-        //         RolesMinTypeAut = r["RolesMinTypeAut"] == DBNull.Value ? 1 : Convert.ToInt32(r["RolesMinTypeAut"]),
-        //         Plant = r["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(r["Plant"]),
-        //         IsTest = r["IsTest"] != DBNull.Value && Convert.ToBoolean(r["IsTest"]),
-        //     })
-        //     .ToList();
-
-
-        //        // ========================================
-        //        // Cargar módulos PRD (IsTest = false)
-        //        // ========================================
-        //        if (flpModulos != null)
-        //        {
-        //            var prdRows = dt.AsEnumerable()
-        //                .Where(r => r["IsTest"] == DBNull.Value || Convert.ToBoolean(r["IsTest"]) == false);
-
-        //            if (prdRows.Any())
-        //            {
-        //                var dtPRD = prdRows.CopyToDataTable();
-
-        //                _moduleService.PaintButtons(
-        //                    dtPRD,
-        //                    flpModulos,
-        //                    null,
-        //                    cmuModulo,
-        //                    _toolTips,
-        //                    (btnName, module) => _roleManager.CanSeeModule(
-        //                        btnName,
-        //                        module,
-        //                        Session.TypeAut,
-        //                        Session.EmpId ?? Session.LogonName,
-        //                        _overrides
-        //                    )
-        //                );
-        //            }
-        //        }
-
-        //        // ========================================
-        //        // ✅ CORREGIDO: Cargar TODOS los módulos TEST
-        //        // (La visibilidad se controla por override en CanSeeModule)
-        //        // ========================================
-        //        // ========================================
-        //        // Cargar módulos TEST (IsTest = true)
-        //        // ========================================
-        //        if (flpModulosTest != null)
-        //        {
-        //           // tabModulosTest.Visible = ShouldShowTestTab();
-
-        //            var testRows = dt.AsEnumerable()
-        //                .Where(r => r["IsTest"] != DBNull.Value && Convert.ToBoolean(r["IsTest"]));
-
-        //            if (testRows.Any())
-        //            {
-        //                var dtTEST = testRows.CopyToDataTable();
-
-        //                _moduleService.PaintButtons(
-        //                    dtTEST,
-        //                    flpModulosTest,
-        //                    null,
-        //                    cmuModulo,
-        //                    _toolTips,
-        //                    (btnName, module) => _roleManager.CanSeeModule(
-        //                        btnName,
-        //                        module,
-        //                        Session.TypeAut,
-        //                        Session.EmpId ?? Session.LogonName,
-        //                        _overrides
-        //                    )
-        //                );
-        //            }
-        //            else
-        //            {
-        //                if (!tabModulosTest.Visible && flpModulosTest != null)
-
-        //                    flpModulosTest.Controls.Clear();
-        //            }
-
-
-        //            // Aplicar búsqueda si hay texto
-        //            //if (!string.IsNullOrEmpty(txtModulosTestSearch?.Text))
-        //            //    ApplySearch(txtModulosTestSearch.Text, flpModulosTest);
-        //        }
-
-
-        //        //  HideLoadingSpinner(spinner);
-        //        UpdateStatus("Módulos cargados correctamente");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //       //e HideLoadingSpinner(spinner);
-        //        MessageBox.Show($"Error cargando módulos: {ex.Message}", "Error",
-        //            MessageBoxButtons.OK, MessageBoxIcon.Error);
-        //    }
-        //    finally
-        //    {
-        //        HideLoadingSpinner(spinner);
-        //    }
-
-        //}
-
+        /// <summary>
+        /// Carga los módulos desde la base de datos o cache
+        /// </summary>
         public void LoadModules()
         {
             LoadingSpinner spinner = null;
             try
-            {   
+            {
                 DataTable dt;
-
                 int? plant = null;
 
-                // ✅ INTENTAR USAR CACHE PRECARGADA
+                // Intentar usar cache precargada
                 if (ModulesCache.TryGetModules(out dt))
                 {
-                    // ¡Módulos ya cargados! Solo mostrar spinner brevemente
                     spinner = ShowLoadingSpinner("Aplicando permisos...");
-                    System.Diagnostics.Debug.WriteLine("✅ Usando módulos precargados");
+                    Debug.WriteLine("✅ Usando módulos precargados");
                 }
                 else
                 {
                     // Cache no disponible - cargar ahora (fallback)
                     spinner = ShowLoadingSpinner("Cargando módulos...");
-                    System.Diagnostics.Debug.WriteLine("⚠️ Cache no disponible, cargando ahora...");
-
-                    //int? plant = cboPlantFilter?.SelectedValue as int?;
-                    //dt = _moduleService.LoadModules(plant);
-
-                    //dynamic selected = cboPlantP.SelectedItem;
-                    //plant = (int)selected.Value;
-                    //if (plant == 0) plant = null;
-
+                    Debug.WriteLine("⚠️ Cache no disponible, cargando ahora...");
+                    
+                    // ✅ CORREGIDO: Cargar módulos real
+                    dt = _moduleService.LoadModules(plant);
+                   // ModulesCache.GetModules(dt);
                 }
 
-               
-
-                if (chkPlantP.Checked && cboPlantFilter?.SelectedItem != null)
+                // Aplicar filtro de planta si está habilitado
+                if (chkPlantP != null && chkPlantP.Checked &&
+                    cboPlantP != null && cboPlantP.SelectedItem != null)
                 {
-                    dynamic selected = cboPlantFilter.SelectedItem;
+                    dynamic selected = cboPlantP.SelectedItem;
                     plant = (int)selected.Value;
                     if (plant == 0) plant = null; // "Todas las plantas"
                 }
 
-
-
-
-
-
-                //if (chkPlantP.Checked && cboPlantP?.SelectedItem != null)
-                //{
-
-                //    dynamic selected = cboPlantP.SelectedItem;
-                //    plant = (int)selected.Value;
-                //    if (plant == 0) plant = null; // "Todas las plantas"
-                //}
-
-
-                // 1) Construir lista completa
+                // Construir lista completa de módulos
                 _allModules = dt.AsEnumerable()
                     .Select(r => new ModuleDef
                     {
@@ -899,9 +816,7 @@ namespace ModuleGPI
                     })
                     .ToList();
 
-                // ========================================
                 // Cargar módulos PRD (IsTest = false)
-                // ========================================
                 if (flpModulos != null)
                 {
                     var prdRows = dt.AsEnumerable()
@@ -928,9 +843,7 @@ namespace ModuleGPI
                     }
                 }
 
-                // ========================================
                 // Cargar módulos TEST (IsTest = true)
-                // ========================================
                 if (flpModulosTest != null)
                 {
                     var testRows = dt.AsEnumerable()
@@ -961,7 +874,9 @@ namespace ModuleGPI
                             flpModulosTest.Controls.Clear();
                     }
                 }
-                if (!string.IsNullOrEmpty(txtSearchMod?.Text))
+
+                // Aplicar búsqueda si hay texto
+                if (txtSearchMod != null && !string.IsNullOrEmpty(txtSearchMod.Text))
                 {
                     ApplySearch(txtSearchMod.Text, flpModulos);
                     ApplySearch(txtSearchMod.Text, flpModulosTest);
@@ -971,8 +886,12 @@ namespace ModuleGPI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error cargando módulos: {ex.Message}", "Error",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error cargando módulos: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             finally
             {
@@ -984,7 +903,6 @@ namespace ModuleGPI
         {
             LoadModules();
 
-            // Muy importante: volver a aplicar reglas de visibilidad de pestañas
             _roleManager.ApplyVisibility(
                 tabMain,
                 tabAdmin,
@@ -995,9 +913,26 @@ namespace ModuleGPI
                 _allModules
             );
 
-            // Opcional: si la pestaña TEST quedó visible pero no hay botones, ocultarla
-            if (tabModulosTest != null && flpModulosTest?.Controls.Count == 0 && Session.TypeAut < 5)
+            if (tabModulosTest != null && flpModulosTest != null &&
+                flpModulosTest.Controls.Count == 0 && Session.TypeAut < 5)
+            {
                 tabModulosTest.Visible = false;
+            }
+        }
+
+        private void LoadOverrides()
+        {
+            try
+            {
+                _overrides = _dataAccess.GetOverrides();
+                Debug.WriteLine(string.Format("Overrides cargados: {0} registros",
+                    _overrides != null ? "OK" : "NULL"));
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(string.Format("Error cargando overrides: {0}", ex.Message));
+                _overrides = new OverridesStore();
+            }
         }
 
         private void WireModuleButtons()
@@ -1017,9 +952,225 @@ namespace ModuleGPI
                 _moduleService.LaunchModule(ctrl.Name, m, false, ALLOWED_ROOTS, UpdateStatus);
             }
         }
+
+        private void ApplySearch(string searchText, FlowLayoutPanel panel)
+        {
+            if (panel == null || string.IsNullOrWhiteSpace(searchText))
+            {
+                if (panel != null)
+                {
+                    foreach (Control ctrl in panel.Controls)
+                    {
+                        if (ctrl is Button btn && btn.Tag is ModuleDef m)
+                        {
+                            bool canSee = _roleManager.CanSeeModule(
+                                btn.Name,
+                                m,
+                                Session.TypeAut,
+                                Session.EmpId ?? Session.LogonName,
+                                _overrides
+                            );
+                            btn.Visible = canSee;
+                        }
+                    }
+                }
+                return;
+            }
+
+            searchText = searchText.ToLower();
+            foreach (Control ctrl in panel.Controls)
+            {
+                if (ctrl is Button btn && btn.Tag is ModuleDef m)
+                {
+                    bool nameMatch = (!string.IsNullOrEmpty(m.Name) &&
+                                     m.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0) ||
+                                    (!string.IsNullOrEmpty(m.ExePath) &&
+                                     m.ExePath.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                    bool canSee = _roleManager.CanSeeModule(
+                        btn.Name,
+                        m,
+                        Session.TypeAut,
+                        Session.EmpId ?? Session.LogonName,
+                        _overrides
+                    );
+
+                    btn.Visible = nameMatch && canSee;
+                }
+            }
+        }
+
+        #endregion
+
+        #region RefreshAll
+
+        private void RefreshAll()
+        {
+            if (_isRefreshingAll) return;
+            _isRefreshingAll = true;
+
+            string desiredTabName = tabMain != null && tabMain.SelectedTab != null
+                ? tabMain.SelectedTab.Name : null;
+            int desiredTabIndex = tabMain != null ? tabMain.SelectedIndex : -1;
+
+            if (tabMain != null)
+            {
+                tabMain.Selected -= TabMain_Selected;
+            }
+
+            try
+            {
+                this.Cursor = Cursors.WaitCursor;
+
+                // Limpiar cache y recargar desde BD
+                ModulesCache.Clear();
+
+                LoadOverrides();
+                LoadModules();
+
+                _roleManager.ApplyVisibility(
+                    tabMain, tabAdmin, tabConfig,
+                    Session.TypeAut,
+                    Session.EmpId ?? Session.LogonName,
+                    _overrides,
+                    _allModules
+                );
+
+                if (tabMain != null)
+                {
+                    tabMain.BeginInvoke(new Action(() =>
+                    {
+                        RestoreSelectedTab(desiredTabName, desiredTabIndex);
+                    }));
+                }
+
+                if (Session.TypeAut >= 4)
+                {
+                    if (tabMain != null && tabMain.SelectedTab == tabAdmin)
+                        LoadAdminData();
+                    else if (tabMain != null && tabMain.SelectedTab == tabConfig)
+                        LoadConfigData();
+                }
+
+                UpdateStatus("Sistema actualizado");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    string.Format("Error al refrescar: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+            finally
+            {
+                if (tabMain != null)
+                {
+                    tabMain.Selected += TabMain_Selected;
+                }
+
+                this.Cursor = Cursors.Default;
+                _isRefreshingAll = false;
+            }
+        }
+
+        private void RestoreSelectedTab(string tabName, int fallbackIndex)
+        {
+            if (tabMain == null) return;
+
+            // Estrategia 1: Restaurar por nombre
+            if (!string.IsNullOrWhiteSpace(tabName))
+            {
+                var desired = tabMain.TabPages
+                    .Cast<TabPage>()
+                    .FirstOrDefault(tp => string.Equals(tp.Name, tabName,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (desired != null && desired.Visible)
+                {
+                    tabMain.SelectedTab = desired;
+                    Debug.WriteLine(string.Format("✅ Tab restaurado por nombre: {0}", tabName));
+                    return;
+                }
+
+                Debug.WriteLine(string.Format("⚠️ Tab '{0}' no disponible (invisible o eliminado)", tabName));
+            }
+
+            // Estrategia 2: Restaurar por índice
+            if (fallbackIndex >= 0 && fallbackIndex < tabMain.TabPages.Count)
+            {
+                var tabAtIndex = tabMain.TabPages[fallbackIndex];
+                if (tabAtIndex.Visible)
+                {
+                    tabMain.SelectedTab = tabAtIndex;
+                    Debug.WriteLine(string.Format("✅ Tab restaurado por índice: {0} ({1})",
+                        fallbackIndex, tabAtIndex.Name));
+                    return;
+                }
+            }
+
+            // Estrategia 3: Buscar tab similar
+            var similarTab = FindSimilarTab(tabName);
+            if (similarTab != null)
+            {
+                tabMain.SelectedTab = similarTab;
+                Debug.WriteLine(string.Format("✅ Tab similar encontrado: {0}", similarTab.Name));
+                return;
+            }
+
+            Debug.WriteLine("⚠️ No se pudo restaurar tab, usando selección automática");
+        }
+
+        private TabPage FindSimilarTab(string lostTabName)
+        {
+            if (tabMain == null || string.IsNullOrWhiteSpace(lostTabName))
+                return null;
+
+            bool ContainsI(string text, string value)
+            {
+                if (string.IsNullOrEmpty(text) || string.IsNullOrEmpty(value))
+                    return false;
+                return text.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
+            }
+
+            if (ContainsI(lostTabName, "Test"))
+            {
+                var prdTab = tabMain.TabPages
+                    .Cast<TabPage>()
+                    .FirstOrDefault(t => t.Name == "tabModulos" && t.Visible);
+
+                if (prdTab != null) return prdTab;
+            }
+
+            if (ContainsI(lostTabName, "Admin") || ContainsI(lostTabName, "Config"))
+            {
+                var modulosTab = tabMain.TabPages
+                    .Cast<TabPage>()
+                    .FirstOrDefault(t => (t.Name == "tabModulos" || t.Name == "tabModulosTest")
+                        && t.Visible);
+
+                if (modulosTab != null) return modulosTab;
+            }
+
+            return null;
+        }
+
+        private void ShowAboutDialog()
+        {
+            string info = "Sistema de Lanzamiento de Módulos GPI\n\n" +
+                         "Versión: 2.0.0\n" +
+                         "Desarrollado por: IT Department\n" +
+                         "© 2024 Graphic Packaging International";
+
+            MessageBox.Show(info, "Acerca de ModuleGPI",
+                MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
         #endregion
 
         #region TabConfig - Module Configuration
+
         private void LoadConfigData()
         {
             try
@@ -1057,8 +1208,12 @@ namespace ModuleGPI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar configuración: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al cargar configuración: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             finally
             {
@@ -1072,44 +1227,51 @@ namespace ModuleGPI
 
             try
             {
-                var columns = new System.Collections.Generic.Dictionary<string, string>
-                {
-                    { "ButtonName", "Nombre Botón" },
-                    { "Name", "Nombre Módulo" },
-                   // { "ExePath", "Ruta Ejecutable" },
-                   // { "WorkingDir", "Directorio Trabajo" },
-                 //   { "IconPath", "Ruta Icono" },
-                    { "IsTest", "TEST" },  
-                    { "RequiresElevation", "Requiere Admin" },
-                    { "RolesMinTypeAut", "Rol Mínimo" },
-                    { "Plant", "Planta" }
-                };
+                dgvModulesConfig.SuspendLayout();
 
-                foreach (var col in columns)
+                // Ocultar columnas que no deben mostrarse
+                var hiddenColumns = new[] { "Category", "ExePath", "WorkingDir", "IconPath", "Arguments" };
+                foreach (var colName in hiddenColumns)
                 {
-                    if (dgvModulesConfig.Columns[col.Key] != null)
+                    if (dgvModulesConfig.Columns[colName] != null)
                     {
-                        dgvModulesConfig.Columns[col.Key].HeaderText = col.Value;
+                        dgvModulesConfig.Columns[colName].Visible = false;
                     }
                 }
 
-                if (dgvModulesConfig.Columns["CreatedDate"] != null)
-                    dgvModulesConfig.Columns["CreatedDate"].Visible = false;
+                // Configurar headers
+                if (dgvModulesConfig.Columns["ButtonName"] != null)
+                {
+                    dgvModulesConfig.Columns["ButtonName"].HeaderText = "ID Botón";
+                    dgvModulesConfig.Columns["ButtonName"].ReadOnly = true;
+                }
 
-                if (dgvModulesConfig.Columns["Category"] != null)
-                    dgvModulesConfig.Columns["Category"].Visible = false; // ✅ ocultar categoría
-                if (dgvModulesConfig.Columns["ExePath"] != null)
+                if (dgvModulesConfig.Columns["Name"] != null)
                 {
-                    dgvModulesConfig.Columns["ExePath"].Visible = false;
+                    dgvModulesConfig.Columns["Name"].HeaderText = "Nombre";
                 }
-                if (dgvModulesConfig.Columns["WorkingDir"] != null)
+
+                if (dgvModulesConfig.Columns["IsTest"] != null)
                 {
-                    dgvModulesConfig.Columns["WorkingDir"].Visible = false;
+                    dgvModulesConfig.Columns["IsTest"].HeaderText = "Es Test";
                 }
-                if(dgvModulesConfig.Columns["IconPath"] != null)
+
+                if (dgvModulesConfig.Columns["RequiresElevation"] != null)
                 {
-                    dgvModulesConfig.Columns["IconPath"].Visible = false;
+                    dgvModulesConfig.Columns["RequiresElevation"].HeaderText = "Requiere Admin";
                 }
+
+                if (dgvModulesConfig.Columns["RolesMinTypeAut"] != null)
+                {
+                    dgvModulesConfig.Columns["RolesMinTypeAut"].HeaderText = "Rol Mínimo";
+                }
+
+                if (dgvModulesConfig.Columns["Plant"] != null)
+                {
+                    dgvModulesConfig.Columns["Plant"].HeaderText = "Planta";
+                }
+
+                dgvModulesConfig.ResumeLayout();
 
                 if (dgvModulesConfig.IsHandleCreated && dgvModulesConfig.Visible)
                 {
@@ -1129,25 +1291,22 @@ namespace ModuleGPI
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error configurando grid de módulos config: {ex.Message}");
+                Debug.WriteLine(string.Format("Error configurando grid de módulos config: {0}", ex.Message));
             }
         }
 
         private static int ClampSplitterDistance(SplitContainer sc, int desired)
         {
-            // sc.Orientation Horizontal => se usa Height; Vertical => Width
             int total = sc.Orientation == Orientation.Horizontal ? sc.Height : sc.Width;
 
-            // rango permitido
             int min = sc.Panel1MinSize;
             int max = total - sc.Panel2MinSize - sc.SplitterWidth;
 
-            if (max < min) max = min; // evita negativos cuando aún no está bien medido
+            if (max < min) max = min;
             if (desired < min) return min;
             if (desired > max) return max;
             return desired;
         }
-
 
         private void AjustarAnchosModulosConfig()
         {
@@ -1157,33 +1316,38 @@ namespace ModuleGPI
             {
                 dgvModulesConfig.SuspendLayout();
 
-                var widths = new System.Collections.Generic.Dictionary<string, int>
+                var widths = new Dictionary<string, int>
                 {
                     { "ButtonName", 120 },
-                    { "Name", 150 },
-                  //  { "ExePath", 300 },
-                  //  { "WorkingDir", 250 },
-                  //  { "IconPath", 250 },
-                    { "IsTest", 60 },  
-                    { "RequiresElevation", 80 },
-                    { "RolesMinTypeAut", 80 },
-                    { "Plant", 60 }
+                    { "Name", 200 },
+                    { "IsTest", 70 },
+                    { "RequiresElevation", 100 },
+                    { "RolesMinTypeAut", 90 },
+                    { "Plant", 70 }
                 };
 
                 foreach (var kvp in widths)
                 {
                     if (dgvModulesConfig.Columns[kvp.Key] != null)
                     {
-                        dgvModulesConfig.Columns[kvp.Key].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                        dgvModulesConfig.Columns[kvp.Key].AutoSizeMode =
+                            DataGridViewAutoSizeColumnMode.None;
                         dgvModulesConfig.Columns[kvp.Key].Width = kvp.Value;
                     }
+                }
+
+                if (dgvModulesConfig.Columns["Name"] != null)
+                {
+                    dgvModulesConfig.Columns["Name"].AutoSizeMode =
+                        DataGridViewAutoSizeColumnMode.Fill;
+                    dgvModulesConfig.Columns["Name"].MinimumWidth = 150;
                 }
 
                 dgvModulesConfig.ResumeLayout();
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error ajustando anchos de columnas config: {ex.Message}");
+                Debug.WriteLine(string.Format("Error ajustando anchos de columnas config: {0}", ex.Message));
             }
         }
 
@@ -1203,33 +1367,41 @@ namespace ModuleGPI
                         newRow["ExePath"] = module.ExePath;
                         newRow["WorkingDir"] = string.IsNullOrEmpty(module.WorkingDir) ? "" : module.WorkingDir;
                         newRow["IconPath"] = string.IsNullOrEmpty(module.IconPath) ? "" : module.IconPath;
-                        newRow["Category"] = "";  
+                        newRow["Category"] = "";
                         newRow["RequiresElevation"] = module.RequiresElevation;
                         newRow["RolesMinTypeAut"] = module.RolesMinTypeAut;
                         newRow["Plant"] = module.Plant;
-                        newRow["IsTest"] = module.IsTest;  
+                        newRow["IsTest"] = module.IsTest;
 
                         _dtModulesConfig.Rows.Add(newRow);
                         _dataAccess.UpsertModule(newRow);
 
-                        UpdateStatus($"Módulo '{module.Name}' creado exitosamente");
+                        UpdateStatus(string.Format("Módulo '{0}' creado exitosamente", module.Name));
                         RefreshAll();
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al crear módulo: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al crear módulo: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
         }
 
         private void BtnSaveModule_Click(object sender, EventArgs e)
         {
-            if (dgvModulesConfig?.CurrentRow == null)
+            if (dgvModulesConfig == null || dgvModulesConfig.CurrentRow == null)
             {
-                MessageBox.Show("Seleccione un módulo para editar.",
-                    "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    "Seleccione un módulo para editar.",
+                    "Información",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
                 return;
             }
 
@@ -1238,10 +1410,14 @@ namespace ModuleGPI
 
         private void BtnDeleteModule_Click(object sender, EventArgs e)
         {
-            if (dgvModulesConfig?.CurrentRow == null)
+            if (dgvModulesConfig == null || dgvModulesConfig.CurrentRow == null)
             {
-                MessageBox.Show("Seleccione un módulo para eliminar.",
-                    "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    "Seleccione un módulo para eliminar.",
+                    "Información",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
                 return;
             }
 
@@ -1252,10 +1428,11 @@ namespace ModuleGPI
             string moduleName = Convert.ToString(drv["Name"]);
 
             var result = MessageBox.Show(
-                $"¿Está seguro de eliminar el módulo '{moduleName}'?\n\nEsta acción no se puede deshacer.",
+                string.Format("¿Está seguro de eliminar el módulo '{0}'?\n\nEsta acción no se puede deshacer.", moduleName),
                 "Confirmar Eliminación",
                 MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning);
+                MessageBoxIcon.Warning
+            );
 
             if (result == DialogResult.Yes)
             {
@@ -1265,13 +1442,17 @@ namespace ModuleGPI
                     drv.Row.Delete();
                     _dtModulesConfig.AcceptChanges();
 
-                    UpdateStatus($"Módulo '{moduleName}' eliminado");
+                    UpdateStatus(string.Format("Módulo '{0}' eliminado", moduleName));
                     RefreshAll();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Error al eliminar módulo: {ex.Message}",
-                        "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(
+                        string.Format("Error al eliminar módulo: {0}", ex.Message),
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
                 }
             }
         }
@@ -1286,7 +1467,7 @@ namespace ModuleGPI
 
         private void DgvModulesConfig_SelectionChanged(object sender, EventArgs e)
         {
-            bool hasSelection = dgvModulesConfig?.CurrentRow != null;
+            bool hasSelection = dgvModulesConfig != null && dgvModulesConfig.CurrentRow != null;
             if (btnSaveModule != null)
                 btnSaveModule.Enabled = hasSelection && Session.TypeAut >= 5;
             if (btnDeleteModule != null)
@@ -1295,7 +1476,10 @@ namespace ModuleGPI
 
         private void EditSelectedModule()
         {
-            var drv = dgvModulesConfig?.CurrentRow?.DataBoundItem as DataRowView;
+            var drv = dgvModulesConfig == null ? null :
+                dgvModulesConfig.CurrentRow == null ? null :
+                dgvModulesConfig.CurrentRow.DataBoundItem as DataRowView;
+
             if (drv == null) return;
 
             try
@@ -1307,13 +1491,13 @@ namespace ModuleGPI
                     ExePath = Convert.ToString(drv["ExePath"]),
                     WorkingDir = Convert.ToString(drv["WorkingDir"]),
                     IconPath = Convert.ToString(drv["IconPath"]),
-                    Category = "",  // ✅ Ya no se usa
+                    Category = "",
                     RequiresElevation = drv["RequiresElevation"] != DBNull.Value &&
                        Convert.ToBoolean(drv["RequiresElevation"]),
                     RolesMinTypeAut = drv["RolesMinTypeAut"] == DBNull.Value ? 1 :
                      Convert.ToInt32(drv["RolesMinTypeAut"]),
                     Plant = drv["Plant"] == DBNull.Value ? 1 : Convert.ToInt32(drv["Plant"]),
-                    IsTest = drv["IsTest"] != DBNull.Value && Convert.ToBoolean(drv["IsTest"])  
+                    IsTest = drv["IsTest"] != DBNull.Value && Convert.ToBoolean(drv["IsTest"])
                 };
 
                 using (var form = new ModuleEditForm(module))
@@ -1324,33 +1508,35 @@ namespace ModuleGPI
                         drv["ExePath"] = form.Module.ExePath;
                         drv["WorkingDir"] = form.Module.WorkingDir ?? "";
                         drv["IconPath"] = form.Module.IconPath ?? "";
-                        drv["Category"] = "";  
+                        drv["Category"] = "";
                         drv["RequiresElevation"] = form.Module.RequiresElevation;
                         drv["RolesMinTypeAut"] = form.Module.RolesMinTypeAut;
                         drv["Plant"] = form.Module.Plant;
-                        drv["IsTest"] = form.Module.IsTest;  
+                        drv["IsTest"] = form.Module.IsTest;
 
                         _dataAccess.UpsertModule(drv.Row);
 
-                        UpdateStatus($"Módulo '{form.Module.Name}' actualizado");
+                        UpdateStatus(string.Format("Módulo '{0}' actualizado", form.Module.Name));
                         RefreshAll();
                     }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al editar módulo: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al editar módulo: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
         }
-
-
 
         private void SaveAllConfigChanges()
         {
             try
             {
-                if (_dtModulesConfig?.GetChanges() != null)
+                if (_dtModulesConfig != null && _dtModulesConfig.GetChanges() != null)
                 {
                     foreach (DataRow row in _dtModulesConfig.GetChanges().Rows)
                     {
@@ -1366,19 +1552,29 @@ namespace ModuleGPI
                 }
                 else
                 {
-                    MessageBox.Show("No hay cambios pendientes para guardar.",
-                        "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(
+                        "No hay cambios pendientes para guardar.",
+                        "Información",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar configuración: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al guardar configuración: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
         }
+
         #endregion
 
         #region TabAdmin - Users and Overrides
+
         private void LoadAdminData()
         {
             if (Session.TypeAut < 4) return;
@@ -1398,42 +1594,41 @@ namespace ModuleGPI
 
                     dgvUsuarios.Dock = DockStyle.Fill;
 
-                    grpRoles.Controls.Add(dgvUsuarios);      
-                    grpRoles.Controls.Add(barFiltroPlanta);  
+                    grpRoles.Controls.Add(dgvUsuarios);
+                    grpRoles.Controls.Add(barFiltroPlanta);
 
                     grpRoles.ResumeLayout();
                 }
 
-                if (dgvUsuarios.Columns.Contains("MTY_Access"))
-                    dgvUsuarios.Columns["MTY_Access"].ReadOnly = false;
+                if (dgvUsuarios != null)
+                {
+                    if (dgvUsuarios.Columns.Contains("MTY_Access"))
+                        dgvUsuarios.Columns["MTY_Access"].ReadOnly = false;
 
-                if (dgvUsuarios.Columns.Contains("QRO_Access"))
-                    dgvUsuarios.Columns["QRO_Access"].ReadOnly = false;
+                    if (dgvUsuarios.Columns.Contains("QRO_Access"))
+                        dgvUsuarios.Columns["QRO_Access"].ReadOnly = false;
 
-                if (dgvUsuarios.Columns.Contains("TIJ_Access"))
-                    dgvUsuarios.Columns["TIJ_Access"].ReadOnly = false;
+                    if (dgvUsuarios.Columns.Contains("TIJ_Access"))
+                        dgvUsuarios.Columns["TIJ_Access"].ReadOnly = false;
 
-                Debug.WriteLine("✅ LoadAdminData: Forzado ReadOnly=false en checkboxes");
+                    Debug.WriteLine("✅ LoadAdminData: Forzado ReadOnly=false en checkboxes");
+                }
 
                 _dtModulesAdmin = _dataAccess.GetModules(null);
-                dgvModulos.DataSource = _dtModulesAdmin;
-                dgvModulos.ReadOnly = true;
+                if (dgvModulos != null)
+                {
+                    dgvModulos.DataSource = _dtModulesAdmin;
+                    dgvModulos.ReadOnly = true;
+                }
                 ConfigureModulesAdminGrid();
 
                 _dtUsers = _dataAccess.GetUsers();
 
-                _bsUsers.DataSource = _dtUsers.DefaultView;  // ✅ no copia, mantiene edición/guardado
-                dgvUsuarios.DataSource = _bsUsers;
-
-                ConfigureUsersGrid();
-                
-
-
-                //dgvModulos.DataSource = _dtModulesAdmin;  
-                //dgvModulos.ReadOnly = true;
-                ConfigureModulesAdminGrid();
-
-               
+                _bsUsers.DataSource = _dtUsers.DefaultView;
+                if (dgvUsuarios != null)
+                {
+                    dgvUsuarios.DataSource = _bsUsers;
+                }
 
                 if (btnAdminGuardar != null)
                 {
@@ -1442,11 +1637,11 @@ namespace ModuleGPI
 
                 LoadPlantFilter();
 
-                if (dgvModulos.Rows.Count > 0)
+                if (dgvModulos != null && dgvModulos.Rows.Count > 0)
                 {
                     dgvModulos.Rows[0].Selected = true;
                     var drv = dgvModulos.Rows[0].DataBoundItem as DataRowView;
-                    
+
                     if (drv != null)
                     {
                         string buttonName = Convert.ToString(drv["ButtonName"]);
@@ -1458,8 +1653,12 @@ namespace ModuleGPI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al cargar datos de administración: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al cargar datos de administración: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             finally
             {
@@ -1473,48 +1672,37 @@ namespace ModuleGPI
 
             try
             {
-                // ✅ Mostrar solo estas columnas (Category fuera)
-                var visibleColumns = new[] { "Name", "RolesMinTypeAut" , "Plant"};
+                var visibleColumns = new[] { "Name", "RolesMinTypeAut", "Plant" };
 
                 foreach (DataGridViewColumn col in dgvModulos.Columns)
                 {
-                    // Ojo: algunos grids usan Name en lugar de DataPropertyName.
-                    // Aquí validamos por ambos.
-                    bool show =
-                        visibleColumns.Contains(col.DataPropertyName) || visibleColumns.Contains(col.Name);
+                    bool show = visibleColumns.Contains(col.DataPropertyName) ||
+                               visibleColumns.Contains(col.Name);
 
                     col.Visible = show;
 
                     if (show)
                     {
-                        var key = !string.IsNullOrWhiteSpace(col.DataPropertyName) ? col.DataPropertyName : col.Name;
+                        var key = !string.IsNullOrWhiteSpace(col.DataPropertyName)
+                            ? col.DataPropertyName : col.Name;
 
                         switch (key)
                         {
                             case "Name":
                                 col.HeaderText = "Nombre Módulo";
+                                col.ReadOnly = true;
                                 break;
                             case "RolesMinTypeAut":
                                 col.HeaderText = "Rol Mínimo";
+                                col.ReadOnly = true;
                                 break;
                             case "Plant":
-                                col.HeaderText = "planta";
+                                col.HeaderText = "Planta";
+                                col.ReadOnly = true;
                                 break;
                         }
                     }
                 }
-
-                dgvModulos.CellFormatting -= DgvModulos_CellFormatting;
-                dgvModulos.CellFormatting += DgvModulos_CellFormatting;
-                // ✅ Pintar filas TEST en ámbar (suscribir una sola vez)
-                dgvModulos.RowPrePaint -= DgvModulos_RowPrePaint;
-                dgvModulos.RowPrePaint += DgvModulos_RowPrePaint;
-                //filtrocbo
-                //cboPlantFilter.SelectedIndexChanged -= CboPlantFilter_SelectedIndexChanged;
-                cboPlantFilter.SelectedValueChanged -= CboPlantFilter_SelectedIndexChanged;
-                cboPlantFilter.SelectedValueChanged += CboPlantFilter_SelectedIndexChanged;
-
-                //ApplyPlantFilter();
 
                 if (dgvModulos.IsHandleCreated && dgvModulos.Visible)
                 {
@@ -1522,113 +1710,38 @@ namespace ModuleGPI
                 }
                 else
                 {
-                    dgvModulos.HandleCreated += (s, e) =>
-                        dgvModulos.BeginInvoke(new Action(AjustarAnchosModulosAdmin));
+                    EventHandler handlerCreated = null;
+                    EventHandler handlerVisible = null;
 
-                    dgvModulos.VisibleChanged += (s, e) =>
+                    handlerCreated = (s, e) =>
+                    {
+                        dgvModulos.HandleCreated -= handlerCreated;
+                        dgvModulos.BeginInvoke(new Action(AjustarAnchosModulosAdmin));
+                    };
+
+                    handlerVisible = (s, e) =>
                     {
                         if (dgvModulos.Visible)
+                        {
+                            dgvModulos.VisibleChanged -= handlerVisible;
                             dgvModulos.BeginInvoke(new Action(AjustarAnchosModulosAdmin));
+                        }
                     };
+
+                    dgvModulos.HandleCreated += handlerCreated;
+                    dgvModulos.VisibleChanged += handlerVisible;
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error configurando grid de módulos admin: {ex.Message}");
+                Debug.WriteLine(string.Format("Error en ConfigureModulesAdminGrid: {0}", ex.Message));
             }
         }
-
-        private void CboPlantFilter_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (_modulosBinding == null) return;
-            if (cboPlantFilter.SelectedItem == null) return;
-
-            // Igual lógica que tienes en el evento
-            var selected = cboPlantFilter.SelectedItem;  // ya es el objeto anónimo
-            var valueProp = selected.GetType().GetProperty("Value");
-            if (valueProp == null) return;
-
-            int plantValue = (int)valueProp.GetValue(selected);
-
-            if (plantValue == 0)
-            {
-                _modulosBinding.RemoveFilter();
-            }
-            else
-            {
-                _modulosBinding.Filter = $"Plant = {plantValue}";
-            }
-
-            // Opcional: forzar refresco visual inmediato
-            dgvModulos.Refresh();
-        }
-        //private void ApplyPlantFilter()
-        //{
-        //    if (_modulosBinding == null) return;
-        //    if (cboPlantFilter.SelectedItem == null) return;
-
-        //    // Igual lógica que tienes en el evento
-        //    var selected = cboPlantFilter.SelectedItem;  // ya es el objeto anónimo
-        //    var valueProp = selected.GetType().GetProperty("Value");
-        //    if (valueProp == null) return;
-
-        //    int plantValue = (int)valueProp.GetValue(selected);
-
-        //    if (plantValue == 0)
-        //    {
-        //        _modulosBinding.RemoveFilter();
-        //    }
-        //    else
-        //    {
-        //        _modulosBinding.Filter = $"Plant = {plantValue}";
-        //    }
-
-        //    // Opcional: forzar refresco visual inmediato
-        //    dgvModulos.Refresh();
-        //}
-        private void DgvModulos_RowPrePaint(object sender, DataGridViewRowPrePaintEventArgs e)
-        {
-            if (dgvModulos == null || e.RowIndex < 0) return;
-
-            // Buscar columna IsTest por Name o DataPropertyName (robusto)
-            var isTestCol = dgvModulos.Columns
-                .Cast<DataGridViewColumn>()
-                .FirstOrDefault(c =>
-                    string.Equals(c.Name, "IsTest", StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(c.DataPropertyName, "IsTest", StringComparison.OrdinalIgnoreCase));
-
-            if (isTestCol == null) return;
-
-            var row = dgvModulos.Rows[e.RowIndex];
-
-            bool isTest = false;
-            var v = row.Cells[isTestCol.Index].Value;
-            if (v != null && v != DBNull.Value)
-                bool.TryParse(v.ToString(), out isTest);
-
-            if (isTest)
-            {
-                // ✅ ámbar suave
-                row.DefaultCellStyle.BackColor = Color.FromArgb(255, 245, 200);
-                row.DefaultCellStyle.SelectionBackColor = Color.FromArgb(255, 230, 160);
-                row.DefaultCellStyle.ForeColor = Color.Black;
-                row.DefaultCellStyle.SelectionForeColor = Color.Black;
-            }
-            else
-            {
-                // ✅ reset (evita “arrastre” de estilos)
-                row.DefaultCellStyle.BackColor = dgvModulos.DefaultCellStyle.BackColor;
-                row.DefaultCellStyle.SelectionBackColor = dgvModulos.DefaultCellStyle.SelectionBackColor;
-                row.DefaultCellStyle.ForeColor = dgvModulos.DefaultCellStyle.ForeColor;
-                row.DefaultCellStyle.SelectionForeColor = dgvModulos.DefaultCellStyle.SelectionForeColor;
-            }
-        }
-
 
         private void AjustarAnchosModulosAdmin()
         {
             if (dgvModulos == null || !dgvModulos.IsHandleCreated) return;
-            
+
             try
             {
                 dgvModulos.SuspendLayout();
@@ -1639,15 +1752,10 @@ namespace ModuleGPI
                     dgvModulos.Columns["Name"].MinimumWidth = 150;
                 }
 
-                if (dgvModulos.Columns["Category"] != null)
-                {
-                    dgvModulos.Columns["Category"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvModulos.Columns["Category"].Width = 110;
-                }
-
                 if (dgvModulos.Columns["RolesMinTypeAut"] != null)
                 {
-                    dgvModulos.Columns["RolesMinTypeAut"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                    dgvModulos.Columns["RolesMinTypeAut"].AutoSizeMode =
+                        DataGridViewAutoSizeColumnMode.None;
                     dgvModulos.Columns["RolesMinTypeAut"].Width = 100;
                 }
 
@@ -1659,413 +1767,125 @@ namespace ModuleGPI
 
                 dgvModulos.ResumeLayout();
             }
-
-
             catch (Exception ex)
             {
-                Debug.WriteLine($"Error ajustando anchos: {ex.Message}");
+                Debug.WriteLine(string.Format("Error ajustando anchos: {0}", ex.Message));
             }
         }
 
-        private void ConfigureUsersGrid()
+        private void BuildOverridesViewFor(string buttonName)
         {
-            if (dgvUsuarios == null || dgvUsuarios.Columns.Count == 0)
-            {
-                Debug.WriteLine("⚠️ ConfigureUsersGrid: Grid vacío");
-                return;
-            }
+            if (dgvOverrides == null || _dtUsers == null) return;
 
             try
             {
-                dgvUsuarios.SuspendLayout();
+                _dtOverridesView = new DataTable();
+                _dtOverridesView.Columns.Add("USU_UserLog", typeof(string));
 
-                dgvUsuarios.ReadOnly = false;
-                dgvUsuarios.AllowUserToAddRows = false;
-                dgvUsuarios.AllowUserToDeleteRows = false;
-                dgvUsuarios.EditMode = DataGridViewEditMode.EditOnEnter;
-                dgvUsuarios.SelectionMode = DataGridViewSelectionMode.CellSelect;
+                var usersToShow = _dtUsers.AsEnumerable()
+                    .Select(r => Convert.ToString(r["USU_UserLog"]))
+                    .Distinct()
+                    .OrderBy(u => u)
+                    .ToList();
 
+                _dtOverridesView.Columns.Add(string.Format("chk_{0}", buttonName), typeof(bool));
 
-                if (dgvUsuarios.Columns["USU_EmpID"] != null)
+                foreach (string empId in usersToShow)
                 {
-                    dgvUsuarios.Columns["USU_EmpID"].Visible = false;   // ✅ ocultar
-                    dgvUsuarios.Columns["USU_EmpID"].ReadOnly = true;   // conserva dato para guardado/lógica
+                    var row = _dtOverridesView.NewRow();
+                    row["USU_UserLog"] = empId;
+
+                    int? overrideValue = _overrides.Get(buttonName, empId);
+                    row[string.Format("chk_{0}", buttonName)] = (overrideValue == 1);
+
+                    _dtOverridesView.Rows.Add(row);
                 }
 
+                dgvOverrides.DataSource = _dtOverridesView;
 
-                if (dgvUsuarios.Columns["USU_UserLog"] != null)
+                if (dgvOverrides.Columns["USU_UserLog"] != null)
                 {
-                    dgvUsuarios.Columns["USU_UserLog"].HeaderText = "Usuario";
-                    dgvUsuarios.Columns["USU_UserLog"].ReadOnly = true;
+                    dgvOverrides.Columns["USU_UserLog"].HeaderText = "Usuario";
+                    dgvOverrides.Columns["USU_UserLog"].ReadOnly = true;
+                    dgvOverrides.Columns["USU_UserLog"].Width = 150;
+                    dgvOverrides.Columns["USU_UserLog"].Frozen = true;
                 }
 
-           
-
-                if (dgvUsuarios.Columns["USU_TypeAut"] != null)
+                for (int i = 1; i < dgvOverrides.Columns.Count; i++)
                 {
-                    int roleIndex = dgvUsuarios.Columns["USU_TypeAut"].Index;
-                    dgvUsuarios.Columns.RemoveAt(roleIndex);
-
-                    var roleCombo = new DataGridViewComboBoxColumn
-                    {
-                        Name = "USU_TypeAut",
-                        HeaderText = "Rol",
-                        DataPropertyName = "USU_TypeAut",
-                        DataSource = new[]
-                        {
-                    new { Value = 1, Display = "Viewer" },
-                    new { Value = 2, Display = "Operator" },
-                    new { Value = 3, Display = "Supervisor" },
-                    new { Value = 4, Display = "AdminDept" },
-                    new { Value = 5, Display = "SysAdmin" }
-                },
-                        ValueMember = "Value",
-                        DisplayMember = "Display",
-                        ReadOnly = false,
-                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
-                    };
-
-                    dgvUsuarios.Columns.Insert(roleIndex, roleCombo);
-                    Debug.WriteLine("ComboBox TypeAut creado");
+                    dgvOverrides.Columns[i].HeaderText = "Permitir";
+                    dgvOverrides.Columns[i].Width = 80;
                 }
 
-                if (dgvUsuarios.Columns["USU_Status"] != null)
-                {
-                    int statusIndex = dgvUsuarios.Columns["USU_Status"].Index;
-                    dgvUsuarios.Columns.RemoveAt(statusIndex);
-
-                    var statusCombo = new DataGridViewComboBoxColumn
-                    {
-                        Name = "USU_Status",
-                        HeaderText = "Estado",
-                        DataPropertyName = "USU_Status",   // sigue enlazado al campo 0/1
-                        DataSource = new[]
-                         {
-                            new { Value = 0, Display = "Inactivo" },
-                            new { Value = 1, Display = "Activo" }
-                        },
-                        ValueMember = "Value",             // lo que se guarda en el DataTable (0/1)
-                        DisplayMember = "Display",         // lo que se muestra en la celda ("Activo"/"Inactivo")
-                        ReadOnly = false,
-                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
-                    };
-
-                    dgvUsuarios.Columns.Insert(statusIndex, statusCombo);
-
-                    Debug.WriteLine("ComboBox Status creado");
-                }
-
-                if (dgvUsuarios.Columns["USU_UserPLant"] != null)
-                {
-                    int plantIndex = dgvUsuarios.Columns["USU_UserPLant"].Index;
-                    dgvUsuarios.Columns.RemoveAt(plantIndex);
-
-                    var plantCombo = new DataGridViewComboBoxColumn
-                    {
-                        Name = "USU_UserPLant",
-                        HeaderText = "Planta",
-                        DataPropertyName = "USU_UserPLant",
-                        DataSource = new[]
-                        {
-                    new { Value = 1, Display = "MTY" },
-                    new { Value = 2, Display = "QRO" },
-                    new { Value = 3, Display = "TIJ" }
-                },
-                        ValueMember = "Value",
-                        DisplayMember = "Display",
-                        ReadOnly = false,
-                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox
-                    };
-
-                    dgvUsuarios.Columns.Insert(plantIndex, plantCombo);
-                    Debug.WriteLine("✅ ComboBox UserPLant creado");
-                }
-
-               
-
-                //  MTY_Access
-                if (dgvUsuarios.Columns.Contains("MTY_Access") && dgvUsuarios.Columns["MTY_Access"] != null)
-                {
-                    int mtyIndex = dgvUsuarios.Columns["MTY_Access"].Index;
-                    dgvUsuarios.Columns.RemoveAt(mtyIndex);
-
-                    var mtyCheckbox = new DataGridViewCheckBoxColumn
-                    {
-                        Name = "MTY_Access",
-                        HeaderText = "✓ MTY",
-                        DataPropertyName = "MTY_Access",
-                        TrueValue = true,
-                        FalseValue = false,
-                        ReadOnly = false,
-                        Width = 60
-                    };
-
-                    dgvUsuarios.Columns.Insert(mtyIndex, mtyCheckbox);
-                    Debug.WriteLine(" Checkbox MTY_Access creado");
-                }
-                else
-                {
-                    var mtyCheckbox = new DataGridViewCheckBoxColumn
-                    {
-                        Name = "MTY_Access",
-                        HeaderText = " MTY",
-                        DataPropertyName = "MTY_Access",
-                        TrueValue = true,
-                        FalseValue = false,
-                        ReadOnly = false,
-                        Width = 60
-                    };
-
-                    dgvUsuarios.Columns.Add(mtyCheckbox);
-                    Debug.WriteLine(" Checkbox MTY_Access NO existía, se agregó al final");
-                }
-
-                // ✅ QRO_Access
-                if (dgvUsuarios.Columns.Contains("QRO_Access") && dgvUsuarios.Columns["QRO_Access"] != null)
-                {
-                    int qroIndex = dgvUsuarios.Columns["QRO_Access"].Index;
-                    dgvUsuarios.Columns.RemoveAt(qroIndex);
-
-                    var qroCheckbox = new DataGridViewCheckBoxColumn
-                    {
-                        Name = "QRO_Access",
-                        HeaderText = " QRO",
-                        DataPropertyName = "QRO_Access",
-                        TrueValue = true,
-                        FalseValue = false,
-                        ReadOnly = false,
-                        Width = 60
-                    };
-
-                    dgvUsuarios.Columns.Insert(qroIndex, qroCheckbox);
-                    Debug.WriteLine("Checkbox QRO_Access creado");
-                }
-                else
-                {
-                    var qroCheckbox = new DataGridViewCheckBoxColumn
-                    {
-                        Name = "QRO_Access",
-                        HeaderText = " QRO",
-                        DataPropertyName = "QRO_Access",
-                        TrueValue = true,
-                        FalseValue = false,
-                        ReadOnly = false,
-                        Width = 60
-                    };
-
-                    dgvUsuarios.Columns.Add(qroCheckbox);
-                    Debug.WriteLine(" Checkbox QRO_Access NO existía, se agregó al final");
-                }
-
-                //  TIJ_Access
-                if (dgvUsuarios.Columns.Contains("TIJ_Access") && dgvUsuarios.Columns["TIJ_Access"] != null)
-                {
-                    int tijIndex = dgvUsuarios.Columns["TIJ_Access"].Index;
-                    dgvUsuarios.Columns.RemoveAt(tijIndex);
-
-                    var tijCheckbox = new DataGridViewCheckBoxColumn
-                    {
-                        Name = "TIJ_Access",
-                        HeaderText = " TIJ",
-                        DataPropertyName = "TIJ_Access",
-                        TrueValue = true,
-                        FalseValue = false,
-                        ReadOnly = false,
-                        Width = 60
-                    };
-
-                    dgvUsuarios.Columns.Insert(tijIndex, tijCheckbox);
-                    Debug.WriteLine(" Checkbox TIJ_Access creado");
-                }
-                else
-                {
-                    var tijCheckbox = new DataGridViewCheckBoxColumn
-                    {
-                        Name = "TIJ_Access",
-                        HeaderText = " TIJ",
-                        DataPropertyName = "TIJ_Access",
-                        TrueValue = true,
-                        FalseValue = false,
-                        ReadOnly = false,
-                        Width = 60
-                    };
-
-                    dgvUsuarios.Columns.Add(tijCheckbox);
-                    Debug.WriteLine(" Checkbox TIJ_Access NO existía, se agregó al final");
-                }
-
-                dgvUsuarios.ResumeLayout();
-
-
-                if (dgvUsuarios.IsHandleCreated && dgvUsuarios.Visible)
-                {
-                    AjustarAnchosUsuarios();
-                }
-                else
-                {
-                    EventHandler handlerCreated = null;
-                    EventHandler handlerVisible = null;
-
-                    handlerCreated = (s, e) =>
-                    {
-                        dgvUsuarios.HandleCreated -= handlerCreated;
-                        dgvUsuarios.BeginInvoke(new Action(AjustarAnchosUsuarios));
-                    };
-
-                    handlerVisible = (s, e) =>
-                    {
-                        if (dgvUsuarios.Visible)
-                        {
-                            dgvUsuarios.VisibleChanged -= handlerVisible;
-                            dgvUsuarios.BeginInvoke(new Action(AjustarAnchosUsuarios));
-                        }
-                    };
-
-                    dgvUsuarios.HandleCreated += handlerCreated;
-                    dgvUsuarios.VisibleChanged += handlerVisible;
-                }
-
-                Debug.WriteLine(" ConfigureUsersGrid completado exitosamente");
+                Debug.WriteLine(string.Format("Overrides construidos para: {0}", buttonName));
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($" ERROR en ConfigureUsersGrid: {ex.Message}");
-                Debug.WriteLine($"   StackTrace: {ex.StackTrace}");
-                MessageBox.Show($"Error configurando grid: {ex.Message}\n\n{ex.StackTrace}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.WriteLine(string.Format("Error en BuildOverridesViewFor: {0}", ex.Message));
             }
         }
 
-
-
-        private void AjustarAnchosUsuarios()
-        {
-            if (dgvUsuarios == null || !dgvUsuarios.IsHandleCreated) return;
-
-            try
-            {
-                dgvUsuarios.SuspendLayout();
-
-                //if (dgvUsuarios.Columns["USU_EmpID"] != null)
-                //{
-                //    dgvUsuarios.Columns["USU_EmpID"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                //    dgvUsuarios.Columns["USU_EmpID"].Width = 100;
-                //}
-
-                if (dgvUsuarios.Columns["USU_UserLog"] != null)
-                {
-                    dgvUsuarios.Columns["USU_UserLog"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-                    dgvUsuarios.Columns["USU_UserLog"].MinimumWidth = 120;
-                }
-
-                if (dgvUsuarios.Columns["USU_TypeAut"] != null)
-                {
-                    dgvUsuarios.Columns["USU_TypeAut"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["USU_TypeAut"].Width = 120;
-                }
-
-                if (dgvUsuarios.Columns["USU_Status"] != null)
-                {
-                    dgvUsuarios.Columns["USU_Status"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["USU_Status"].Width = 80;
-                }
-
-                if (dgvUsuarios.Columns["USU_UserPLant"] != null)
-                {
-                    dgvUsuarios.Columns["USU_UserPLant"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["USU_UserPLant"].Width = 120;
-                }
-
-                if (dgvUsuarios.Columns["MTY_Access"] != null)
-                {
-                    dgvUsuarios.Columns["MTY_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["MTY_Access"].Width = 60;
-                }
-
-                if (dgvUsuarios.Columns["QRO_Access"] != null)
-                {
-                    dgvUsuarios.Columns["QRO_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["QRO_Access"].Width = 60;
-                }
-
-                if (dgvUsuarios.Columns["TIJ_Access"] != null)
-                {
-                    dgvUsuarios.Columns["TIJ_Access"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-                    dgvUsuarios.Columns["TIJ_Access"].Width = 60;
-                }
-
-                dgvUsuarios.ResumeLayout();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error ajustando anchos de columnas usuarios: {ex.Message}");
-            }
-        }
-
-
-
-
-       
         private void LoadPlantFilter()
         {
-            if (cboPlantFilter == null) return;
+            if (cboPlantFilter != null)
+            {
+                cboPlantFilter.Items.Clear();
+                cboPlantFilter.Items.Add(new { Value = 0, Text = "Todas las plantas" });
+                cboPlantFilter.Items.Add(new { Value = 1, Text = "MTY" });
+                cboPlantFilter.Items.Add(new { Value = 2, Text = "QRO" });
+                cboPlantFilter.Items.Add(new { Value = 3, Text = "TIJ" });
 
-            cboPlantFilter.Items.Clear();
-            cboPlantFilter.Items.Add(new { Value = 0, Text = "Todas las plantas" });
-            cboPlantFilter.Items.Add(new { Value = 1, Text = "MTY" });
-            cboPlantFilter.Items.Add(new { Value = 2, Text = "QRO" });
-            cboPlantFilter.Items.Add(new { Value = 3, Text = "TIJ" });
+                cboPlantFilter.DisplayMember = "Text";
+                cboPlantFilter.ValueMember = "Value";
+                cboPlantFilter.SelectedIndex = 0;
+                cboPlantFilter.Enabled = false;
+            }
 
-            cboPlantFilter.DisplayMember = "Text";
-            cboPlantFilter.ValueMember = "Value";
-            cboPlantFilter.SelectedIndex = 0;
-            cboPlantFilter.Enabled = false;
-            ////////////////////////////////////////////////////////////////////////////////
-            if (cboPlantP == null) return;
+            if (cboPlantP != null)
+            {
+                cboPlantP.Items.Clear();
+                cboPlantP.Items.Add(new { Value = 0, Text = "Todas las plantas" });
+                cboPlantP.Items.Add(new { Value = 1, Text = "MTY" });
+                cboPlantP.Items.Add(new { Value = 2, Text = "QRO" });
+                cboPlantP.Items.Add(new { Value = 3, Text = "TIJ" });
 
-            cboPlantP.Items.Clear();
-            cboPlantP.Items.Add(new { Value = 0, Text = "Todas las plantas" });
-            cboPlantP.Items.Add(new { Value = 1, Text = "MTY" });
-            cboPlantP.Items.Add(new { Value = 2, Text = "QRO" });
-            cboPlantP.Items.Add(new { Value = 3, Text = "TIJ" });
-
-            cboPlantP.DisplayMember = "Text";
-            cboPlantP.ValueMember = "Value";
-            cboPlantP.SelectedIndex = 0;
-            cboPlantP.Enabled = chkPlantP.Checked;
-
-            ConfigureModulesAdminGrid();
-            LoadModules();
+                cboPlantP.DisplayMember = "Text";
+                cboPlantP.ValueMember = "Value";
+                cboPlantP.SelectedIndex = 0;
+                cboPlantP.Enabled = chkPlantP != null && chkPlantP.Checked;
+            }
         }
-
 
         private void chkFiltrarPorPlanta_CheckedChanged(object sender, EventArgs e)
         {
-            cboPlantP.Enabled = chkPlantP.Checked;
-            LoadModules(); // recargar con el nuevo filtro
+            if (cboPlantP != null && chkPlantP != null)
+            {
+                cboPlantP.Enabled = chkPlantP.Checked;
+                LoadModules();
+            }
         }
-
-
 
         void FilterUsersByPlant()
         {
-            if (_dtUsers == null) return;
+            if (_dtUsers == null || dgvUsuarios == null) return;
 
-            if (!chkPlantFilter.Checked)
+            if (chkPlantFilter != null && !chkPlantFilter.Checked)
             {
                 dgvUsuarios.DataSource = _dtUsers;
-                ConfigureUsersGrid();              // ✅ vuelve a ocultar USU_EmpID
                 return;
             }
 
+            if (cboPlantFilter == null) return;
+
             var selectedPlant = cboPlantFilter.SelectedItem as dynamic;
 
-            if (selectedPlant?.Value == 0)
+            if (selectedPlant == null) return;
+
+            if (selectedPlant.Value == 0)
             {
                 dgvUsuarios.DataSource = _dtUsers;
-                ConfigureUsersGrid();              // ✅ vuelve a ocultar USU_EmpID
             }
-            else if (selectedPlant != null)
+            else
             {
                 var filtered = _dtUsers.AsEnumerable()
                     .Where(r => Convert.ToInt32(r["USU_UserPLant"]) == selectedPlant.Value);
@@ -2079,20 +1899,25 @@ namespace ModuleGPI
                     dgvUsuarios.DataSource = _dtUsers.Clone();
                 }
 
-                ConfigureUsersGrid();              // ✅ vuelve a ocultar USU_EmpID
                 RefreshOverridesForCurrentModule();
-
             }
         }
 
-
+        private void CboPlantFilter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Manejador adicional si es necesario
+        }
 
         private void BtnAdminGuardar_Click(object sender, EventArgs e)
         {
             if (!_adminCanEdit)
             {
-                MessageBox.Show("No tiene permisos para guardar cambios.",
-                    "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    "No tiene permisos para guardar cambios.",
+                    "Acceso Denegado",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
                 return;
             }
 
@@ -2100,27 +1925,55 @@ namespace ModuleGPI
             {
                 this.Cursor = Cursors.WaitCursor;
 
-                if (_dtUsers?.GetChanges() != null)
+                bool anyChanges = false;
+
+                if (_dtUsers != null && _dtUsers.GetChanges() != null)
                 {
-                    _dataAccess.UpdateUsers(_dtUsers);
+                    _dataAccess.UpdateUsers(_dtUsers.GetChanges());
                     _dtUsers.AcceptChanges();
+                    anyChanges = true;
                 }
 
-                SaveAllOverrides();
-
-                if (btnAdminGuardar != null)
+                if (_overrides != null)
                 {
-                    btnAdminGuardar.BackColor = SystemColors.Control;
+                    _dataAccess.ReplaceOverrides(_);
+                    anyChanges = true;
                 }
 
-                UpdateStatus(" Cambios guardados exitosamente");
-                MessageBox.Show("Cambios guardados correctamente", "Éxito",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (anyChanges)
+                {
+                    if (btnAdminGuardar != null)
+                    {
+                        btnAdminGuardar.Enabled = false;
+                        btnAdminGuardar.BackColor = SystemColors.Control;
+                    }
+
+                    UpdateStatus("Cambios guardados exitosamente");
+                    MessageBox.Show(
+                        "Cambios guardados correctamente.",
+                        "Éxito",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                }
+                else
+                {
+                    MessageBox.Show(
+                        "No hay cambios pendientes para guardar.",
+                        "Información",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Error al guardar cambios: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(
+                    string.Format("Error al guardar cambios: {0}", ex.Message),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             finally
             {
@@ -2128,381 +1981,97 @@ namespace ModuleGPI
             }
         }
 
-        private void DgvModulos_SelectionChanged(object sender, EventArgs e)
-        {
-            if (dgvModulos?.CurrentRow?.DataBoundItem is DataRowView drv)
-            {
-                string buttonName = Convert.ToString(drv["ButtonName"]);
-                BuildOverridesViewFor(buttonName);
-            }
-        }
-
-        private void DgvModulos_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (Session.TypeAut < 4 || e.RowIndex < 0) return;
-
-            var col = dgvModulos.Columns[e.ColumnIndex].DataPropertyName;
-
-            if (col == "RolesMinTypeAut")
-            {
-                if (int.TryParse(Convert.ToString(e.Value), out int r))
-                {
-                    e.Value = _roleManager.GetRoleName(r);
-                    e.FormattingApplied = true;
-                }
-            }
-
-            if (dgvModulos.Columns[e.ColumnIndex].Name == "Plant" && e.Value != null)
-            {
-                switch (e.Value.ToString())
-                {
-                    case "1":
-                        e.Value = "MTY";
-                        e.CellStyle.BackColor = Color.FromArgb(230, 245, 255);
-                        e.CellStyle.ForeColor = Color.FromArgb(0, 102, 204);
-                        break;
-                    case "2":
-                        e.Value = "QRO";
-                        e.CellStyle.BackColor = Color.FromArgb(255, 240, 230);
-                        e.CellStyle.ForeColor = Color.FromArgb(204, 102, 0);
-                        break;
-                    case "3":
-                        e.Value = "TIJ";
-                        e.CellStyle.BackColor = Color.FromArgb(240, 255, 230);
-                        e.CellStyle.ForeColor = Color.FromArgb(51, 153, 51);
-                        break;
-                    default:
-                        e.Value = "???";
-                        e.CellStyle.BackColor = Color.FromArgb(240, 240, 240);
-                        e.CellStyle.ForeColor = Color.Gray;
-                        break;
-                }
-
-                e.FormattingApplied = true; // evita que se sobreescriba
-            }
-
-
-        }
-
-        private void DgvUsuarios_CellEndEdit(object sender, DataGridViewCellEventArgs e)
-        {
-            if (!_adminCanEdit || _dtUsers == null) return;
-
-            try
-            {
-                UpdateStatus(" Usuario modificado - Presione GUARDAR para aplicar cambios");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al actualizar usuario: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
         #endregion
 
-        #region Overrides Management
-        private void LoadOverrides()
-        {
-            try
-            {
-                _overrides = _dataAccess.GetOverrides();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al cargar overrides: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                _overrides = new OverridesStore();
-            }
-        }
+        #region Context Menu Operations
 
-        private void BuildOverridesViewFor(string buttonName)
-        {
-            if (_dtUsers == null || dgvOverrides == null) return;
-
-            try
-            {
-                _dtOverridesView = new DataTable();
-                _dtOverridesView.Columns.Add("EmpId", typeof(string));
-                _dtOverridesView.Columns.Add("UserName", typeof(string));
-                _dtOverridesView.Columns.Add("RoleName", typeof(string));
-                _dtOverridesView.Columns.Add("Override", typeof(int));
-
-                foreach (DataRow userRow in EnumerateVisibleUsersForOverrides())
-                {
-                    string empId = Convert.ToString(userRow["USU_EmpID"]);
-                    string userName = Convert.ToString(userRow["USU_UserLog"]);
-                    int userRole = Convert.ToInt32(userRow["USU_TypeAut"]);
-
-                    var ov = _overrides.Get(buttonName, empId) ?? 0;
-                    _dtOverridesView.Rows.Add(empId, userName, _roleManager.GetRoleName(userRole), ov);
-                }
-
-
-                var bsOverrides = new BindingSource { DataSource = _dtOverridesView };
-                dgvOverrides.DataSource = bsOverrides;
-
-               
-
-                if (dgvOverrides.IsHandleCreated)
-                {
-                    dgvOverrides.BeginInvoke(new Action(ConfigureOverridesColumns));
-                }
-                else
-                {
-                    dgvOverrides.HandleCreated += (s, e) =>
-                        dgvOverrides.BeginInvoke(new Action(ConfigureOverridesColumns));
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al construir vista de overrides: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private IEnumerable<DataRow> EnumerateVisibleUsersForOverrides()
-        {
-            if (dgvUsuarios?.DataSource is BindingSource bs)
-            {
-                // Lo normal con el cambio: bs.DataSource = _dtUsers.DefaultView
-                if (bs.List is DataView dvList)
-                    return dvList.Cast<DataRowView>().Select(x => x.Row);
-
-                if (bs.DataSource is DataView dvSrc)
-                    return dvSrc.Cast<DataRowView>().Select(x => x.Row);
-
-                if (bs.DataSource is DataTable dtSrc)
-                    return dtSrc.AsEnumerable();
-            }
-
-            if (dgvUsuarios?.DataSource is DataView dv)
-                return dv.Cast<DataRowView>().Select(x => x.Row);
-
-            if (dgvUsuarios?.DataSource is DataTable dt)
-                return dt.AsEnumerable();
-
-            // fallback
-            return _dtUsers?.AsEnumerable() ?? Enumerable.Empty<DataRow>();
-        }
-
-
-        private void ConfigureOverridesColumns()
-        {
-            if (dgvOverrides == null || !dgvOverrides.IsHandleCreated || dgvOverrides.Columns.Count == 0)
-                return;
-
-            try
-            {
-                dgvOverrides.SuspendLayout();
-
-                var empIdCol = dgvOverrides.Columns["EmpId"];
-                if (empIdCol != null)
-                {
-                    empIdCol.Visible = false;  // ✅ ocultar columna ID
-                    empIdCol.ReadOnly = true;  // conserva dato interno
-                }
-
-
-                var userNameCol = dgvOverrides.Columns["UserName"];
-                if (userNameCol != null)
-                {
-                    userNameCol.HeaderText = "Usuario";
-                    userNameCol.ReadOnly = true;
-                    userNameCol.Width = 180;  // antes 140
-                }
-
-
-                var roleNameCol = dgvOverrides.Columns["RoleName"];
-                if (roleNameCol != null)
-                {
-                    roleNameCol.HeaderText = "Rol Base";
-                    roleNameCol.ReadOnly = true;
-                    roleNameCol.Width = 100;
-                }
-
-                var overrideCol = dgvOverrides.Columns["Override"];
-                if (overrideCol != null)
-                {
-                    int overrideIndex = overrideCol.Index;
-                    dgvOverrides.Columns.Remove(overrideCol);
-
-                    var comboCol = new DataGridViewComboBoxColumn
-                    {
-                        Name = "Override",
-                        HeaderText = "Permiso",
-                        DataPropertyName = "Override",
-                        DataSource = new[]
-                        {
-                    new { Value = -1, Display = " Denegar" },
-                    new { Value = 0, Display = " Heredado" },
-                    new { Value = 1, Display = " Permitir" }
-                },
-                        ValueMember = "Value",
-                        DisplayMember = "Display",
-                        Width = 130,
-                        ReadOnly = false, 
-                        DisplayStyle = DataGridViewComboBoxDisplayStyle.ComboBox, 
-                        FlatStyle = FlatStyle.Flat
-                    };
-
-                    dgvOverrides.Columns.Insert(overrideIndex, comboCol);
-                }
-
-                dgvOverrides.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-                dgvOverrides.AllowUserToAddRows = false;
-                dgvOverrides.AllowUserToDeleteRows = false;
-                dgvOverrides.SelectionMode = DataGridViewSelectionMode.CellSelect;
-                dgvOverrides.MultiSelect = false;
-                dgvOverrides.RowHeadersVisible = false;
-                dgvOverrides.ReadOnly = false; 
-                dgvOverrides.EditMode = DataGridViewEditMode.EditOnEnter;
-
-                dgvOverrides.ResumeLayout();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error configurando columnas de overrides: {ex.Message}");
-            }
-        }
-
-        private void DgvOverrides_CurrentCellDirtyStateChanged(object sender, EventArgs e)
-        {
-            if (dgvOverrides.IsCurrentCellDirty)
-            {
-                dgvOverrides.CommitEdit(DataGridViewDataErrorContexts.Commit);
-            }
-        }
-
-        private void DgvOverrides_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0 || dgvModulos?.CurrentRow == null) return;
-
-            var drv = dgvModulos.CurrentRow.DataBoundItem as DataRowView;
-            if (drv == null) return;
-
-            string buttonName = Convert.ToString(drv["ButtonName"]);
-            ApplyOneOverrideFromRow(buttonName, e.RowIndex);
-
-            UpdateStatus(" Override modificado - Presione GUARDAR para aplicar cambios");
-
-            if (btnAdminGuardar != null && _adminCanEdit)
-            {
-                btnAdminGuardar.Enabled = true;
-                btnAdminGuardar.BackColor = Color.FromArgb(255, 235, 180); 
-            }
-        }
-
-        private void ApplyOneOverrideFromRow(string buttonName, int rowIndex)
-        {
-            if (_dtOverridesView == null || rowIndex >= _dtOverridesView.Rows.Count) return;
-
-            var row = _dtOverridesView.Rows[rowIndex];
-            string empId = Convert.ToString(row["EmpId"]);
-            int overrideValue = Convert.ToInt32(row["Override"]);
-
-            _overrides.Set(buttonName, empId, overrideValue);
-        }
-
-        private void SaveAllOverrides()
-        {
-            if (!_adminCanEdit || dgvModulos?.CurrentRow == null) return;
-
-            var drv = dgvModulos.CurrentRow.DataBoundItem as DataRowView;
-            if (drv == null) return;
-
-            string buttonName = Convert.ToString(drv["ButtonName"]);
-
-            if (_dtOverridesView != null)
-            {
-                _dataAccess.ReplaceOverrides(buttonName, _dtOverridesView);
-            }
-        }
-
-        private void DgvOverrides_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-
-            try
-            {
-                var row = dgvOverrides.Rows[e.RowIndex];
-                var cellValue = row.Cells["Override"].Value;
-
-                if (cellValue == null || cellValue == DBNull.Value) return;
-
-                int overrideValue = Convert.ToInt32(cellValue);
-
-                switch (overrideValue)
-                {
-                    case 1:
-                        row.DefaultCellStyle.BackColor = Color.FromArgb(230, 255, 230);
-                        row.DefaultCellStyle.ForeColor = Color.DarkGreen;
-                        break;
-                    case -1:
-                        row.DefaultCellStyle.BackColor = Color.FromArgb(255, 230, 230);
-                        row.DefaultCellStyle.ForeColor = Color.DarkRed;
-                        break;
-                    default:
-                        row.DefaultCellStyle.BackColor = Color.White;
-                        row.DefaultCellStyle.ForeColor = Color.Black;
-                        break;
-                }
-            }
-            catch { }
-        }
-        #endregion
-
-        #region Context Menu
         private void OpenContextSelected(bool asAdmin)
         {
-            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
+            if (cmuModulo != null && cmuModulo.SourceControl is Control ctrl &&
+                ctrl.Tag is ModuleDef module)
             {
-                _moduleService.LaunchModule(ctrl.Name, m, asAdmin, ALLOWED_ROOTS, UpdateStatus);
+                _moduleService.LaunchModule(ctrl.Name, module, asAdmin, ALLOWED_ROOTS, UpdateStatus);
             }
         }
 
         private void CopyModulePathFromContext()
         {
-            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m && !string.IsNullOrEmpty(m.ExePath))
+            if (cmuModulo != null && cmuModulo.SourceControl is Control ctrl &&
+                ctrl.Tag is ModuleDef module)
             {
-                Clipboard.SetText(m.ExePath);
-                UpdateStatus("Ruta copiada al portapapeles");
+                if (!string.IsNullOrEmpty(module.ExePath))
+                {
+                    Clipboard.SetText(module.ExePath);
+                    UpdateStatus(string.Format("Ruta copiada: {0}", module.ExePath));
+                }
             }
         }
 
         private void ShowModulePropertiesFromContext()
         {
-            if (cmuModulo?.SourceControl is Control ctrl && ctrl.Tag is ModuleDef m)
+            if (cmuModulo != null && cmuModulo.SourceControl is Control ctrl &&
+                ctrl.Tag is ModuleDef module)
             {
-                var info = $"Nombre: {m.Name}\n" +
-                          $"Ruta: {m.ExePath ?? "(no especificada)"}\n" +
-                          $"Directorio: {m.WorkingDir ?? "(no especificado)"}\n" +
-                          $"Icono: {m.IconPath ?? "(usar icono del ejecutable)"}\n" +
-                          $"Categoría: {m.Category}\n" +
-                          $"Rol mínimo: {_roleManager.GetRoleName(m.RolesMinTypeAut)}\n" +
-                          $"Requiere elevación: {(m.RequiresElevation ? "Sí" : "No")}";
+                string props = string.Format(
+                    "Nombre: {0}\nRuta: {1}\nCarpeta de trabajo: {2}\nRequiere Admin: {3}\nRol mínimo: {4}\nPlanta: {5}\nEs Test: {6}",
+                    module.Name,
+                    module.ExePath,
+                    module.WorkingDir,
+                    module.RequiresElevation ? "Sí" : "No",
+                    module.RolesMinTypeAut,
+                    module.Plant,
+                    module.IsTest ? "Sí" : "No"
+                );
 
-                MessageBox.Show(info, "Propiedades del Módulo",
+                MessageBox.Show(props, "Propiedades del Módulo",
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+
         #endregion
 
-        #region UI Helpers
+        #region Status & UI Updates
+
         private void UpdateStatusBar()
         {
             if (tsslUser != null)
-                tsslUser.Text = $"Usuario: {Session.LogonName ?? "—"}";
+                tsslUser.Text = string.Format("Usuario: {0}", Session.LogonName ?? "N/A");
+
             if (tsslRole != null)
-                tsslRole.Text = $"Rol: {_roleManager.GetRoleName(Session.TypeAut)}";
+            {
+                string roleName = GetRoleName(Session.TypeAut);
+                tsslRole.Text = string.Format("Rol: {0}", roleName);
+            }
+
             if (tsslPlant != null)
             {
-                string plantName = Session.Sucursal == 1 ? "MTY" :
-                                  Session.Sucursal == 2 ? "QRO" :
-                                  Session.Sucursal == 3 ? "TIJ" : "—";
-                tsslPlant.Text = $"Planta: {plantName}";
+                string plantName = GetPlantName(Session.Sucursal);
+                tsslPlant.Text = string.Format("Planta: {0}", plantName);
             }
-            if (tsslEstado != null)
-                tsslEstado.Text = "Listo";
+        }
+
+        private string GetRoleName(int typeAut)
+        {
+            switch (typeAut)
+            {
+                case 1: return "Viewer";
+                case 2: return "Operator";
+                case 3: return "Supervisor";
+                case 4: return "AdminDept";
+                case 5: return "SysAdmin";
+                default: return "Desconocido";
+            }
+        }
+
+        private string GetPlantName(int plant)
+        {
+            switch (plant)
+            {
+                case 1: return "MTY";
+                case 2: return "QRO";
+                case 3: return "TIJ";
+                default: return "N/A";
+            }
         }
 
         private void UpdateStatus(string message)
@@ -2510,276 +2079,22 @@ namespace ModuleGPI
             if (tsslEstado != null)
             {
                 tsslEstado.Text = message;
-                Application.DoEvents();
             }
+            Debug.WriteLine(string.Format("Status: {0}", message));
         }
 
-        private void LoadFavorites()
-        {
-            if (treeFavoritos == null) return;
-
-            _isLoadingFavorites = true;
-
-            try
-            {
-                treeFavoritos.BeginUpdate();  
-                treeFavoritos.Nodes.Clear();
-
-                var favorites = _favoritesManager.GetFavorites();
-
-                if (favorites.Count() == 0)
-                {
-                    var emptyNode = new TreeNode("No hay favoritos aún")
-                    {
-                        ForeColor = Color.Gray,
-                        NodeFont = new Font("Segoe UI", 8.5F, FontStyle.Italic),
-                        Tag = null  
-                    };
-                    treeFavoritos.Nodes.Add(emptyNode);
-                }
-                else
-                {
-                    foreach (string buttonName in favorites)
-                    {
-                        Control moduleControl = FindModuleControl(buttonName);
-
-                        if (moduleControl?.Tag is ModuleDef module)
-                        {
-                            var favNode = new TreeNode($"⭐ {module.Name}")
-                            {
-                                Tag = buttonName,
-                                ToolTipText = module.ExePath
-                            };
-
-                            treeFavoritos.Nodes.Add(favNode);
-                        }
-                    }
-
-                    treeFavoritos.ExpandAll();
-                }
-
-                treeFavoritos.EndUpdate();  
-            }
-            finally
-            {
-                _isLoadingFavorites = false;
-            }
-        }
-
-        private void SwitchByCategory(string node)
-        {
-            if (string.IsNullOrEmpty(node)) return;
-
-            switch (node)
-            {
-                case "Dashboard":
-                   // if (tabDashboard != null) tabMain.SelectedTab = tabDashboard;
-                    break;
-                case "Módulos GPI":  
-                case "Operación":     
-                case "Consultas":     
-                    if (tabModulos?.Visible == true) tabMain.SelectedTab = tabModulos;
-                    break;
-                case "Administración":
-                    if (tabAdmin != null && tabMain.TabPages.Contains(tabAdmin))
-                        tabMain.SelectedTab = tabAdmin;
-                    break;
-
-                case "Configuración":
-                    if (tabConfig != null && tabMain.TabPages.Contains(tabConfig))
-                        tabMain.SelectedTab = tabConfig;
-                    break;
-
-            }
-        }
-
-        private void ApplySearch(string text, FlowLayoutPanel scope)
-        {
-            if (scope == null) return;
-
-            string searchText = (text ?? string.Empty).Trim();
-
-            foreach (Control control in scope.Controls)
-            {
-                if (control is Button btn && btn.Tag is ModuleDef m)
-                {
-                    bool nameMatch = string.IsNullOrEmpty(searchText) ||
-                                    m.Name.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0 ||
-                                    (!string.IsNullOrEmpty(m.ExePath) &&
-                                     m.ExePath.IndexOf(searchText, StringComparison.OrdinalIgnoreCase) >= 0);
-
-                    bool canSee = _roleManager.CanSeeModule(btn.Name, m, Session.TypeAut,
-                        Session.EmpId ?? Session.LogonName, _overrides);
-
-                    btn.Visible = nameMatch && canSee;
-                }
-            }
-        }
-
-
-
-        private bool _isRefreshingAll = false;
-
-        private void RefreshAll()
-        {
-            if (_isRefreshingAll) return;
-            _isRefreshingAll = true;
-
-            string desiredTabName = tabMain?.SelectedTab?.Name;
-            int desiredTabIndex = tabMain?.SelectedIndex ?? -1;
-
-            if (tabMain != null)
-            {
-                tabMain.Selected -= TabMain_Selected;
-            }
-
-            try
-            {
-                this.Cursor = Cursors.WaitCursor;
-
-                // ✅ Limpiar cache y recargar desde BD
-                ModulesCache.Clear();
-
-                LoadOverrides();
-                LoadModules(); // Esto ahora cargará directo de BD
-
-                _roleManager.ApplyVisibility(
-                    tabMain, tabAdmin, tabConfig,
-                    Session.TypeAut,
-                    Session.EmpId ?? Session.LogonName,
-                    _overrides,
-                    _allModules
-                );
-
-                tabMain?.BeginInvoke(new Action(() =>
-                {
-                    RestoreSelectedTab(desiredTabName, desiredTabIndex);
-                }));
-
-                if (Session.TypeAut >= 4)
-                {
-                    if (tabMain?.SelectedTab == tabAdmin)
-                        LoadAdminData();
-                    else if (tabMain?.SelectedTab == tabConfig)
-                        LoadConfigData();
-                }
-
-                UpdateStatus("Sistema actualizado");
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Error al refrescar: {ex.Message}",
-                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                if (tabMain != null)
-                {
-                    tabMain.Selected += TabMain_Selected;
-                }
-
-                this.Cursor = Cursors.Default;
-                _isRefreshingAll = false;
-            }
-        }
-
-        private void RestoreSelectedTab(string tabName, int fallbackIndex)
-        {
-            if (tabMain == null) return;
-
-            // ✅ ESTRATEGIA 1: Intentar restaurar por nombre
-            if (!string.IsNullOrWhiteSpace(tabName))
-            {
-                var desired = tabMain.TabPages
-                    .Cast<TabPage>()
-                    .FirstOrDefault(tp => string.Equals(tp.Name, tabName, StringComparison.OrdinalIgnoreCase));
-
-                if (desired != null && desired.Visible)
-                {
-                    tabMain.SelectedTab = desired;
-                    Debug.WriteLine($"✅ Tab restaurado por nombre: {tabName}");
-                    return;
-                }
-
-                Debug.WriteLine($"⚠️ Tab '{tabName}' no disponible (invisible o eliminado)");
-            }
-
-            // ✅ ESTRATEGIA 2: Intentar restaurar por índice (si está visible)
-            if (fallbackIndex >= 0 && fallbackIndex < tabMain.TabPages.Count)
-            {
-                var tabAtIndex = tabMain.TabPages[fallbackIndex];
-                if (tabAtIndex.Visible)
-                {
-                    tabMain.SelectedTab = tabAtIndex;
-                    Debug.WriteLine($"✅ Tab restaurado por índice: {fallbackIndex} ({tabAtIndex.Name})");
-                    return;
-                }
-            }
-
-            // ✅ ESTRATEGIA 3: Buscar el primer tab visible similar
-            var similarTab = FindSimilarTab(tabName);
-            if (similarTab != null)
-            {
-                tabMain.SelectedTab = similarTab;
-                Debug.WriteLine($"✅ Tab similar encontrado: {similarTab.Name}");
-                return;
-            }
-
-            // ✅ ESTRATEGIA 4: Dejar que WinForms seleccione el primero visible
-            Debug.WriteLine("⚠️ No se pudo restaurar tab, usando selección automática");
-        }
-
-
-        private TabPage FindSimilarTab(string lostTabName)
-        {
-            if (tabMain == null || string.IsNullOrWhiteSpace(lostTabName))
-                return null;
-
-            // helper local para "contains" case-insensitive
-            bool ContainsI(string text, string value)
-                => text?.IndexOf(value, StringComparison.OrdinalIgnoreCase) >= 0;
-
-            // Si se perdió "Módulos TEST", intentar volver a "Módulos" (PRD)
-            if (ContainsI(lostTabName, "Test"))
-            {
-                var prdTab = tabMain.TabPages
-                    .Cast<TabPage>()
-                    .FirstOrDefault(t => t.Name == "tabModulos" && t.Visible);
-
-                if (prdTab != null) return prdTab;
-            }
-
-            // Si se perdió Admin/Config, intentar volver a Módulos o Test
-            if (ContainsI(lostTabName, "Admin") || ContainsI(lostTabName, "Config"))
-            {
-                var modulosTab = tabMain.TabPages
-                    .Cast<TabPage>()
-                    .FirstOrDefault(t => (t.Name == "tabModulos" || t.Name == "tabModulosTest") && t.Visible);
-
-                if (modulosTab != null) return modulosTab;
-            }
-
-            return null;
-        }
-
-
-        private void ShowAboutDialog()
-        {
-            string info = "Sistema de Lanzamiento de Módulos GPI\n\n" +
-                         "Versión: 2.0.0\n" +
-                         "Desarrollado por: IT Department\n" +
-                         "© 2024 Graphic Packaging International";
-
-            MessageBox.Show(info, "Acerca de ModuleGPI",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
         #endregion
 
         #region Public Methods
+
         public void Logout()
         {
-            var result = MessageBox.Show("¿Está seguro que desea cerrar sesión?", "Confirmar",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            var result = MessageBox.Show(
+                "¿Está seguro que desea cerrar sesión?",
+                "Confirmar",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question
+            );
 
             if (result == DialogResult.Yes)
             {
@@ -2787,14 +2102,16 @@ namespace ModuleGPI
                 this.Close();
             }
         }
+
         #endregion
 
         #region Loading Spinner
-        private LoadingSpinner ShowLoadingSpinner(string message = "Cargando...")
+
+        private LoadingSpinner ShowLoadingSpinner(string message)
         {
             var spinner = new LoadingSpinner
             {
-                LoadingText = message,
+                LoadingText = message ?? "Cargando...",
                 Location = new Point(
                     (this.ClientSize.Width - 150) / 2,
                     (this.ClientSize.Height - 150) / 2
@@ -2821,24 +2138,28 @@ namespace ModuleGPI
 
         #endregion
 
+        #region Search in Admin Tab
+
         private void txtSearchAd_TextChanged(object sender, EventArgs e)
         {
+            if (txtSearchAd == null || _dataAccess == null) return;
 
-            String searchName = txtSearchAd.Text;
+            string searchName = txtSearchAd.Text;
 
             _dtUsers = _dataAccess.GetUsers();
             _overrides = _dataAccess.GetOverrides();
 
             _bsUsers.DataSource = _dtUsers.DefaultView;
+            _bsUsers.Filter = string.Format("USU_UserLog LIKE '%{0}%'", searchName);
 
-            _bsUsers.Filter =
-                "USU_UserLog LIKE '%" + searchName + "%' ";
-
-            dgvUsuarios.DataSource = _bsUsers;
+            if (dgvUsuarios != null)
+            {
+                dgvUsuarios.DataSource = _bsUsers;
+            }
 
             RefreshOverridesForCurrentModule();
-
-
         }
+
+        #endregion
     }
 }

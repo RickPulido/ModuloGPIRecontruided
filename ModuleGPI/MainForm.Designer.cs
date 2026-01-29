@@ -33,6 +33,9 @@ namespace ModuleGPI
         {
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitMain = new System.Windows.Forms.SplitContainer();
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.treeFavoritos = new System.Windows.Forms.TreeView();
@@ -42,6 +45,10 @@ namespace ModuleGPI
             this.tabModulos = new System.Windows.Forms.TabPage();
             this.flpModulos = new System.Windows.Forms.FlowLayoutPanel();
             this.pnlModulosHeader = new System.Windows.Forms.Panel();
+            this.chkPlantP = new System.Windows.Forms.CheckBox();
+            this.cboPlantP = new System.Windows.Forms.ComboBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.txtSearchMod = new System.Windows.Forms.TextBox();
             this.lblModulosTitulo = new System.Windows.Forms.Label();
             this.tabModulosTest = new System.Windows.Forms.TabPage();
             this.flpModulosTest = new System.Windows.Forms.FlowLayoutPanel();
@@ -64,6 +71,13 @@ namespace ModuleGPI
             this.dgvOverrides = new System.Windows.Forms.DataGridView();
             this.tabConfig = new System.Windows.Forms.TabPage();
             this.dgvModulesConfig = new System.Windows.Forms.DataGridView();
+            this.ButtonName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Name = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.WorkingDir = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.IsTest = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RequiresElevation = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.RolesMinTypeAut = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Plant = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.btnDeleteModule = new System.Windows.Forms.Button();
             this.btnSaveModule = new System.Windows.Forms.Button();
             this.btnNewModule = new System.Windows.Forms.Button();
@@ -86,10 +100,12 @@ namespace ModuleGPI
             this.btnRefreshAll = new System.Windows.Forms.Button();
             this.btnCerrarSesion = new System.Windows.Forms.Button();
             this.lblTitulo = new System.Windows.Forms.Label();
-            this.chkPlantP = new System.Windows.Forms.CheckBox();
-            this.cboPlantP = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.txtSearchMod = new System.Windows.Forms.TextBox();
+            this.USU_UserLog = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.USU_TypeAut = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.MTY_Access = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.QRO_Access = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.TIJ_Access = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.USU_EmpID = new System.Windows.Forms.DataGridViewTextBoxColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitMain)).BeginInit();
             this.splitMain.Panel1.SuspendLayout();
             this.splitMain.Panel2.SuspendLayout();
@@ -229,6 +245,43 @@ namespace ModuleGPI
             this.pnlModulosHeader.Size = new System.Drawing.Size(840, 48);
             this.pnlModulosHeader.TabIndex = 1;
             // 
+            // chkPlantP
+            // 
+            this.chkPlantP.AutoSize = true;
+            this.chkPlantP.Location = new System.Drawing.Point(335, 15);
+            this.chkPlantP.Margin = new System.Windows.Forms.Padding(0, 8, 12, 0);
+            this.chkPlantP.Name = "chkPlantP";
+            this.chkPlantP.Size = new System.Drawing.Size(101, 17);
+            this.chkPlantP.TabIndex = 4;
+            this.chkPlantP.Text = "Filtrar por planta";
+            // 
+            // cboPlantP
+            // 
+            this.cboPlantP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboPlantP.Location = new System.Drawing.Point(448, 12);
+            this.cboPlantP.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
+            this.cboPlantP.Name = "cboPlantP";
+            this.cboPlantP.Size = new System.Drawing.Size(160, 21);
+            this.cboPlantP.TabIndex = 5;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(618, 15);
+            this.label2.Margin = new System.Windows.Forms.Padding(10, 8, 10, 8);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(52, 13);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Buscador";
+            // 
+            // txtSearchMod
+            // 
+            this.txtSearchMod.Location = new System.Drawing.Point(685, 12);
+            this.txtSearchMod.Margin = new System.Windows.Forms.Padding(5, 5, 5, 1);
+            this.txtSearchMod.Name = "txtSearchMod";
+            this.txtSearchMod.Size = new System.Drawing.Size(155, 20);
+            this.txtSearchMod.TabIndex = 7;
+            // 
             // lblModulosTitulo
             // 
             this.lblModulosTitulo.AutoSize = true;
@@ -308,7 +361,7 @@ namespace ModuleGPI
             this.splitAdmin.Panel2.Controls.Add(this.rightAdmin);
             this.splitAdmin.Panel2MinSize = 260;
             this.splitAdmin.Size = new System.Drawing.Size(840, 497);
-            this.splitAdmin.SplitterDistance = 417;
+            this.splitAdmin.SplitterDistance = 409;
             this.splitAdmin.SplitterWidth = 5;
             this.splitAdmin.TabIndex = 0;
             // 
@@ -318,7 +371,7 @@ namespace ModuleGPI
             this.leftAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.leftAdmin.Location = new System.Drawing.Point(0, 0);
             this.leftAdmin.Name = "leftAdmin";
-            this.leftAdmin.Size = new System.Drawing.Size(417, 497);
+            this.leftAdmin.Size = new System.Drawing.Size(409, 497);
             this.leftAdmin.TabIndex = 0;
             // 
             // grpRoles
@@ -329,7 +382,7 @@ namespace ModuleGPI
             this.grpRoles.Location = new System.Drawing.Point(0, 0);
             this.grpRoles.Name = "grpRoles";
             this.grpRoles.Padding = new System.Windows.Forms.Padding(8);
-            this.grpRoles.Size = new System.Drawing.Size(417, 497);
+            this.grpRoles.Size = new System.Drawing.Size(409, 497);
             this.grpRoles.TabIndex = 1;
             this.grpRoles.TabStop = false;
             this.grpRoles.Text = "Roles y Usuarios";
@@ -346,7 +399,7 @@ namespace ModuleGPI
             this.barFiltroPlanta.Margin = new System.Windows.Forms.Padding(10);
             this.barFiltroPlanta.Name = "barFiltroPlanta";
             this.barFiltroPlanta.Padding = new System.Windows.Forms.Padding(6, 5, 6, 5);
-            this.barFiltroPlanta.Size = new System.Drawing.Size(401, 40);
+            this.barFiltroPlanta.Size = new System.Drawing.Size(393, 40);
             this.barFiltroPlanta.TabIndex = 0;
             this.barFiltroPlanta.WrapContents = false;
             // 
@@ -403,17 +456,29 @@ namespace ModuleGPI
             this.dgvUsuarios.AllowUserToDeleteRows = false;
             this.dgvUsuarios.AllowUserToResizeRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
+            dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle1.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(215)))));
+            dataGridViewCellStyle1.SelectionForeColor = System.Drawing.Color.White;
             this.dgvUsuarios.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvUsuarios.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvUsuarios.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvUsuarios.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvUsuarios.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.USU_UserLog,
+            this.USU_TypeAut,
+            this.MTY_Access,
+            this.QRO_Access,
+            this.TIJ_Access,
+            this.USU_EmpID});
             this.dgvUsuarios.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvUsuarios.EditMode = System.Windows.Forms.DataGridViewEditMode.EditOnEnter;
             this.dgvUsuarios.Location = new System.Drawing.Point(8, 21);
             this.dgvUsuarios.MultiSelect = false;
             this.dgvUsuarios.Name = "dgvUsuarios";
             this.dgvUsuarios.RowHeadersVisible = false;
-            this.dgvUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUsuarios.Size = new System.Drawing.Size(401, 468);
+            this.dgvUsuarios.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.dgvUsuarios.Size = new System.Drawing.Size(393, 468);
             this.dgvUsuarios.TabIndex = 1;
             // 
             // rightAdmin
@@ -422,7 +487,7 @@ namespace ModuleGPI
             this.rightAdmin.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rightAdmin.Location = new System.Drawing.Point(0, 0);
             this.rightAdmin.Name = "rightAdmin";
-            this.rightAdmin.Size = new System.Drawing.Size(418, 497);
+            this.rightAdmin.Size = new System.Drawing.Size(426, 497);
             this.rightAdmin.TabIndex = 0;
             // 
             // splitContainer1
@@ -439,24 +504,50 @@ namespace ModuleGPI
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dgvOverrides);
-            this.splitContainer1.Size = new System.Drawing.Size(418, 497);
+            this.splitContainer1.Size = new System.Drawing.Size(426, 497);
             this.splitContainer1.SplitterDistance = 229;
             this.splitContainer1.SplitterWidth = 6;
             this.splitContainer1.TabIndex = 1;
             // 
             // dgvModulos
             // 
+            this.dgvModulos.AllowUserToAddRows = false;
+            this.dgvModulos.AllowUserToDeleteRows = false;
+            this.dgvModulos.AllowUserToResizeRows = false;
+            this.dgvModulos.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.dgvModulos.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvModulos.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvModulos.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.dgvModulos.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvModulos.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(215)))));
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvModulos.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvModulos.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvModulos.EnableHeadersVisualStyles = false;
             this.dgvModulos.Location = new System.Drawing.Point(0, 0);
+            this.dgvModulos.MultiSelect = false;
             this.dgvModulos.Name = "dgvModulos";
-            this.dgvModulos.Size = new System.Drawing.Size(418, 229);
+            this.dgvModulos.ReadOnly = true;
+            this.dgvModulos.RowHeadersVisible = false;
+            this.dgvModulos.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvModulos.Size = new System.Drawing.Size(426, 229);
             this.dgvModulos.TabIndex = 0;
             // 
             // dgvOverrides
             // 
             this.dgvOverrides.AllowUserToAddRows = false;
             this.dgvOverrides.AllowUserToDeleteRows = false;
+            this.dgvOverrides.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvOverrides.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvOverrides.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvOverrides.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
@@ -465,10 +556,11 @@ namespace ModuleGPI
             this.dgvOverrides.Location = new System.Drawing.Point(0, 0);
             this.dgvOverrides.MultiSelect = false;
             this.dgvOverrides.Name = "dgvOverrides";
+            this.dgvOverrides.RowHeadersVisible = false;
             this.dgvOverrides.RowHeadersWidth = 51;
             this.dgvOverrides.RowTemplate.Height = 24;
             this.dgvOverrides.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dgvOverrides.Size = new System.Drawing.Size(418, 262);
+            this.dgvOverrides.Size = new System.Drawing.Size(426, 262);
             this.dgvOverrides.TabIndex = 0;
             // 
             // tabConfig
@@ -485,11 +577,94 @@ namespace ModuleGPI
             // 
             // dgvModulesConfig
             // 
+            this.dgvModulesConfig.AllowUserToAddRows = false;
+            this.dgvModulesConfig.AllowUserToDeleteRows = false;
+            this.dgvModulesConfig.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.dgvModulesConfig.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvModulesConfig.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvModulesConfig.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvModulesConfig.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvModulesConfig.Location = new System.Drawing.Point(4, 1);
+            this.dgvModulesConfig.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.ButtonName,
+            this.Name,
+            this.WorkingDir,
+            this.IsTest,
+            this.RequiresElevation,
+            this.RolesMinTypeAut,
+            this.Plant});
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
+            dataGridViewCellStyle4.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle4.ForeColor = System.Drawing.SystemColors.ControlText;
+            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(120)))), ((int)(((byte)(215)))));
+            dataGridViewCellStyle4.SelectionForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle4.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvModulesConfig.DefaultCellStyle = dataGridViewCellStyle4;
+            this.dgvModulesConfig.Location = new System.Drawing.Point(-1, 0);
+            this.dgvModulesConfig.MultiSelect = false;
             this.dgvModulesConfig.Name = "dgvModulesConfig";
-            this.dgvModulesConfig.Size = new System.Drawing.Size(707, 306);
+            this.dgvModulesConfig.RowHeadersVisible = false;
+            this.dgvModulesConfig.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvModulesConfig.Size = new System.Drawing.Size(833, 306);
             this.dgvModulesConfig.TabIndex = 5;
+            // 
+            // ButtonName
+            // 
+            this.ButtonName.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.ButtonName.HeaderText = "ID Botón";
+            this.ButtonName.Name = "ButtonName";
+            this.ButtonName.ReadOnly = true;
+            this.ButtonName.Width = 120;
+            // 
+            // Name
+            // 
+            this.Name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Name.HeaderText = "Nombre";
+            this.Name.Name = "Name";
+            this.Name.ReadOnly = true;
+            this.Name.Width = 150;
+            // 
+            // WorkingDir
+            // 
+            this.WorkingDir.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.WorkingDir.DataPropertyName = "WorkingDir";
+            this.WorkingDir.HeaderText = "WorkingDir";
+            this.WorkingDir.Name = "WorkingDir";
+            this.WorkingDir.ReadOnly = true;
+            this.WorkingDir.Visible = false;
+            this.WorkingDir.Width = 250;
+            // 
+            // IsTest
+            // 
+            this.IsTest.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.IsTest.HeaderText = "IsTest";
+            this.IsTest.Name = "IsTest";
+            this.IsTest.ReadOnly = true;
+            this.IsTest.Width = 60;
+            // 
+            // RequiresElevation
+            // 
+            this.RequiresElevation.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.RequiresElevation.HeaderText = "RequiresElevation";
+            this.RequiresElevation.Name = "RequiresElevation";
+            this.RequiresElevation.ReadOnly = true;
+            this.RequiresElevation.Width = 80;
+            // 
+            // RolesMinTypeAut
+            // 
+            this.RolesMinTypeAut.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.RolesMinTypeAut.HeaderText = "RolesMinTypeAut";
+            this.RolesMinTypeAut.Name = "RolesMinTypeAut";
+            this.RolesMinTypeAut.ReadOnly = true;
+            this.RolesMinTypeAut.Width = 80;
+            // 
+            // Plant
+            // 
+            this.Plant.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+            this.Plant.HeaderText = "Plant";
+            this.Plant.Name = "Plant";
+            this.Plant.ReadOnly = true;
+            this.Plant.Width = 60;
             // 
             // btnDeleteModule
             // 
@@ -547,10 +722,17 @@ namespace ModuleGPI
             // 
             this.dgvLaunchLog.AllowUserToAddRows = false;
             this.dgvLaunchLog.AllowUserToDeleteRows = false;
+            this.dgvLaunchLog.BackgroundColor = System.Drawing.SystemColors.Window;
+            this.dgvLaunchLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvLaunchLog.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvLaunchLog.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvLaunchLog.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvLaunchLog.Location = new System.Drawing.Point(3, 123);
+            this.dgvLaunchLog.MultiSelect = false;
             this.dgvLaunchLog.Name = "dgvLaunchLog";
             this.dgvLaunchLog.ReadOnly = true;
+            this.dgvLaunchLog.RowHeadersVisible = false;
+            this.dgvLaunchLog.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvLaunchLog.Size = new System.Drawing.Size(834, 371);
             this.dgvLaunchLog.TabIndex = 1;
             // 
@@ -696,42 +878,49 @@ namespace ModuleGPI
             this.lblTitulo.TabIndex = 0;
             this.lblTitulo.Text = "GPI – Modulos.";
             // 
-            // chkPlantP
+            // USU_UserLog
             // 
-            this.chkPlantP.AutoSize = true;
-            this.chkPlantP.Location = new System.Drawing.Point(335, 15);
-            this.chkPlantP.Margin = new System.Windows.Forms.Padding(0, 8, 12, 0);
-            this.chkPlantP.Name = "chkPlantP";
-            this.chkPlantP.Size = new System.Drawing.Size(101, 17);
-            this.chkPlantP.TabIndex = 4;
-            this.chkPlantP.Text = "Filtrar por planta";
+            this.USU_UserLog.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.USU_UserLog.DataPropertyName = "USU_UserLog";
+            this.USU_UserLog.HeaderText = "Usuario";
+            this.USU_UserLog.MinimumWidth = 120;
+            this.USU_UserLog.Name = "USU_UserLog";
+            this.USU_UserLog.ReadOnly = true;
             // 
-            // cboPlantP
+            // USU_TypeAut
             // 
-            this.cboPlantP.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboPlantP.Location = new System.Drawing.Point(448, 12);
-            this.cboPlantP.Margin = new System.Windows.Forms.Padding(0, 5, 0, 0);
-            this.cboPlantP.Name = "cboPlantP";
-            this.cboPlantP.Size = new System.Drawing.Size(160, 21);
-            this.cboPlantP.TabIndex = 5;
+            this.USU_TypeAut.DataPropertyName = "USU_TypeAut";
+            this.USU_TypeAut.HeaderText = "Rol";
+            this.USU_TypeAut.Name = "USU_TypeAut";
             // 
-            // label2
+            // MTY_Access
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(618, 15);
-            this.label2.Margin = new System.Windows.Forms.Padding(10, 8, 10, 8);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(52, 13);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "Buscador";
+            this.MTY_Access.DataPropertyName = "MTY_Access";
+            this.MTY_Access.FillWeight = 86.02074F;
+            this.MTY_Access.HeaderText = "MTY";
+            this.MTY_Access.Name = "MTY_Access";
+           // this.MTY_Access.TrueValue
             // 
-            // txtSearchMod
+            // QRO_Access
             // 
-            this.txtSearchMod.Location = new System.Drawing.Point(685, 12);
-            this.txtSearchMod.Margin = new System.Windows.Forms.Padding(5, 5, 5, 1);
-            this.txtSearchMod.Name = "txtSearchMod";
-            this.txtSearchMod.Size = new System.Drawing.Size(155, 20);
-            this.txtSearchMod.TabIndex = 7;
+            this.QRO_Access.DataPropertyName = "QRO_Access";
+            this.QRO_Access.FillWeight = 96.51376F;
+            this.QRO_Access.HeaderText = "QRO";
+            this.QRO_Access.Name = "QRO_Access";
+            // 
+            // TIJ_Access
+            // 
+            this.TIJ_Access.DataPropertyName = "TIJ_Access";
+            this.TIJ_Access.FillWeight = 124.7329F;
+            this.TIJ_Access.HeaderText = "TIJ";
+            this.TIJ_Access.Name = "TIJ_Access";
+            // 
+            // USU_EmpID
+            // 
+            this.USU_EmpID.FillWeight = 13.54933F;
+            this.USU_EmpID.HeaderText = "Id";
+            this.USU_EmpID.Name = "USU_EmpID";
+            this.USU_EmpID.Visible = false;
             // 
             // MainForm
             // 
@@ -741,7 +930,7 @@ namespace ModuleGPI
             this.Controls.Add(this.root);
             this.KeyPreview = true;
             this.MinimumSize = new System.Drawing.Size(1024, 640);
-            this.Name = "MainForm";
+           // this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "GPI – Lanzador de Módulos";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -802,7 +991,7 @@ namespace ModuleGPI
 
         private TabControl tabMain;
       //  private TabPage tabDashboard;
-        private TabPage tabModulos;  // ✅ NUEVO: Tab unificado
+        private TabPage tabModulos;  
         private TabPage tabAdmin;
         private TabPage tabConfig;
 
@@ -863,5 +1052,18 @@ namespace ModuleGPI
         private ComboBox cboPlantP;
         private Label label2;
         private TextBox txtSearchMod;
+        private DataGridViewTextBoxColumn ButtonName;
+        private DataGridViewTextBoxColumn Name;
+        private DataGridViewTextBoxColumn WorkingDir;
+        private DataGridViewTextBoxColumn IsTest;
+        private DataGridViewTextBoxColumn RequiresElevation;
+        private DataGridViewTextBoxColumn RolesMinTypeAut;
+        private DataGridViewTextBoxColumn Plant;
+        private DataGridViewTextBoxColumn USU_UserLog;
+        private DataGridViewTextBoxColumn USU_TypeAut;
+        private DataGridViewTextBoxColumn MTY_Access;
+        private DataGridViewTextBoxColumn QRO_Access;
+        private DataGridViewTextBoxColumn TIJ_Access;
+        private DataGridViewTextBoxColumn USU_EmpID;
     }
 }
